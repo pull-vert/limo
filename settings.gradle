@@ -1,0 +1,11 @@
+pluginManagement {
+    plugins {
+        id 'net.researchgate.release' version "$release_plugin_version"
+        id 'org.javamodularity.moduleplugin' version "$java_module_plugin_version"
+    }
+}
+
+rootProject.name = 'limo'
+
+include 'limo-common'
+include 'limo-buffer'

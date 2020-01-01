@@ -1,0 +1,63 @@
+plugins {
+    id 'org.javamodularity.moduleplugin' apply false
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+    apply plugin: 'org.javamodularity.moduleplugin'
+
+    // todo upgrade to actual loom version
+    sourceCompatibility = JavaVersion.VERSION_13
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        // import BOM
+        testImplementation platform("org.junit:junit-bom:$junit_bom_version")
+
+        implementation "org.slf4j:slf4j-api:$slf4j_version"
+
+        testImplementation 'org.junit.jupiter:junit-jupiter-api'
+
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events 'passed', 'failed', 'skipped'
+            showStandardStreams = true
+        }
+    }
+
+    jacoco {
+        toolVersion = "0.8.5"
+    }
+
+    tasks.withType(Test) {
+        jacoco.includeNoLocationClasses = true
+    }
+
+    jacocoTestReport {
+        dependsOn(test)
+
+        reports {
+            html.enabled = true
+            xml.enabled = true
+        }
+    }
+}
+
+// Workaround for https://github.com/researchgate/gradle-release/issues/144
+task build {
+    dependsOn subprojects.findResults { it.tasks.findByName('build') }
+}
+
+// execute ./gradlew wrapper then remove .gradle directory when version change
+wrapper {
+    gradleVersion = '6.0.1'
+    distributionType = Wrapper.DistributionType.ALL
+}
