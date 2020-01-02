@@ -7,7 +7,7 @@ subprojects {
     apply plugin: 'jacoco'
     apply plugin: 'org.javamodularity.moduleplugin'
 
-    // todo upgrade to actual loom version
+    // todo upgrade to actual loom version, at least 14, most likely 15
     sourceCompatibility = JavaVersion.VERSION_13
 
     repositories {
