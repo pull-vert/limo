@@ -18,10 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ByteBufferReadTests {
 
 	/**
-	 * Allocate 12 bytes : 4 for int and 8 for long
+	 * Allocate 13 bytes : 4 for int, 8 for long, 1 for byte
 	 * ByteBuffer is natively Big Endian ordered
 	 */
-	private final ByteBuffer bb = ByteBuffer.allocateDirect(12);
+	private final ByteBuffer bb = ByteBuffer.allocateDirect(13);
 
 	private static final VarHandle intHandle = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
 	private static final VarHandle longHandle = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
@@ -30,6 +30,7 @@ public class ByteBufferReadTests {
 	void before() {
 		bb.putInt(42);
 		bb.putLong(128L);
+		bb.put((byte) 0xa);
 	}
 
 	@Test
@@ -38,6 +39,7 @@ public class ByteBufferReadTests {
 		bb.rewind();
 		assertThat(bb.getInt()).isEqualTo(42);
 		assertThat(bb.getLong()).isEqualTo(128L);
+		assertThat(bb.get()).isEqualTo((byte) 0xa);
 	}
 
 	@Test
@@ -45,6 +47,7 @@ public class ByteBufferReadTests {
 	void test2() {
 		assertThat(bb.getInt(0)).isEqualTo(42);
 		assertThat(bb.getLong(4)).isEqualTo(128L);
+		assertThat(bb.get(12)).isEqualTo((byte) 0xa);
 	}
 
 	@Test

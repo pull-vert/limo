@@ -6,7 +6,10 @@ package io.limo.benchmarks;
 
 import org.openjdk.jmh.annotations.*;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.concurrent.TimeUnit;
 
 @Warmup(iterations = 5, time = 1)
@@ -19,6 +22,9 @@ public class ByteBufferReadBenchmark {
 
 	private static final int OBJ_SIZE = 8 + 4 + 1;
 	private static final int NUM_ELEM = 1_000_000;
+
+	private static final VarHandle intHandle = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
+	private static final VarHandle longHandle = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
 
 	private ByteBuffer bb;
 
@@ -35,11 +41,37 @@ public class ByteBufferReadBenchmark {
 	@Benchmark
 	public long directRead() {
 		bb.rewind();
-		long val = 0L;
+		var val = 0L;
 		for (int i = 0; i < NUM_ELEM; i++) {
 			val += bb.getLong();
 			bb.getInt();
 			bb.get();
+		}
+		return val;
+	}
+
+	@Benchmark
+	public long indexedRead() {
+		var val = 0L;
+		var index = 0;
+		for (int i = 0; i < NUM_ELEM; i++) {
+			index = OBJ_SIZE * i;
+			val += bb.getLong(index);
+			bb.getInt(index + 8);
+			bb.get(index + 12);
+		}
+		return val;
+	}
+
+	@Benchmark
+	public long varhandleRead() {
+		var val = 0L;
+		var index = 0;
+		for (int i = 0; i < NUM_ELEM; i++) {
+			index = OBJ_SIZE * i;
+			val += (long) longHandle.get(bb, index);
+			intHandle.get(bb, index + 8);
+			bb.get(index + 12);
 		}
 		return val;
 	}
