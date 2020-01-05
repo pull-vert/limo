@@ -21,8 +21,11 @@ subprojects {
         implementation "org.slf4j:slf4j-api:$slf4j_version"
 
         testImplementation 'org.junit.jupiter:junit-jupiter-api'
+        testImplementation "org.assertj:assertj-core:$assertj_version"
 
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+        // Force Gradle to load the JUnit Platform Launcher from the module-path
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
 
     test {
@@ -39,6 +42,7 @@ subprojects {
 
     tasks.withType(Test) {
         jacoco.includeNoLocationClasses = true
+        jacoco.excludes = ['jdk.internal.*']
     }
 
     jacocoTestReport {

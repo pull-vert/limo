@@ -1,0 +1,19 @@
+plugins {
+    id 'me.champeau.gradle.jmh'
+}
+
+// It is better to use the following to run benchmarks, otherwise you may get unexpected errors:
+// ./gradlew --no-daemon cleanJmhJar jmh -Pjmh="ByteBufferReadBenchmark"
+jmh {
+    jmhVersion = '1.21'
+    duplicateClassesStrategy DuplicatesStrategy.INCLUDE
+    failOnError = true
+    resultFormat = 'CSV'
+    // change with jdk14 path
+    jvm = "C:\\dev\\jdk\\jdk-14\\bin\\java.exe"
+}
+
+dependencies {
+    compile "org.openjdk.jmh:jmh-core:1.21"
+    compile project(':limo-buffer')
+}
