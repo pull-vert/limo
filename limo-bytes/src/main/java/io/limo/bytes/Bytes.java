@@ -2,8 +2,11 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-module limo.buffer {
-	requires limo.common;
+package io.limo.bytes;
 
-	exports io.limo.buffer;
+public interface Bytes extends AutoCloseable {
+
+	int readInt();
+
+	void writeInt(int value);
 }

@@ -15,5 +15,5 @@ jmh {
 
 dependencies {
     compile "org.openjdk.jmh:jmh-core:1.21"
-    compile project(':limo-buffer')
+    compile project(':limo-bytes')
 }

@@ -2,9 +2,9 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.buffer;
+package io.limo.bytes;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +15,7 @@ import java.nio.ByteOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ByteBufferReadTests {
+public class ByteBufferWriteTests {
 
 	/**
 	 * Allocate 13 bytes : 4 for int, 8 for long, 1 for byte
@@ -26,34 +26,41 @@ public class ByteBufferReadTests {
 	private static final VarHandle intHandle = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
 	private static final VarHandle longHandle = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
 
-	@BeforeAll
-	void before() {
-		bb.putInt(42);
-		bb.putLong(128L);
-		bb.put((byte) 0xa);
+	@AfterEach
+	void after() {
+		bb.clear();
 	}
 
-	@Test
-	@DisplayName("Direct read")
-	void test1() {
-		bb.rewind();
-		assertThat(bb.getInt()).isEqualTo(42);
-		assertThat(bb.getLong()).isEqualTo(128L);
-		assertThat(bb.get()).isEqualTo((byte) 0xa);
-	}
-
-	@Test
-	@DisplayName("Indexed read")
-	void test2() {
+	private void verifyContent() {
 		assertThat(bb.getInt(0)).isEqualTo(42);
 		assertThat(bb.getLong(4)).isEqualTo(128L);
 		assertThat(bb.get(12)).isEqualTo((byte) 0xa);
 	}
 
 	@Test
+	@DisplayName("Direct write")
+	void test1() {
+		bb.putInt(42);
+		bb.putLong(128L);
+		bb.put((byte) 0xa);
+		verifyContent();
+	}
+
+	@Test
+	@DisplayName("Indexed write")
+	void test2() {
+		bb.putInt(0, 42);
+		bb.putLong(4, 128L);
+		bb.put(12, (byte) 0xa);
+		verifyContent();
+	}
+
+	@Test
 	@DisplayName("VarHandle read")
 	void test3() {
-		assertThat(intHandle.get(bb, 0)).isEqualTo(42);
-		assertThat(longHandle.get(bb, 4)).isEqualTo(128L);
+		intHandle.set(bb, 0, 42);
+		longHandle.set(bb, 4, 128L);
+		bb.put(12, (byte) 0xa);
+		verifyContent();
 	}
 }
