@@ -9,21 +9,35 @@ import io.limo.common.NotNull;
 
 import java.nio.ByteBuffer;
 
+/**
+ * A memory chunk based on a ByteBuffer
+ */
 public final class ByteBufferMemory implements Memory {
 
-	@NotNull ByteBuffer bb;
+    @NotNull
+    ByteBuffer bb;
 
-	public ByteBufferMemory(@NotNull ByteBuffer bb) {
-		this.bb = bb;
-	}
+    /**
+     * Build a memory chunk from a {@link ByteBuffer}
+     * @param bb the ByteBuffer
+     */
+    public ByteBufferMemory(@NotNull ByteBuffer bb) {
+        this.bb = bb;
+    }
 
-	@Override
-	public int readIntAt(long index) {
-		return bb.getInt((int) index);
-	}
+    @Override
+    public int readIntAt(long index) {
+        return bb.getInt((int) index);
+    }
 
-	@Override
-	public void writeIntAt(long index, int value) {
-		bb.putInt((int) index, value);
-	}
+    @Override
+    public void writeIntAt(long index, int value) {
+        bb.putInt((int) index, value);
+    }
+
+    /**
+     * Close is no op because {@link ByteBuffer} does not provide close
+     */
+    @Override
+    public void close() { }
 }
