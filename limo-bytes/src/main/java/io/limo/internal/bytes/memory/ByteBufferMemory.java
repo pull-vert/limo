@@ -35,6 +35,11 @@ public final class ByteBufferMemory implements Memory {
         bb.putInt((int) index, value);
     }
 
+    @Override
+    public boolean isValidIndex(long requestedIndex) {
+        return false;
+    }
+
     /**
      * Close is no op because {@link ByteBuffer} does not provide close
      */

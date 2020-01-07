@@ -5,13 +5,15 @@
 package io.limo.bytes.memory;
 
 /**
- * This interface is a chunk of memory, that can store all or a part of a binary content we can write and read
+ * This interface is a memory chunk that can store all or a part of a binary content
  */
 public interface Memory extends AutoCloseable {
 
 	int readIntAt(long index);
 
 	void writeIntAt(long index, int value);
+
+	boolean isValidIndex(long requestedIndex);
 
 	/**
 	 * Closes this memory chunk

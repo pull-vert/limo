@@ -5,6 +5,7 @@
 package io.limo.bytes.memory;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,16 +16,19 @@ import java.nio.ByteOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ByteBufferWriteTests {
+public final class ByteBufferWriteTests {
 
-	/**
-	 * Allocate 13 bytes : 4 for int, 8 for long, 1 for byte
-	 * ByteBuffer is natively Big Endian ordered
-	 */
-	private final ByteBuffer bb = ByteBuffer.allocateDirect(13);
+	private ByteBuffer bb;
 
 	private static final VarHandle intHandle = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
 	private static final VarHandle longHandle = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
+
+	@BeforeAll
+	void before() {
+		// Allocate 13 bytes : 4 for int, 8 for long, 1 for byte
+		// ByteBuffer is natively Big Endian ordered
+		bb = ByteBuffer.allocateDirect(13);
+	}
 
 	@AfterEach
 	void after() {
@@ -39,7 +43,7 @@ public class ByteBufferWriteTests {
 
 	@Test
 	@DisplayName("Direct write")
-	void test1() {
+	void directWrite() {
 		bb.putInt(42);
 		bb.putLong(128L);
 		bb.put((byte) 0xa);
@@ -48,7 +52,7 @@ public class ByteBufferWriteTests {
 
 	@Test
 	@DisplayName("Indexed write")
-	void test2() {
+	void indexedWrite() {
 		bb.putInt(0, 42);
 		bb.putLong(4, 128L);
 		bb.put(12, (byte) 0xa);
@@ -56,8 +60,8 @@ public class ByteBufferWriteTests {
 	}
 
 	@Test
-	@DisplayName("VarHandle read")
-	void test3() {
+	@DisplayName("VarHandle write")
+	void varHandleWrite() {
 		intHandle.set(bb, 0, 42);
 		longHandle.set(bb, 4, 128L);
 		bb.put(12, (byte) 0xa);

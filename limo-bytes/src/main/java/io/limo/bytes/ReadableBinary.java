@@ -5,13 +5,11 @@
 package io.limo.bytes;
 
 /**
- * This interface store a full binary content we can write and read
+ * This interface store a full binary content we can only read from
  */
-public interface Bytes extends AutoCloseable {
+public interface ReadableBinary extends AutoCloseable {
 
 	int readInt();
-
-	void writeInt(int value);
 
 	/**
 	 * Closes all resources that store the binary content

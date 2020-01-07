@@ -4,5 +4,5 @@
 
 package io.limo.bytes.memory;
 
-public class ByteBufferMemoryTests {
+public final class ByteBufferMemoryTests {
 }

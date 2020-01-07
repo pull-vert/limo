@@ -15,7 +15,7 @@ import java.nio.ByteOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ByteBufferReadTests {
+public final class ByteBufferReadTests {
 
     private ByteBuffer bb;
 
@@ -34,7 +34,7 @@ public class ByteBufferReadTests {
 
     @Test
     @DisplayName("Direct read")
-    void test1() {
+    void directRead() {
         bb.rewind();
         assertThat(bb.getInt()).isEqualTo(42);
         assertThat(bb.getLong()).isEqualTo(128L);
@@ -43,7 +43,7 @@ public class ByteBufferReadTests {
 
     @Test
     @DisplayName("Indexed read")
-    void test2() {
+    void indexedRead() {
         assertThat(bb.getInt(0)).isEqualTo(42);
         assertThat(bb.getLong(4)).isEqualTo(128L);
         assertThat(bb.get(12)).isEqualTo((byte) 0xa);
@@ -51,7 +51,7 @@ public class ByteBufferReadTests {
 
     @Test
     @DisplayName("VarHandle read")
-    void test3() {
+    void varHandleRead() {
         assertThat(intHandle.get(bb, 0)).isEqualTo(42);
         assertThat(longHandle.get(bb, 4)).isEqualTo(128L);
     }
