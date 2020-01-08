@@ -4,12 +4,12 @@
 
 package io.limo.internal.bytes;
 
-import io.limo.bytes.ReadableBinary;
+import io.limo.bytes.Reader;
 import io.limo.bytes.memory.Memory;
 import io.limo.bytes.memory.MemorySupplier;
 import io.limo.common.NotNull;
 
-public final class ReadableBytes implements ReadableBinary {
+public final class ReadableBytes implements Reader {
 
 	/**
 	 * Current Memory chunk to read from.

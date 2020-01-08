@@ -5,14 +5,14 @@
 package io.limo.bytes;
 
 /**
- * This interface store a full binary content we can only write to
+ * This interface allow to write binary data
  */
-public interface WritableBinary extends AutoCloseable {
+public interface Writer extends AutoCloseable {
 
 	void writeInt(int value);
 
 	/**
-	 * Closes all resources that store the binary content
+	 * Closes all resources that store binary data
 	 */
 	@Override
 	void close();
