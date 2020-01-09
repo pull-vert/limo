@@ -4,7 +4,6 @@
 
 package io.limo.internal.bytes.memory;
 
-import io.limo.bytes.memory.Memory;
 import io.limo.common.NotNull;
 
 import java.nio.ByteBuffer;

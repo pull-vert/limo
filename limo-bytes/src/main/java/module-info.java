@@ -6,5 +6,4 @@ module limo.buffer {
 	requires limo.common;
 
 	exports io.limo.bytes;
-	exports io.limo.bytes.memory;
 }

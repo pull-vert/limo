@@ -2,14 +2,14 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.bytes.memory;
+package io.limo.internal.bytes.memory;
 
 import io.limo.common.NotNull;
 
 import java.util.function.Supplier;
 
 /**
- * This interface is a pool of {@link Memory}, that allows to recycle and supply {@link Memory} when needed
+ * A pool of {@link Memory}, that allows to recycle and supply {@link Memory} when needed
  */
 public interface MemorySupplier extends Supplier<Memory> {
 

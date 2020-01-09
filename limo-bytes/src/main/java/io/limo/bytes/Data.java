@@ -4,14 +4,17 @@
 
 package io.limo.bytes;
 
+import io.limo.common.NotNull;
+
 /**
- * This interface contains binary data
+ * A complete binary data
  */
 public interface Data extends AutoCloseable {
 
     /**
      * @return the data reader
      */
+    @NotNull
     Reader getReader();
 
     /**

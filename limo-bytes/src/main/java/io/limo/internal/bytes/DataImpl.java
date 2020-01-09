@@ -4,35 +4,65 @@
 
 package io.limo.internal.bytes;
 
+import io.limo.bytes.Data;
 import io.limo.bytes.Reader;
-import io.limo.bytes.memory.Memory;
-import io.limo.bytes.memory.MemorySupplier;
+import io.limo.bytes.Writer;
 import io.limo.common.NotNull;
+import io.limo.common.Nullable;
+import io.limo.internal.bytes.memory.Memory;
+import io.limo.internal.bytes.memory.MemorySupplier;
 
-public final class DataImpl {
+public final class DataImpl implements Data {
 
 	@NotNull
 	private Memory[] data;
 
-	private static class ReaderImpl implements Reader {
+	@Nullable
+	private MemorySupplier memorySupplier;
+
+	public DataImpl(@NotNull MemorySupplier memorySupplier) {
+		this(new Memory[]{memorySupplier.get()});
+		this.memorySupplier = memorySupplier;
+	}
+
+	public DataImpl(@NotNull Memory[] data) {
+		this.data = data;
+
+	}
+
+	@NotNull
+	@Override
+	public Reader getReader() {
+		return null;
+	}
+
+	@Override
+	public Writer getWriter() {
+		return null;
+	}
+
+	@Override
+	public void close() {
+		for (var memory : data) {
+			memory.close();
+		}
+	}
+
+	private class ReaderImpl implements Reader {
 
 		/**
-		 * Current Memory chunk to read from.
+		 * Current Memory chunk to read from
 		 */
 		@NotNull
 		private Memory memory;
 
 		/**
-		 * Reading index in the current {@link #memory}.
+		 * Reading index in the current {@link #memory}
 		 */
 		private long index = 0L;
 
-		@NotNull
-		private final MemorySupplier memorySupplier;
-
-		public ReaderImpl(@NotNull MemorySupplier memorySupplier) {
-			this.memorySupplier = memorySupplier;
-			memory = memorySupplier.get();
+		public ReaderImpl(@NotNull Memory memory) {
+			this.memory = memory;
 		}
 
 		@Override
@@ -50,7 +80,7 @@ public final class DataImpl {
 
 		@Override
 		public void close() {
-
+			DataImpl.this.close();
 		}
 	}
 }
