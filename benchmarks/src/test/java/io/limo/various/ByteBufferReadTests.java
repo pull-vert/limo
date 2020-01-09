@@ -2,7 +2,7 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.bytes.memory;
+package io.limo.various;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
