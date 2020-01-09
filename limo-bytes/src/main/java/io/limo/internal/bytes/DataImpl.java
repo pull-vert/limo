@@ -21,13 +21,12 @@ public final class DataImpl implements Data {
 	private MemorySupplier memorySupplier;
 
 	public DataImpl(@NotNull MemorySupplier memorySupplier) {
-		this(new Memory[]{memorySupplier.get()});
 		this.memorySupplier = memorySupplier;
+		this.data = new Memory[]{memorySupplier.get()};
 	}
 
 	public DataImpl(@NotNull Memory[] data) {
 		this.data = data;
-
 	}
 
 	@NotNull
