@@ -9,11 +9,11 @@ package io.limo.internal.bytes.memory;
  */
 public interface Memory extends AutoCloseable {
 
+	byte readByteAt(long index);
+
 	int readIntAt(long index);
 
 	void writeIntAt(long index, int value);
-
-	boolean isValidIndex(long requestedIndex);
 
 	/**
 	 * Closes this memory chunk

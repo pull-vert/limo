@@ -25,6 +25,11 @@ public final class ByteBufferMemory implements Memory {
     }
 
     @Override
+    public byte readByteAt(long index) {
+        return bb.get((int) index);
+    }
+
+    @Override
     public int readIntAt(long index) {
         return bb.getInt((int) index);
     }
@@ -32,11 +37,6 @@ public final class ByteBufferMemory implements Memory {
     @Override
     public void writeIntAt(long index, int value) {
         bb.putInt((int) index, value);
-    }
-
-    @Override
-    public boolean isValidIndex(long requestedIndex) {
-        return false;
     }
 
     /**
