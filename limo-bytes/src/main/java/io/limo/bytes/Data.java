@@ -4,7 +4,7 @@
 
 package io.limo.bytes;
 
-import io.limo.common.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteOrder;
 

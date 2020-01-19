@@ -7,13 +7,14 @@ package io.limo.internal.bytes;
 import io.limo.bytes.Data;
 import io.limo.bytes.Reader;
 import io.limo.bytes.Writer;
-import io.limo.common.NotNull;
 import io.limo.internal.bytes.memory.Memory;
 import io.limo.internal.bytes.memory.MemorySupplier;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.EOFException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.OptionalInt;
 
 /**
@@ -73,7 +74,7 @@ public final class ArrayData implements Data {
 	private final Writer writer;
 
 	public ArrayData(@NotNull MemorySupplier memorySupplier) {
-		this.memorySupplier = memorySupplier;
+		this.memorySupplier = Objects.requireNonNull(memorySupplier);
 		final var initialMemory = memorySupplier.get();
 		// init data with DEFAULT_CAPACITY size and first element in data = initialMemory
 		data = new Memory[DEFAULT_CAPACITY];
@@ -84,18 +85,20 @@ public final class ArrayData implements Data {
 	}
 
 	public ArrayData(@NotNull Data data, @NotNull MemorySupplier memorySupplier) {
+		Objects.requireNonNull(data);
 		// todo use instanceof pattern matching of java 14 https://openjdk.java.net/jeps/305
 		if (data instanceof ArrayData) {
 			final var arrayData = (ArrayData) data;
+			Objects.requireNonNull(arrayData.data);
 			if (arrayData.data.length == 0) {
 				throw new IllegalArgumentException("data array must not be empty");
 			}
 			this.data = arrayData.data;
-			limits = arrayData.limits;
+			limits = Objects.requireNonNull(arrayData.limits);
 		} else {
 			throw new IllegalArgumentException("data type " + data.getClass().getTypeName() + " is unsupported");
 		}
-		this.memorySupplier = memorySupplier;
+		this.memorySupplier = Objects.requireNonNull(memorySupplier);
 		reader = new ReaderImpl();
 		writer = new WriterImpl();
 	}
@@ -180,7 +183,7 @@ public final class ArrayData implements Data {
 		 * Current memory is the first in the data array of {@code ArrayData}
 		 */
 		private ReaderImpl() {
-			memory = data[0];
+			memory = Objects.requireNonNull(data[0]);
 			limit = limits[0];
 		}
 
@@ -248,7 +251,7 @@ public final class ArrayData implements Data {
 		 */
 		private void nextMemory() throws EOFException {
 			final var nextReadIndex = getNextReadIndex().orElseThrow(() -> new EOFException("End of file while reading memory"));
-			memory = data[nextReadIndex];
+			memory = Objects.requireNonNull(data[nextReadIndex]);
 			limit = limits[nextReadIndex];
 		}
 
@@ -283,7 +286,7 @@ public final class ArrayData implements Data {
 		 * Current memory is the last in the data array of {@code ArrayData}
 		 */
 		private WriterImpl() {
-			memory = data[data.length - 1];
+			memory = Objects.requireNonNull(data[data.length - 1]);
 			capacity = memory.getCapacity();
 		}
 

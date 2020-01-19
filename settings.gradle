@@ -8,7 +8,6 @@ pluginManagement {
 
 rootProject.name = 'limo'
 
-include 'limo-common'
 include 'limo-bytes'
 
 include 'benchmarks'

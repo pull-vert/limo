@@ -5,7 +5,7 @@
 package io.limo.internal.bytes;
 
 /**
- * Util class with operations on bytes
+ * Util class providing operations on bytes
  */
 final class BytesOps {
 

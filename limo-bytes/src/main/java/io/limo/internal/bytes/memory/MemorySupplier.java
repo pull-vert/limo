@@ -4,7 +4,7 @@
 
 package io.limo.internal.bytes.memory;
 
-import io.limo.common.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 

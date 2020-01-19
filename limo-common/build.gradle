@@ -1,5 +1,0 @@
-println("Using Gradle version: $gradle.gradleVersion")
-
-dependencies {
-    implementation "com.google.code.findbugs:jsr305:$jsr305_version"
-}

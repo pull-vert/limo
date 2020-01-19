@@ -4,22 +4,25 @@
 
 package io.limo.internal.bytes.memory;
 
+import org.jetbrains.annotations.Range;
+
 /**
  * A memory chunk that can store all or a part of a binary content
  */
 public interface Memory extends AutoCloseable {
 
-	byte readByteAt(long index);
+	byte readByteAt(@Range(from = 0, to = Long.MAX_VALUE) long index);
 
-	int readIntAt(long index);
+	int readIntAt(@Range(from = 0, to = Long.MAX_VALUE) long index);
 
-	void writeByteAt(long index, byte value);
+	void writeByteAt(@Range(from = 0, to = Long.MAX_VALUE) long index, byte value);
 
-	void writeIntAt(long index, int value);
+	void writeIntAt(@Range(from = 0, to = Long.MAX_VALUE) long index, int value);
 
 	/**
 	 * @return Total capacity, in bytes
 	 */
+	@Range(from = 0, to = Long.MAX_VALUE)
 	long getCapacity();
 
 	/**
