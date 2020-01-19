@@ -13,7 +13,14 @@ public interface Memory extends AutoCloseable {
 
 	int readIntAt(long index);
 
+	void writeByteAt(long index, byte value);
+
 	void writeIntAt(long index, int value);
+
+	/**
+	 * @return Total capacity, in bytes
+	 */
+	long getCapacity();
 
 	/**
 	 * Closes this memory chunk

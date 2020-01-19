@@ -35,8 +35,18 @@ public final class ByteBufferMemory implements Memory {
     }
 
     @Override
+    public void writeByteAt(long index, byte value) {
+        bb.put((int) index, value);
+    }
+
+    @Override
     public void writeIntAt(long index, int value) {
         bb.putInt((int) index, value);
+    }
+
+    @Override
+    public long getCapacity() {
+        return bb.capacity();
     }
 
     /**

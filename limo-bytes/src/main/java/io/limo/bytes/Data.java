@@ -22,6 +22,7 @@ public interface Data extends AutoCloseable {
 	/**
 	 * @return the data writer
 	 */
+	@NotNull
 	Writer getWriter();
 
 	/**
