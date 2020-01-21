@@ -23,7 +23,7 @@ import java.util.OptionalInt;
  * @implNote Inspired by ArrayList
  * @see MutableData
  */
-public final class ArrayData implements MutableData {
+public final class MutableArrayData implements MutableData {
 
     /**
      * Default initial capacity.
@@ -73,7 +73,7 @@ public final class ArrayData implements MutableData {
     @NotNull
     private final Writer writer;
 
-    public ArrayData(@NotNull MemorySupplier memorySupplier) {
+    public MutableArrayData(@NotNull MemorySupplier memorySupplier) {
         this.memorySupplier = Objects.requireNonNull(memorySupplier);
         final var initialMemory = memorySupplier.get();
         // init data with DEFAULT_CAPACITY size and first element in data = initialMemory
@@ -84,11 +84,11 @@ public final class ArrayData implements MutableData {
         writer = new WriterImpl();
     }
 
-    public ArrayData(@NotNull MutableData data, @NotNull MemorySupplier memorySupplier) {
+    public MutableArrayData(@NotNull MutableData data, @NotNull MemorySupplier memorySupplier) {
         Objects.requireNonNull(data);
         // todo use instanceof pattern matching of java 14 https://openjdk.java.net/jeps/305
-        if (data instanceof ArrayData) {
-            final var arrayData = (ArrayData) data;
+        if (data instanceof MutableArrayData) {
+            final var arrayData = (MutableArrayData) data;
             Objects.requireNonNull(arrayData.data);
             if (arrayData.data.length == 0) {
                 throw new IllegalArgumentException("data array must not be empty");
@@ -257,7 +257,7 @@ public final class ArrayData implements MutableData {
 
         @Override
         public void close() {
-            ArrayData.this.close();
+            MutableArrayData.this.close();
         }
     }
 
@@ -352,7 +352,7 @@ public final class ArrayData implements MutableData {
 
         @Override
         public void close() {
-            ArrayData.this.close();
+            MutableArrayData.this.close();
         }
 
         /**
