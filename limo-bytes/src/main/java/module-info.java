@@ -3,7 +3,7 @@
  */
 
 module limo.buffer {
-	requires org.jetbrains.annotations;
+    requires org.jetbrains.annotations;
 
-	exports io.limo.bytes;
+    exports io.limo.bytes;
 }

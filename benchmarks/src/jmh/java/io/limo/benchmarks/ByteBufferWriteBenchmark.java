@@ -29,50 +29,50 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class ByteBufferWriteBenchmark {
 
-	private static final int OBJ_SIZE = 8 + 4 + 1;
-	private static final int NUM_ELEM = 1_000_000;
+    private static final int OBJ_SIZE = 8 + 4 + 1;
+    private static final int NUM_ELEM = 1_000_000;
 
-	private static final VarHandle intHandle = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
-	private static final VarHandle longHandle = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
+    private static final VarHandle intHandle = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
+    private static final VarHandle longHandle = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
 
-	private ByteBuffer bb;
+    private ByteBuffer bb;
 
-	@Setup
-	public void setup() {
-		bb = ByteBuffer.allocateDirect(OBJ_SIZE * NUM_ELEM);
-	}
+    @Setup
+    public void setup() {
+        bb = ByteBuffer.allocateDirect(OBJ_SIZE * NUM_ELEM);
+    }
 
-	@Benchmark
-	public void directWrite() {
-		bb.clear();
-		for (int i = 0; i < NUM_ELEM; i++) {
-			bb.putLong(i);
-			bb.putInt(i);
-			bb.put((byte) (i & 1));
-		}
-	}
+    @Benchmark
+    public void directWrite() {
+        bb.clear();
+        for (int i = 0; i < NUM_ELEM; i++) {
+            bb.putLong(i);
+            bb.putInt(i);
+            bb.put((byte) (i & 1));
+        }
+    }
 
-	@Benchmark
-	public void indexedWrite() {
-		bb.clear();
-		var index = 0;
-		for (int i = 0; i < NUM_ELEM; i++) {
-			index = OBJ_SIZE * i;
-			bb.putLong(index, i);
-			bb.putInt(index + 8, i);
-			bb.put(index + 12, (byte) (i & 1));
-		}
-	}
+    @Benchmark
+    public void indexedWrite() {
+        bb.clear();
+        var index = 0;
+        for (int i = 0; i < NUM_ELEM; i++) {
+            index = OBJ_SIZE * i;
+            bb.putLong(index, i);
+            bb.putInt(index + 8, i);
+            bb.put(index + 12, (byte) (i & 1));
+        }
+    }
 
-	@Benchmark
-	public void varhandleWrite() {
-		bb.clear();
-		var index = 0;
-		for (int i = 0; i < NUM_ELEM; i++) {
-			index = OBJ_SIZE * i;
-			longHandle.set(bb, index, i);
-			intHandle.set(bb, index + 8, i);
-			bb.put(index + 12, (byte) (i & 1));
-		}
-	}
+    @Benchmark
+    public void varhandleWrite() {
+        bb.clear();
+        var index = 0;
+        for (int i = 0; i < NUM_ELEM; i++) {
+            index = OBJ_SIZE * i;
+            longHandle.set(bb, index, i);
+            intHandle.set(bb, index + 8, i);
+            bb.put(index + 12, (byte) (i & 1));
+        }
+    }
 }

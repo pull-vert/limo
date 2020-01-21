@@ -11,13 +11,13 @@ import java.io.EOFException;
  */
 public interface Writer extends AutoCloseable {
 
-	void writeByte(byte value) throws EOFException;
+    void writeByte(byte value) throws EOFException;
 
-	void writeInt(int value) throws EOFException;
+    void writeInt(int value) throws EOFException;
 
-	/**
-	 * Closes all resources that store binary data
-	 */
-	@Override
-	void close();
+    /**
+     * Closes all resources that store binary data
+     */
+    @Override
+    void close();
 }
