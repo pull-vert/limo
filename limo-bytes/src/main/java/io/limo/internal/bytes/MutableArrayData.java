@@ -18,9 +18,10 @@ import java.util.Objects;
 import java.util.OptionalInt;
 
 /**
- * Resizable-array implementation of the {@code Data} interface.
+ * Resizable-array implementation of the {@code MutableData} interface.
  *
  * @implNote Inspired by ArrayList
+ * @see ArrayData
  * @see MutableData
  */
 public final class MutableArrayData implements MutableData {
