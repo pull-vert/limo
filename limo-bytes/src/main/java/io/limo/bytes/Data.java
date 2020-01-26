@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.ByteOrder;
 
 /**
- * A complete binary data
+ * A complete read-only (immutable) binary data
  */
 public interface Data extends AutoCloseable {
 

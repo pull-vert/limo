@@ -7,7 +7,7 @@ package io.limo.bytes;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A complete binary data
+ * A complete read-write (mutable) binary data
  */
 public interface MutableData extends Data {
 

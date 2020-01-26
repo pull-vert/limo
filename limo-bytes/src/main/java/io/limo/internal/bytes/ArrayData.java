@@ -24,27 +24,32 @@ import java.util.OptionalInt;
 public class ArrayData implements Data {
 
 	/**
+	 * Default initial capacity.
+	 */
+	private static final int DEFAULT_CAPACITY = 4;
+
+	/**
 	 * The array buffer into which the elements of the ArrayData are stored
 	 */
 	@NotNull
-	private Memory[] data;
+	Memory[] memories;
 
 	/**
 	 * The array of limits for each memory
 	 */
-	private long[] limits;
+	long[] limits;
 
 	/**
 	 * Index of the memory in data that is currently read
 	 */
-	private int readIndex = 0;
+	int readIndex = 0;
 
 	/**
 	 * Max index of the memory in data that has been written
 	 *
 	 * @implNote It has a 0 initial value, even if first memory was not written
 	 */
-	private int writeIndex = 0;
+	int writeIndex = 0;
 
 	boolean isBigEndian = true;
 
@@ -52,47 +57,61 @@ public class ArrayData implements Data {
 	 * The data reader
 	 */
 	@NotNull
-	private final Reader reader;
+	Reader reader;
 
-	public ArrayData(@NotNull Data first, @NotNull Data... rest) {
-//		Objects.requireNonNull(datas);
-//		// get total length
-//		int totalLength = 0;
-//		for (final var data : datas) {
-//			// todo use instanceof pattern matching of java 14 https://openjdk.java.net/jeps/305
-//			if (data instanceof ArrayData) {
-//				final var arrayData = (ArrayData) data;
-//				Objects.requireNonNull(arrayData.data);
-//				if (arrayData.data.length == 0) {
-//					throw new IllegalArgumentException("data array must not be empty");
-//				}
-//				totalLength += arrayData.writeIndex + 1;
-//			} else {
-//				throw new IllegalArgumentException("data type " + data.getClass().getTypeName() + " is unsupported");
-//			}
-//		}
-//		for (final var data : datas) {
-//			final var arrayData = (ArrayData) data;
-//			this.data = Arrays.copyOf(arrayData.data;
-//			limits = Objects.requireNonNull(arrayData.limits);
-//		}
+	public ArrayData() {
+		// init memories and limits with DEFAULT_CAPACITY size
+		memories = new Memory[DEFAULT_CAPACITY];
+		limits = new long[DEFAULT_CAPACITY];
+		reader = new ReaderImpl();
+	}
+
+	public ArrayData(@NotNull Memory[] memories, @NotNull long[] limits) {
+		this.memories = Objects.requireNonNull(memories);
+		this.limits = Objects.requireNonNull(limits);
+		writeIndex = limits.length;
 
 		reader = new ReaderImpl();
 	}
 
-	@SafeVarargs
-	private static <T> T[] concatAll(T[] first, T[]... rest) {
-		int totalLength = first.length;
-		for (T[] array : rest) {
-			totalLength += array.length;
+	public ArrayData(@NotNull Data first, @NotNull Data... rest) {
+		Objects.requireNonNull(first);
+		Objects.requireNonNull(rest);
+
+		// must get total length
+		var totalLength = 0;
+		// todo use instanceof pattern matching of java 14 https://openjdk.java.net/jeps/305
+		for (final var data : rest) {
+			if (data instanceof ArrayData) {
+				totalLength += ((ArrayData) data).writeIndex + 1;
+			}
 		}
-		T[] result = Arrays.copyOf(first, totalLength);
-		int offset = first.length;
-		for (T[] array : rest) {
-			System.arraycopy(array, 0, result, offset, array.length);
-			offset += array.length;
+
+		// initiate arrays
+		var offset = 0;
+		if (first instanceof ArrayData) {
+			final var firstArrayData = (ArrayData) first;
+			offset = firstArrayData.writeIndex + 1;
+			totalLength += offset;
+			memories = Arrays.copyOf(firstArrayData.memories, totalLength);
+			limits = Arrays.copyOf(firstArrayData.limits, totalLength);
+		} else {
+			throw new IllegalArgumentException("data type " + first.getClass().getTypeName() + " is unsupported");
 		}
-		return result;
+		writeIndex = totalLength;
+
+		int dataLength;
+		for (final var data : rest) {
+			if (data instanceof ArrayData) {
+				final var arrayData = (ArrayData) data;
+				dataLength = arrayData.writeIndex + 1;
+				System.arraycopy(arrayData.memories, 0, memories, offset, dataLength);
+				System.arraycopy(arrayData.limits, 0, limits, offset, dataLength);
+				offset += dataLength;
+			}
+		}
+
+		reader = new ReaderImpl();
 	}
 
 	/**
@@ -120,7 +139,7 @@ public class ArrayData implements Data {
 
 	@Override
 	public void close() {
-		for (final var memory : data) {
+		for (final var memory : memories) {
 			memory.close();
 		}
 	}
@@ -150,7 +169,7 @@ public class ArrayData implements Data {
 		 * Current memory is the first in the data array of {@code ArrayData}
 		 */
 		private ReaderImpl() {
-			memory = Objects.requireNonNull(data[0]);
+			memory = Objects.requireNonNull(memories[0]);
 			limit = limits[0];
 		}
 
@@ -218,7 +237,7 @@ public class ArrayData implements Data {
 		 */
 		private void nextMemory() throws EOFException {
 			final var nextReadIndex = getNextReadIndex().orElseThrow(() -> new EOFException("End of file while reading memory"));
-			memory = Objects.requireNonNull(data[nextReadIndex]);
+			memory = Objects.requireNonNull(memories[nextReadIndex]);
 			limit = limits[nextReadIndex];
 		}
 
