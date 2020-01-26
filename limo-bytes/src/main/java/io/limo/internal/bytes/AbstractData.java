@@ -8,23 +8,23 @@ import java.nio.ByteOrder;
 
 public abstract class AbstractData implements Data {
 
-	boolean isBigEndian = true;
+    boolean isBigEndian = true;
 
-	/**
-	 * The data reader
-	 */
-	@NotNull
-	Reader reader;
+    /**
+     * The data reader
+     */
+    @NotNull
+    Reader reader;
 
-	@NotNull
-	@Override
-	public Reader getReader() {
-		return reader;
-	}
+    @NotNull
+    @Override
+    public Reader getReader() {
+        return reader;
+    }
 
-	@NotNull
-	@Override
-	public ByteOrder getByteOrder() {
-		return isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-	}
+    @NotNull
+    @Override
+    public ByteOrder getByteOrder() {
+        return isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+    }
 }

@@ -16,53 +16,53 @@ import java.util.Objects;
  */
 public final class ByteBufferMemory implements Memory {
 
-	@NotNull
-	private ByteBuffer bb;
+    @NotNull
+    private ByteBuffer bb;
 
-	/**
-	 * Build a memory chunk from a {@link ByteBuffer}
-	 *
-	 * @param bb the ByteBuffer
-	 */
-	public ByteBufferMemory(@NotNull ByteBuffer bb) {
-		this.bb = Objects.requireNonNull(bb);
-	}
+    /**
+     * Build a memory chunk from a {@link ByteBuffer}
+     *
+     * @param bb the ByteBuffer
+     */
+    public ByteBufferMemory(@NotNull ByteBuffer bb) {
+        this.bb = Objects.requireNonNull(bb);
+    }
 
-	@Override
-	public byte readByteAt(@Range(from = 0, to = Integer.MAX_VALUE) long index) {
-		return bb.get((int) index);
-	}
+    @Override
+    public byte readByteAt(@Range(from = 0, to = Integer.MAX_VALUE) long index) {
+        return bb.get((int) index);
+    }
 
-	@Override
-	public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE) long index) {
-		return bb.getInt((int) index);
-	}
+    @Override
+    public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE) long index) {
+        return bb.getInt((int) index);
+    }
 
-	@Override
-	public void writeByteAt(@Range(from = 0, to = Integer.MAX_VALUE) long index, byte value) {
-		bb.put((int) index, value);
-	}
+    @Override
+    public void writeByteAt(@Range(from = 0, to = Integer.MAX_VALUE) long index, byte value) {
+        bb.put((int) index, value);
+    }
 
-	@Override
-	public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE) long index, int value) {
-		bb.putInt((int) index, value);
-	}
+    @Override
+    public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE) long index, int value) {
+        bb.putInt((int) index, value);
+    }
 
-	@Override
-	@Range(from = 0, to = Integer.MAX_VALUE)
-	public long getCapacity() {
-		return bb.capacity();
-	}
+    @Override
+    @Range(from = 0, to = Integer.MAX_VALUE)
+    public long getCapacity() {
+        return bb.capacity();
+    }
 
-	@Override
-	public void setByteOrder(@NotNull ByteOrder byteOrder) {
-		bb.order(byteOrder);
-	}
+    @Override
+    public void setByteOrder(@NotNull ByteOrder byteOrder) {
+        bb.order(byteOrder);
+    }
 
-	/**
-	 * Close is no op because {@link ByteBuffer} does not provide close
-	 */
-	@Override
-	public void close() {
-	}
+    /**
+     * Close is no op because {@link ByteBuffer} does not provide close
+     */
+    @Override
+    public void close() {
+    }
 }
