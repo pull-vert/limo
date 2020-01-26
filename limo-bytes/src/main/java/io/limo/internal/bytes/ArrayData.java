@@ -13,15 +13,16 @@ import java.io.EOFException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.OptionalInt;
 
 /**
- * Fixed-array implementation of the {@code Data} interface.
+ * Implementation of the immutable {@code Data} interface based on a fixed size array of memory chunks
  *
  * @see Data
  * @see MutableArrayData
  */
-public class ArrayData implements Data {
+public class ArrayData extends AbstractData {
 
 	/**
 	 * Default initial capacity.
@@ -29,35 +30,26 @@ public class ArrayData implements Data {
 	private static final int DEFAULT_CAPACITY = 4;
 
 	/**
-	 * The array buffer into which the elements of the ArrayData are stored
+	 * The array of memories into which the elements of the ArrayData are stored
 	 */
-	@NotNull
-	Memory[] memories;
+	Memory @NotNull[] memories;
 
 	/**
 	 * The array of limits for each memory
 	 */
-	long[] limits;
+	long @NotNull[] limits;
 
 	/**
-	 * Index of the memory in data that is currently read
+	 * Index of the memory in data array that is currently read
 	 */
 	int readIndex = 0;
 
 	/**
-	 * Max index of the memory in data that has been written
+	 * Last index of the memory in data array that has been written
 	 *
 	 * @implNote It has a 0 initial value, even if first memory was not written
 	 */
 	int writeIndex = 0;
-
-	boolean isBigEndian = true;
-
-	/**
-	 * The data reader
-	 */
-	@NotNull
-	Reader reader;
 
 	public ArrayData() {
 		// init memories and limits with DEFAULT_CAPACITY size
@@ -66,7 +58,7 @@ public class ArrayData implements Data {
 		reader = new ReaderImpl();
 	}
 
-	public ArrayData(@NotNull Memory[] memories, @NotNull long[] limits) {
+	public ArrayData(Memory @NotNull[] memories, long @NotNull[] limits) {
 		this.memories = Objects.requireNonNull(memories);
 		this.limits = Objects.requireNonNull(limits);
 		writeIndex = limits.length;
@@ -74,7 +66,7 @@ public class ArrayData implements Data {
 		reader = new ReaderImpl();
 	}
 
-	public ArrayData(@NotNull Data first, @NotNull Data... rest) {
+	public ArrayData(@NotNull Data first, Data @NotNull... rest) {
 		Objects.requireNonNull(first);
 		Objects.requireNonNull(rest);
 
@@ -125,22 +117,19 @@ public class ArrayData implements Data {
 		return OptionalInt.empty();
 	}
 
-	@NotNull
 	@Override
-	public Reader getReader() {
-		return reader;
-	}
-
-	@NotNull
-	@Override
-	public ByteOrder getByteOrder() {
-		return isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+	public void setByteOrder(@NotNull ByteOrder byteOrder) {
+		isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
+		// affect this byte order to all memories
+		for (final var memory : memories) {
+			Optional.ofNullable(memory).ifPresent(mem -> mem.setByteOrder(byteOrder));
+		}
 	}
 
 	@Override
 	public void close() {
 		for (final var memory : memories) {
-			memory.close();
+			Optional.ofNullable(memory).ifPresent(Memory::close);
 		}
 	}
 

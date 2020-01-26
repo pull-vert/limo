@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Resizable-array implementation of the {@code MutableData} interface.
+ * Implementation of the mutable {@code MutableData} interface based on a resizable array of memory chunks
  *
  * @implNote Inspired by ArrayList
  * @see ArrayData
@@ -160,7 +160,6 @@ public final class MutableArrayData extends ArrayData implements MutableData {
 				addNewMemory();
 
 				// we are at 0 index in newly obtained memory
-
 				if (capacity >= intSize) {
 					limit = intSize;
 					memory.writeIntAt(currentLimit, value);

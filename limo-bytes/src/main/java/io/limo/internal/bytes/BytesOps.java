@@ -4,6 +4,8 @@
 
 package io.limo.internal.bytes;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Util class providing operations on bytes
  */
@@ -20,7 +22,7 @@ final class BytesOps {
         return (b3 << 24) | ((b2 & 0xff) << 16) | ((b1 & 0xff) << 8) | (b0 & 0xff);
     }
 
-    static byte[] intToBytes(final int data, final boolean isBigEndian) {
+    static byte @NotNull[] intToBytes(final int data, final boolean isBigEndian) {
         if (isBigEndian) {
             return new byte[]{
                     (byte) ((data >> 24) & 0xff),
