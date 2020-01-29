@@ -2,7 +2,6 @@ package io.limo.internal.bytes;
 
 import io.limo.bytes.Data;
 import io.limo.bytes.Reader;
-import io.limo.internal.bytes.memory.Memory;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.EOFException;
@@ -10,45 +9,59 @@ import java.nio.ByteOrder;
 import java.util.Objects;
 
 /**
- * Implementation of the immutable {@code Data} interface based on a single memory chunk
+ * Implementation of the immutable {@code Data} interface based on a single byte sequence
  *
  * @see Data
  */
-public class SingleData extends AbstractData {
+public class SingleData implements Data {
 
     /**
      * The memory into which the elements of the SingleData are stored
      */
     @NotNull
-    final Memory memory;
+    final ByteSequence byteSequence;
 
     /**
      * The limit of memory
      */
     final long limit;
 
-    public SingleData(@NotNull Memory memory, long limit) {
-        this.memory = Objects.requireNonNull(memory);
+    boolean isBigEndian = true;
+
+    /**
+     * The data reader
+     */
+    @NotNull
+    Reader reader;
+
+    public SingleData(@NotNull ByteSequence byteSequence, long limit) {
+        this.byteSequence = Objects.requireNonNull(byteSequence);
         this.limit = limit;
         reader = new ReaderImpl();
     }
 
-    @Override
     @NotNull
+    @Override
     public Reader getReader() {
         return reader;
+    }
+
+    @NotNull
+    @Override
+    public ByteOrder getByteOrder() {
+        return isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
     }
 
     @Override
     public void setByteOrder(@NotNull ByteOrder byteOrder) {
         isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
         // affect this byte order to memory
-        memory.setByteOrder(byteOrder);
+        byteSequence.setByteOrder(byteOrder);
     }
 
     @Override
     public void close() {
-        memory.close();
+        byteSequence.close();
     }
 
     /**
@@ -71,7 +84,7 @@ public class SingleData extends AbstractData {
             // 1) at least 1 byte left to read a byte in memory
             if (limit >= targetLimit) {
                 index = targetLimit;
-                return memory.readByteAt(currentIndex);
+                return byteSequence.readByteAt(currentIndex);
             }
 
             // 2) memory is exhausted
@@ -87,7 +100,7 @@ public class SingleData extends AbstractData {
             // 1) at least 4 bytes left to read an int in memory
             if (limit >= targetLimit) {
                 index = targetLimit;
-                return memory.readIntAt(currentIndex);
+                return byteSequence.readIntAt(currentIndex);
             }
 
             // 2) memory is exhausted

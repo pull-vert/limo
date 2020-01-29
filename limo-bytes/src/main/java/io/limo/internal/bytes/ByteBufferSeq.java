@@ -2,7 +2,7 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.internal.bytes.memory;
+package io.limo.internal.bytes;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
@@ -12,19 +12,19 @@ import java.nio.ByteOrder;
 import java.util.Objects;
 
 /**
- * A memory chunk based on a ByteBuffer
+ *  A byte sequence based on a {@code ByteBuffer}
  */
-public final class ByteBufferMemory implements Memory {
+public final class ByteBufferSeq implements ByteSequence {
 
     @NotNull
     private ByteBuffer bb;
 
     /**
-     * Build a memory chunk from a {@link ByteBuffer}
+     * Build a byte sequence from a {@link ByteBuffer}
      *
      * @param bb the ByteBuffer
      */
-    public ByteBufferMemory(@NotNull ByteBuffer bb) {
+    public ByteBufferSeq(@NotNull ByteBuffer bb) {
         this.bb = Objects.requireNonNull(bb);
     }
 

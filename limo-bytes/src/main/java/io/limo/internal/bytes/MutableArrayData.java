@@ -7,8 +7,6 @@ package io.limo.internal.bytes;
 import io.limo.bytes.Data;
 import io.limo.bytes.MutableData;
 import io.limo.bytes.Writer;
-import io.limo.internal.bytes.memory.Memory;
-import io.limo.internal.bytes.memory.MemorySupplier;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.EOFException;
@@ -16,7 +14,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Implementation of the mutable {@code MutableData} interface based on a resizable array of memory chunks
+ * Implementation of the mutable {@code MutableData} interface based on a resizable array of byte sequences
  *
  * @implNote Inspired by ArrayList
  * @see ArrayData
@@ -28,7 +26,7 @@ public final class MutableArrayData extends ArrayData implements MutableData {
      * The memory supplier, can act as a pool
      */
     @NotNull
-    private MemorySupplier memorySupplier;
+    private ByteSequenceSupplier byteSequenceSupplier;
 
     /**
      * The data writer
@@ -36,19 +34,19 @@ public final class MutableArrayData extends ArrayData implements MutableData {
     @NotNull
     private final Writer writer;
 
-    public MutableArrayData(@NotNull MemorySupplier memorySupplier) {
-        this.memorySupplier = Objects.requireNonNull(memorySupplier);
-        final var initialMemory = memorySupplier.get();
+    public MutableArrayData(@NotNull ByteSequenceSupplier byteSequenceSupplier) {
+        this.byteSequenceSupplier = Objects.requireNonNull(byteSequenceSupplier);
+        final var initialMemory = byteSequenceSupplier.get();
         // First element in data = initialMemory
-        memories[0] = initialMemory;
+        byteSequences[0] = initialMemory;
         writer = new WriterImpl();
     }
 
-    public MutableArrayData(@NotNull Data data, @NotNull MemorySupplier memorySupplier) {
+    public MutableArrayData(@NotNull Data data, @NotNull ByteSequenceSupplier byteSequenceSupplier) {
         // todo use instanceof pattern matching of java 14 https://openjdk.java.net/jeps/305
         if (Objects.requireNonNull(data) instanceof ArrayData) {
             final var arrayData = (ArrayData) data;
-            memories = arrayData.memories;
+            byteSequences = arrayData.byteSequences;
             limits = arrayData.limits;
             readIndex = arrayData.readIndex;
             writeIndex = arrayData.writeIndex;
@@ -56,27 +54,27 @@ public final class MutableArrayData extends ArrayData implements MutableData {
         } else {
             throw new IllegalArgumentException("data type " + data.getClass().getTypeName() + " is unsupported");
         }
-        this.memorySupplier = Objects.requireNonNull(memorySupplier);
+        this.byteSequenceSupplier = Objects.requireNonNull(byteSequenceSupplier);
         writer = new WriterImpl();
     }
 
     /**
-     * Get a new Memory from {@link #memorySupplier}
+     * Get a new byte sequence from {@link #byteSequenceSupplier}
      *
-     * @return new Memory
+     * @return newly obtained byte sequence
      */
     @NotNull
-    private Memory supplyNewMemory() {
+    private ByteSequence supplyNewByteSequence() {
         // no room left in array
         writeIndex += 1;
-        if (writeIndex == memories.length) {
+        if (writeIndex == byteSequences.length) {
             // increase array size by 2 times
-            final var newLength = memories.length * 2;
-            memories = Arrays.copyOf(memories, newLength);
+            final var newLength = byteSequences.length * 2;
+            byteSequences = Arrays.copyOf(byteSequences, newLength);
             limits = Arrays.copyOf(limits, newLength);
         }
-        final var newMemory = memorySupplier.get();
-        memories[writeIndex] = newMemory;
+        final var newMemory = byteSequenceSupplier.get();
+        byteSequences[writeIndex] = newMemory;
         return newMemory;
     }
 
@@ -92,27 +90,27 @@ public final class MutableArrayData extends ArrayData implements MutableData {
     private final class WriterImpl implements Writer {
 
         /**
-         * Current Memory chunk to write in
+         * Current byte sequence to write in
          */
         @NotNull
-        private Memory memory;
+        private ByteSequence byteSequence;
 
         /**
-         * Writing index in the current {@link #memory}
+         * Writing index in the current {@link #byteSequence}
          */
         private long limit = 0L;
 
         /**
-         * Capacity of the current {@link #memory}
+         * Capacity of the current {@link #byteSequence}
          */
         private long capacity;
 
         /**
-         * Current memory is the last in the data array of {@code ArrayData}
+         * Current byte sequence is the last in the data array of {@code ArrayData}
          */
         private WriterImpl() {
-            memory = Objects.requireNonNull(memories[memories.length - 1]);
-            capacity = memory.getCapacity();
+            byteSequence = Objects.requireNonNull(byteSequences[byteSequences.length - 1]);
+            capacity = byteSequence.getCapacity();
         }
 
         @Override
@@ -124,21 +122,21 @@ public final class MutableArrayData extends ArrayData implements MutableData {
             // 1) at least 1 byte left to write a byte in current memory
             if (capacity >= targetLimit) {
                 limit = targetLimit;
-                memory.writeByteAt(currentLimit, value);
+                byteSequence.writeByteAt(currentLimit, value);
                 return;
             }
 
             // 2) current memory is exactly full
-            // let's add a new chunk of data from supplier
-            addNewMemory();
+            // let's add a new byte sequence from supplier
+            addNewByteSequence();
 
-            // we are at 0 index in newly obtained memory
+            // we are at 0 index in newly obtained byte sequence
 
             if (capacity < byteSize) {
-                throw new EOFException("Empty memory, no room for writing a byte");
+                throw new EOFException("Empty byte sequence, no room for writing a byte");
             }
             limit = byteSize;
-            memory.writeByteAt(currentLimit, value);
+            byteSequence.writeByteAt(currentLimit, value);
         }
 
         @Override
@@ -147,28 +145,28 @@ public final class MutableArrayData extends ArrayData implements MutableData {
             final var intSize = 4;
             final var targetLimit = currentLimit + intSize;
 
-            // 1) at least 4 bytes left to write an int in current memory
+            // 1) at least 4 bytes left to write an int in current byte sequence
             if (capacity >= targetLimit) {
                 limit = targetLimit;
-                memory.writeIntAt(currentLimit, value);
+                byteSequence.writeIntAt(currentLimit, value);
                 return;
             }
 
-            // 2) current memory is exactly full
+            // 2) current byte sequence is exactly full
             if (currentLimit == capacity) {
-                // let's add a new chunk of data from supplier
-                addNewMemory();
+                // let's add a new byte sequence from supplier
+                addNewByteSequence();
 
-                // we are at 0 index in newly obtained memory
+                // we are at 0 index in newly obtained byte sequence
                 if (capacity >= intSize) {
                     limit = intSize;
-                    memory.writeIntAt(currentLimit, value);
+                    byteSequence.writeIntAt(currentLimit, value);
                     return;
                 }
-                throw new EOFException("Memory too small, no room for writing an int");
+                throw new EOFException("Byte sequence too small, no room for writing an int");
             }
 
-            // 3) must write some bytes in current chunk, some others in next one
+            // 3) must write some bytes in current byte sequence, some others in next one
             for (final var b : BytesOps.intToBytes(value, isBigEndian)) {
                 writeByte(b);
             }
@@ -180,11 +178,11 @@ public final class MutableArrayData extends ArrayData implements MutableData {
         }
 
         /**
-         * Current memory is full, add a new Memory in data array
+         * Current byte sequence is full, add a new ByteSequence in data array
          */
-        private void addNewMemory() {
-            memory = supplyNewMemory();
-            capacity = memory.getCapacity();
+        private void addNewByteSequence() {
+            byteSequence = supplyNewByteSequence();
+            capacity = byteSequence.getCapacity();
             limit = 0L;
         }
     }
