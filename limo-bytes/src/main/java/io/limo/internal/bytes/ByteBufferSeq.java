@@ -7,6 +7,8 @@ package io.limo.internal.bytes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
@@ -15,6 +17,12 @@ import java.util.Objects;
  *  A byte sequence based on a {@code ByteBuffer}
  */
 public final class ByteBufferSeq implements ByteSequence {
+
+    private static final VarHandle INT_HANDLE_BIG_ENDIAN = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
+    private static final VarHandle LONG_HANDLE_BIG_ENDIAN = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
+
+    private static final VarHandle INT_HANDLE_LITTLE_ENDIAN = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.LITTLE_ENDIAN);
+    private static final VarHandle LONG_HANDLE_LITTLE_ENDIAN = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.LITTLE_ENDIAN);
 
     @NotNull
     private ByteBuffer bb;
