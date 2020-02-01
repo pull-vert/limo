@@ -27,13 +27,19 @@ public final class ByteBufferSeq implements ByteSequence {
     @NotNull
     private ByteBuffer bb;
 
+    private VarHandle intHandle;
+    private VarHandle longHandle;
+
     /**
      * Build a byte sequence from a {@link ByteBuffer}
+     * <p> The byte order of a newly-created data is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}. </p>
      *
      * @param bb the ByteBuffer
      */
     public ByteBufferSeq(@NotNull ByteBuffer bb) {
         this.bb = Objects.requireNonNull(bb);
+        intHandle = INT_HANDLE_BIG_ENDIAN;
+        longHandle = LONG_HANDLE_BIG_ENDIAN;
     }
 
     @Override
@@ -43,7 +49,7 @@ public final class ByteBufferSeq implements ByteSequence {
 
     @Override
     public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE) long index) {
-        return bb.getInt((int) index);
+        return (int) intHandle.get(bb, (int) index);
     }
 
     @Override
@@ -65,6 +71,13 @@ public final class ByteBufferSeq implements ByteSequence {
     @Override
     public void setByteOrder(@NotNull ByteOrder byteOrder) {
         bb.order(byteOrder);
+        if (byteOrder == ByteOrder.BIG_ENDIAN) {
+            intHandle = INT_HANDLE_BIG_ENDIAN;
+            longHandle = LONG_HANDLE_BIG_ENDIAN;
+        } else {
+            intHandle = INT_HANDLE_LITTLE_ENDIAN;
+            longHandle = LONG_HANDLE_LITTLE_ENDIAN;
+        }
     }
 
     /**
