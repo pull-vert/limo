@@ -25,19 +25,39 @@ public final class ByteBufferSeq implements ByteSequence {
     private static final VarHandle LONG_HANDLE_LITTLE_ENDIAN = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.LITTLE_ENDIAN);
 
     @NotNull
-    private ByteBuffer bb;
+    private final ByteBuffer bb;
 
     private VarHandle intHandle;
     private VarHandle longHandle;
 
     /**
      * Build a byte sequence from a {@link ByteBuffer}
-     * <p> The byte order of a newly-created data is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}. </p>
+     * <p> The byte order of a newly-created ByteSequence is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}. </p>
      *
      * @param bb the ByteBuffer
      */
     public ByteBufferSeq(@NotNull ByteBuffer bb) {
         this.bb = Objects.requireNonNull(bb);
+        intHandle = INT_HANDLE_BIG_ENDIAN;
+        longHandle = LONG_HANDLE_BIG_ENDIAN;
+    }
+
+    /**
+     * Build a byte sequence from a fresh {@link ByteBuffer}
+     * <p> The byte order of a newly-created ByteSequence is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}. </p>
+     *
+     * @param direct true for a direct ByteBuffer
+     * @param capacity total capacity of the ByteBuffer
+     */
+    public ByteBufferSeq(boolean direct, @Range(from = 1, to = Integer.MAX_VALUE) int capacity) {
+        if (capacity <= 0) {
+            throw new IllegalArgumentException("Capacity must be > 0");
+        }
+        if (direct) {
+            this.bb = ByteBuffer.allocateDirect(capacity);
+        } else {
+            this.bb = ByteBuffer.allocate(capacity);
+        }
         intHandle = INT_HANDLE_BIG_ENDIAN;
         longHandle = LONG_HANDLE_BIG_ENDIAN;
     }
