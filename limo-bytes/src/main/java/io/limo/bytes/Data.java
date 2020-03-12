@@ -20,7 +20,6 @@ public interface Data extends AutoCloseable {
     Reader getReader();
 
     /**
-     * todo replace by jdk14 new enumeration for byte order
      * Retrieves this data's byte order.
      *
      * <p> The byte order is used when reading or writing multibyte values.
