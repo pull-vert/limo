@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  *  A byte sequence based on a {@code ByteBuffer}
  */
-public final class ByteBufferSeq implements ByteSequence {
+public final class ByteBufferByteSequence implements ByteSequence {
 
     private static final VarHandle INT_HANDLE_BIG_ENDIAN = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
     private static final VarHandle LONG_HANDLE_BIG_ENDIAN = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
@@ -36,7 +36,7 @@ public final class ByteBufferSeq implements ByteSequence {
      *
      * @param bb the ByteBuffer
      */
-    public ByteBufferSeq(@NotNull ByteBuffer bb) {
+    public ByteBufferByteSequence(@NotNull ByteBuffer bb) {
         this.bb = Objects.requireNonNull(bb);
         intHandle = INT_HANDLE_BIG_ENDIAN;
         longHandle = LONG_HANDLE_BIG_ENDIAN;
@@ -49,7 +49,7 @@ public final class ByteBufferSeq implements ByteSequence {
      * @param direct true for a direct ByteBuffer
      * @param capacity total capacity of the ByteBuffer
      */
-    public ByteBufferSeq(boolean direct, @Range(from = 1, to = Integer.MAX_VALUE) int capacity) {
+    public ByteBufferByteSequence(boolean direct, @Range(from = 1, to = Integer.MAX_VALUE) int capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("Capacity must be > 0");
         }

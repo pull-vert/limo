@@ -1,8 +1,8 @@
 # Limo
 
-Limo is an IO framework based on [Project Loom virtual threads](https://wiki.openjdk.java.net/display/loom/Main).
+Limo is a IO library based on [Project Loom virtual threads](https://wiki.openjdk.java.net/display/loom/Main).
 
-## Features
+## Limo features
 
 ### Virtual threads
 
@@ -10,15 +10,13 @@ Limo is an IO framework based on [Project Loom virtual threads](https://wiki.ope
 * No need for Thread pooling, we just create a fresh new virtual thread when needed.
 * With virtual threads, we do not need complex synchronisation required by multi-threaded Selector based NIO.
 
-### Java 9 modules
+### Other Java features
 
-* Limo is Java 9 Jigsaw module compliant
-
-### Modern Java features
-
+* JDK9 Limo is modular thanks to Jigsaw modules
 * JDK15 Project Loom virtual threads (in progress)
+* JDK14 foreign memory (in progress)
 * JDK11 TLSv1.3 (later)
-* JDK9 compact Strings (in progress)
+* JDK9 compact Strings (later)
 ... more to come
 
 ## Requirements

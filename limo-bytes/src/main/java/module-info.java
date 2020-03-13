@@ -3,7 +3,9 @@
  */
 
 module limo.buffer {
+    requires jdk.incubator.foreign;
     requires org.jetbrains.annotations;
+    requires org.slf4j;
 
     exports io.limo.bytes;
 }

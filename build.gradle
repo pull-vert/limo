@@ -2,9 +2,11 @@ plugins {
     id 'org.javamodularity.moduleplugin' apply false
 }
 
+def javaExecutablesPath = "/home/fred/dev-tools/jdk/jdk-15"
+
 subprojects {
     apply plugin: 'java'
-    apply plugin: 'jacoco'
+//    apply plugin: 'jacoco'
     apply plugin: 'org.javamodularity.moduleplugin'
 
     // todo upgrade to actual loom version, at least 15
@@ -24,7 +26,7 @@ subprojects {
 
         testImplementation 'org.junit.jupiter:junit-jupiter-api'
         testImplementation "org.assertj:assertj-core:$assertj_version"
-        testImplementation "ch.qos.logback:logback-classic:$logback_version"
+        implementation "ch.qos.logback:logback-classic:$logback_version"
 
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
         // Force Gradle to load the JUnit Platform Launcher from the module-path
@@ -35,6 +37,19 @@ subprojects {
         exclude module: 'checker-framework'
     }
 
+    tasks.withType(AbstractCompile) {
+        options.with {
+            fork = true
+            forkOptions.executable = javaExecutablesPath + "/bin/javac"
+        }
+    }
+    tasks.withType(Test) {
+        executable = javaExecutablesPath + "/bin/java"
+    }
+    tasks.withType(JavaExec) {
+        executable = javaExecutablesPath + "/bin/java"
+    }
+
     test {
         useJUnitPlatform()
         testLogging {
@@ -43,23 +58,23 @@ subprojects {
         }
     }
 
-    jacoco {
-        toolVersion = "0.8.5"
-    }
-
-    tasks.withType(Test) {
-        jacoco.includeNoLocationClasses = true
-        jacoco.excludes = ['jdk.internal.*']
-    }
-
-    jacocoTestReport {
-        dependsOn(test)
-
-        reports {
-            html.enabled = true
-            xml.enabled = true
-        }
-    }
+//    jacoco {
+//        toolVersion = "0.8.5"
+//    }
+//
+//    tasks.withType(Test) {
+//        jacoco.includeNoLocationClasses = true
+//        jacoco.excludes = ['jdk.internal.*']
+//    }
+//
+//    jacocoTestReport {
+//        dependsOn(test)
+//
+//        reports {
+//            html.enabled = true
+//            xml.enabled = true
+//        }
+//    }
 }
 
 // Workaround for https://github.com/researchgate/gradle-release/issues/144
