@@ -2,7 +2,8 @@ plugins {
     id 'org.javamodularity.moduleplugin' apply false
 }
 
-def javaExecutablesPath = "/home/fred/dev-tools/jdk/jdk-15"
+//def javaExecutablesPath = "/home/fred/dev-tools/jdk/jdk-15/bin/"
+def javaExecutablesPath = "C:\\dev\\jdk\\jdk-15\\bin\\"
 
 subprojects {
     apply plugin: 'java'
@@ -10,8 +11,8 @@ subprojects {
     apply plugin: 'org.javamodularity.moduleplugin'
 
     // todo upgrade to actual loom version, at least 15
-    sourceCompatibility = JavaVersion.VERSION_13
-    targetCompatibility = JavaVersion.VERSION_13
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 
     repositories {
         mavenCentral()
@@ -26,7 +27,7 @@ subprojects {
 
         testImplementation 'org.junit.jupiter:junit-jupiter-api'
         testImplementation "org.assertj:assertj-core:$assertj_version"
-        implementation "ch.qos.logback:logback-classic:$logback_version"
+        testImplementation "org.slf4j:slf4j-simple:$slf4j_version"
 
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
         // Force Gradle to load the JUnit Platform Launcher from the module-path
@@ -40,14 +41,14 @@ subprojects {
     tasks.withType(AbstractCompile) {
         options.with {
             fork = true
-            forkOptions.executable = javaExecutablesPath + "/bin/javac"
+            forkOptions.executable = javaExecutablesPath + "javac"
         }
     }
     tasks.withType(Test) {
-        executable = javaExecutablesPath + "/bin/java"
+        executable = javaExecutablesPath + "java"
     }
     tasks.withType(JavaExec) {
-        executable = javaExecutablesPath + "/bin/java"
+        executable = javaExecutablesPath + "java"
     }
 
     test {

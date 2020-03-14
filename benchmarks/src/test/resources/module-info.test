@@ -1,0 +1,6 @@
+// make module visible
+--add-modules
+  org.assertj.core,jdk.incubator.foreign,turbo.utils
+
+--add-reads
+  limo.benchmarks=org.assertj.core,jdk.incubator.foreign,turbo.utils

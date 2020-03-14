@@ -76,7 +76,7 @@ public final class MemorySegmentByteSequence implements ByteSequence {
     public void writeIntAt(@Range(from = 0, to = Long.MAX_VALUE) long index, int value) {
         final var mem = base.addOffset(index);
         logger.atInfo().log("write int, previous address {}, new address {}", base.offset(), mem.offset());
-        intHandle.set(base.addOffset(index), value);
+        intHandle.set(mem, value);
     }
 
     @Override
