@@ -14,9 +14,9 @@ import java.nio.ByteOrder;
 import java.util.Objects;
 
 /**
- *  A byte sequence based on a {@code ByteBuffer}
+ *  A byte sequence based on a {@link ByteBuffer}
  */
-public final class ByteBufferByteSequence implements ByteSequence {
+public final class ByteBufferByBu implements ByBu {
 
     private static final VarHandle INT_HANDLE_BIG_ENDIAN = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
     private static final VarHandle LONG_HANDLE_BIG_ENDIAN = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
@@ -36,7 +36,7 @@ public final class ByteBufferByteSequence implements ByteSequence {
      *
      * @param bb the ByteBuffer
      */
-    public ByteBufferByteSequence(@NotNull ByteBuffer bb) {
+    public ByteBufferByBu(@NotNull ByteBuffer bb) {
         this.bb = Objects.requireNonNull(bb);
         intHandle = INT_HANDLE_BIG_ENDIAN;
         longHandle = LONG_HANDLE_BIG_ENDIAN;
@@ -49,7 +49,7 @@ public final class ByteBufferByteSequence implements ByteSequence {
      * @param direct true for a direct ByteBuffer
      * @param capacity total capacity of the ByteBuffer
      */
-    public ByteBufferByteSequence(boolean direct, @Range(from = 1, to = Integer.MAX_VALUE) int capacity) {
+    public ByteBufferByBu(boolean direct, @Range(from = 1, to = Integer.MAX_VALUE) int capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("Capacity must be > 0");
         }
@@ -63,28 +63,28 @@ public final class ByteBufferByteSequence implements ByteSequence {
     }
 
     @Override
-    public byte readByteAt(@Range(from = 0, to = Integer.MAX_VALUE) long index) {
-        return bb.get((int) index);
+    public byte readByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index) {
+        return bb.get(index);
     }
 
     @Override
-    public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE) long index) {
-        return (int) intHandle.get(bb, (int) index);
+    public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index) {
+        return (int) intHandle.get(bb, index);
     }
 
     @Override
-    public void writeByteAt(@Range(from = 0, to = Integer.MAX_VALUE) long index, byte value) {
-        bb.put((int) index, value);
+    public void writeByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, byte value) {
+        bb.put(index, value);
     }
 
     @Override
-    public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE) long index, int value) {
-        bb.putInt((int) index, value);
+    public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value) {
+        bb.putInt(index, value);
     }
 
     @Override
-    @Range(from = 0, to = Integer.MAX_VALUE)
-    public long getCapacity() {
+    @Range(from = 1, to = Integer.MAX_VALUE)
+    public int getByteSize() {
         return bb.capacity();
     }
 
@@ -98,12 +98,5 @@ public final class ByteBufferByteSequence implements ByteSequence {
             intHandle = INT_HANDLE_LITTLE_ENDIAN;
             longHandle = LONG_HANDLE_LITTLE_ENDIAN;
         }
-    }
-
-    /**
-     * Close is no op because {@link ByteBuffer} does not provide close
-     */
-    @Override
-    public void close() {
     }
 }

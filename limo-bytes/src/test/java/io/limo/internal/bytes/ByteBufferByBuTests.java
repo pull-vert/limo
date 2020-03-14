@@ -12,7 +12,7 @@ import java.nio.ByteOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public final class ByteBufferByteSequenceTests {
+public final class ByteBufferByBuTests {
 
     private static final byte FIRST = 0xa;
     private static final int SECOND = 42;
@@ -26,7 +26,7 @@ public final class ByteBufferByteSequenceTests {
         bb.put(FIRST);
         bb.putInt(SECOND);
 
-        final var byteSeq = new ByteBufferByteSequence(bb);
+        final var byteSeq = new ByteBufferByBu(bb);
         assertThat(byteSeq.readByteAt(0)).isEqualTo(FIRST);
         assertThat(byteSeq.readIntAt(1)).isEqualTo(SECOND);
     }
@@ -41,7 +41,7 @@ public final class ByteBufferByteSequenceTests {
         bb.put(FIRST);
         bb.putInt(SECOND);
 
-        final var byteSeq = new ByteBufferByteSequence(bb);
+        final var byteSeq = new ByteBufferByBu(bb);
         byteSeq.setByteOrder(ByteOrder.LITTLE_ENDIAN);
         assertThat(byteSeq.readByteAt(0)).isEqualTo(FIRST);
         assertThat(byteSeq.readIntAt(1)).isEqualTo(SECOND);

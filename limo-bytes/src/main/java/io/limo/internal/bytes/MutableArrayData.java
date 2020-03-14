@@ -26,7 +26,7 @@ public final class MutableArrayData extends ArrayData implements MutableData {
      * The memory supplier, can act as a pool
      */
     @NotNull
-    private ByteSequenceSupplier byteSequenceSupplier;
+    private ByBuSupplier byBuSupplier;
 
     /**
      * The data writer
@@ -34,19 +34,19 @@ public final class MutableArrayData extends ArrayData implements MutableData {
     @NotNull
     private final Writer writer;
 
-    public MutableArrayData(@NotNull ByteSequenceSupplier byteSequenceSupplier) {
-        this.byteSequenceSupplier = Objects.requireNonNull(byteSequenceSupplier);
-        final var initialMemory = byteSequenceSupplier.get();
+    public MutableArrayData(@NotNull ByBuSupplier byBuSupplier) {
+        this.byBuSupplier = Objects.requireNonNull(byBuSupplier);
+        final var initialMemory = byBuSupplier.get();
         // First element in data = initialMemory
-        byteSequences[0] = initialMemory;
+        byBus[0] = initialMemory;
         writer = new WriterImpl();
     }
 
-    public MutableArrayData(@NotNull Data data, @NotNull ByteSequenceSupplier byteSequenceSupplier) {
+    public MutableArrayData(@NotNull Data data, @NotNull ByBuSupplier byBuSupplier) {
         // todo use instanceof pattern matching of java 14 https://openjdk.java.net/jeps/305
         if (Objects.requireNonNull(data) instanceof ArrayData) {
             final var arrayData = (ArrayData) data;
-            byteSequences = arrayData.byteSequences;
+            byBus = arrayData.byBus;
             limits = arrayData.limits;
             readIndex = arrayData.readIndex;
             writeIndex = arrayData.writeIndex;
@@ -54,27 +54,27 @@ public final class MutableArrayData extends ArrayData implements MutableData {
         } else {
             throw new IllegalArgumentException("data type " + data.getClass().getTypeName() + " is unsupported");
         }
-        this.byteSequenceSupplier = Objects.requireNonNull(byteSequenceSupplier);
+        this.byBuSupplier = Objects.requireNonNull(byBuSupplier);
         writer = new WriterImpl();
     }
 
     /**
-     * Get a new byte sequence from {@link #byteSequenceSupplier}
+     * Get a new byte sequence from {@link #byBuSupplier}
      *
      * @return newly obtained byte sequence
      */
     @NotNull
-    private ByteSequence supplyNewByteSequence() {
+    private ByBu supplyNewByteSequence() {
         // no room left in array
         writeIndex += 1;
-        if (writeIndex == byteSequences.length) {
+        if (writeIndex == byBus.length) {
             // increase array size by 2 times
-            final var newLength = byteSequences.length * 2;
-            byteSequences = Arrays.copyOf(byteSequences, newLength);
+            final var newLength = byBus.length * 2;
+            byBus = Arrays.copyOf(byBus, newLength);
             limits = Arrays.copyOf(limits, newLength);
         }
-        final var newMemory = byteSequenceSupplier.get();
-        byteSequences[writeIndex] = newMemory;
+        final var newMemory = byBuSupplier.get();
+        byBus[writeIndex] = newMemory;
         return newMemory;
     }
 
@@ -93,24 +93,24 @@ public final class MutableArrayData extends ArrayData implements MutableData {
          * Current byte sequence to write in
          */
         @NotNull
-        private ByteSequence byteSequence;
+        private ByBu byBu;
 
         /**
-         * Writing index in the current {@link #byteSequence}
+         * Writing index in the current {@link #byBu}
          */
-        private long limit = 0L;
+        private int limit = 0;
 
         /**
-         * Capacity of the current {@link #byteSequence}
+         * Capacity of the current {@link #byBu}
          */
-        private long capacity;
+        private int capacity;
 
         /**
          * Current byte sequence is the last in the data array of {@code ArrayData}
          */
         private WriterImpl() {
-            byteSequence = Objects.requireNonNull(byteSequences[byteSequences.length - 1]);
-            capacity = byteSequence.getCapacity();
+            byBu = Objects.requireNonNull(byBus[byBus.length - 1]);
+            capacity = byBu.getByteSize();
         }
 
         @Override
@@ -122,7 +122,7 @@ public final class MutableArrayData extends ArrayData implements MutableData {
             // 1) at least 1 byte left to write a byte in current memory
             if (capacity >= targetLimit) {
                 limit = targetLimit;
-                byteSequence.writeByteAt(currentLimit, value);
+                byBu.writeByteAt(currentLimit, value);
                 return;
             }
 
@@ -136,7 +136,7 @@ public final class MutableArrayData extends ArrayData implements MutableData {
                 throw new EOFException("Empty byte sequence, no room for writing a byte");
             }
             limit = byteSize;
-            byteSequence.writeByteAt(currentLimit, value);
+            byBu.writeByteAt(currentLimit, value);
         }
 
         @Override
@@ -148,7 +148,7 @@ public final class MutableArrayData extends ArrayData implements MutableData {
             // 1) at least 4 bytes left to write an int in current byte sequence
             if (capacity >= targetLimit) {
                 limit = targetLimit;
-                byteSequence.writeIntAt(currentLimit, value);
+                byBu.writeIntAt(currentLimit, value);
                 return;
             }
 
@@ -160,7 +160,7 @@ public final class MutableArrayData extends ArrayData implements MutableData {
                 // we are at 0 index in newly obtained byte sequence
                 if (capacity >= intSize) {
                     limit = intSize;
-                    byteSequence.writeIntAt(currentLimit, value);
+                    byBu.writeIntAt(currentLimit, value);
                     return;
                 }
                 throw new EOFException("Byte sequence too small, no room for writing an int");
@@ -181,9 +181,9 @@ public final class MutableArrayData extends ArrayData implements MutableData {
          * Current byte sequence is full, add a new ByteSequence in data array
          */
         private void addNewByteSequence() {
-            byteSequence = supplyNewByteSequence();
-            capacity = byteSequence.getCapacity();
-            limit = 0L;
+            byBu = supplyNewByteSequence();
+            capacity = byBu.getByteSize();
+            limit = 0;
         }
     }
 }

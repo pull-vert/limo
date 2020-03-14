@@ -21,15 +21,15 @@ import java.util.Objects;
 public class SingleData implements Data {
 
     /**
-     * The memory into which the elements of the SingleData are stored
+     * The byte sequence into which the elements of the SingleData are stored
      */
     @NotNull
-    final ByteSequence byteSequence;
+    final ByBu byBu;
 
     /**
-     * The limit of memory
+     * The limit of byte sequence
      */
-    final long limit;
+    final int limit;
 
     boolean isBigEndian = true;
 
@@ -39,15 +39,15 @@ public class SingleData implements Data {
     @NotNull
     Reader reader;
 
-    public SingleData(@NotNull ByteSequence byteSequence, long limit) {
-        this.byteSequence = Objects.requireNonNull(byteSequence);
+    public SingleData(@NotNull ByBu byBu, int limit) {
+        this.byBu = Objects.requireNonNull(byBu);
         this.limit = limit;
         this.reader = new ReaderImpl();
     }
 
     @Override
     public @Range(from = 1, to = Long.MAX_VALUE) long getByteSize() {
-        return byteSequence.getCapacity();
+        return byBu.getByteSize();
     }
 
     @NotNull
@@ -66,12 +66,11 @@ public class SingleData implements Data {
     public void setByteOrder(@NotNull ByteOrder byteOrder) {
         isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
         // affect this byte order to memory
-        byteSequence.setByteOrder(byteOrder);
+        byBu.setByteOrder(byteOrder);
     }
 
     @Override
     public void close() {
-        byteSequence.close();
     }
 
     /**
@@ -82,7 +81,7 @@ public class SingleData implements Data {
         /**
          * Reading index in the memory
          */
-        private long index = 0L;
+        private int index = 0;
 
 
         @Override
@@ -94,7 +93,7 @@ public class SingleData implements Data {
             // 1) at least 1 byte left to read a byte in memory
             if (limit >= targetLimit) {
                 index = targetLimit;
-                return byteSequence.readByteAt(currentIndex);
+                return byBu.readByteAt(currentIndex);
             }
 
             // 2) memory is exhausted
@@ -110,7 +109,7 @@ public class SingleData implements Data {
             // 1) at least 4 bytes left to read an int in memory
             if (limit >= targetLimit) {
                 index = targetLimit;
-                return byteSequence.readIntAt(currentIndex);
+                return byBu.readIntAt(currentIndex);
             }
 
             // 2) memory is exhausted

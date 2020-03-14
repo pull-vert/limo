@@ -9,24 +9,24 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 /**
- * A pool of {@link ByteSequence}, that allows to recycle and supply {@link ByteSequence} when needed
+ * A pool of {@link ByBu}, that allows to recycle and supply {@link ByBu} when needed
  */
-public interface ByteSequenceSupplier extends Supplier<ByteSequence> {
+public interface ByBuSupplier extends Supplier<ByBu> {
 
     /**
-     * @return a {@link ByteSequence} from the pool or create new one
+     * @return a {@link ByBu} from the pool or create new one
      */
     @Override
     @NotNull
-    ByteSequence get();
+    ByBu get();
 
     /**
-     * Returns a {@link ByteSequence} to the pool.
+     * Returns a {@link ByBu} to the pool.
      *
-     * @param byteSequence This must be a byte sequence previously obtained
+     * @param byBu This must be a byte sequence previously obtained
      *               by calling MemorySupplier::get. The caller must
      *               not touch the buffer after returning it to
      *               the pool.
      */
-    void recycle(@NotNull ByteSequence byteSequence);
+    void recycle(@NotNull ByBu byBu);
 }

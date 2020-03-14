@@ -23,7 +23,10 @@ import java.nio.ByteOrder;
 import java.util.Objects;
 
 /**
- * A byte sequence based on a {@code ByteBuffer}
+ * Implementation of the immutable {@code Data} interface based on a {@link MemorySegment}
+ *
+ * @see Data
+ * @see MutableArrayData
  */
 public final class MemorySegmentData implements Data {
 

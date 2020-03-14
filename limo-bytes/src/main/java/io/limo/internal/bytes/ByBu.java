@@ -12,21 +12,21 @@ import java.nio.ByteOrder;
 /**
  * A byte sequence that store all or a part of a binary content
  */
-public interface ByteSequence extends AutoCloseable {
+public interface ByBu {
 
-    byte readByteAt(@Range(from = 0, to = Long.MAX_VALUE) long index);
+    byte readByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index);
 
-    int readIntAt(@Range(from = 0, to = Long.MAX_VALUE) long index);
+    int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index);
 
-    void writeByteAt(@Range(from = 0, to = Long.MAX_VALUE) long index, byte value);
+    void writeByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, byte value);
 
-    void writeIntAt(@Range(from = 0, to = Long.MAX_VALUE) long index, int value);
+    void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value);
 
     /**
-     * @return Total capacity, in bytes
+     * @return The size (in bytes) of this byte sequence
      */
-    @Range(from = 0, to = Long.MAX_VALUE)
-    long getCapacity();
+    @Range(from = 1, to = Integer.MAX_VALUE)
+    int getByteSize();
 
     /**
      * Modifies this byte sequence's byte order.
@@ -36,10 +36,4 @@ public interface ByteSequence extends AutoCloseable {
      *         or {@link ByteOrder#LITTLE_ENDIAN LITTLE_ENDIAN}
      */
     void setByteOrder(@NotNull ByteOrder byteOrder);
-
-    /**
-     * Closes this byte sequence
-     */
-    @Override
-    void close();
 }
