@@ -7,6 +7,7 @@ package io.limo.internal.bytes;
 import io.limo.bytes.Data;
 import io.limo.bytes.Reader;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 
 import java.io.EOFException;
 import java.nio.ByteOrder;
@@ -52,6 +53,8 @@ public class ArrayData implements Data {
 
     boolean isBigEndian = true;
 
+    final long byteSize;
+
     /**
      * The data reader
      */
@@ -63,12 +66,18 @@ public class ArrayData implements Data {
         byteSequences = new ByteSequence[DEFAULT_CAPACITY];
         limits = new long[DEFAULT_CAPACITY];
         reader = new ReaderImpl();
+        byteSize = 0;
     }
 
     public ArrayData(ByteSequence @NotNull [] byteSequences, long @NotNull [] limits) {
         this.byteSequences = Objects.requireNonNull(byteSequences);
         this.limits = Objects.requireNonNull(limits);
-        writeIndex = limits.length;
+        this.writeIndex = limits.length;
+        var byteSizesSum = 0;
+        for (ByteSequence byteSequence : byteSequences) {
+            byteSizesSum += byteSequence.getCapacity();
+        }
+        this.byteSize = byteSizesSum;
 
         reader = new ReaderImpl();
     }
@@ -86,6 +95,7 @@ public class ArrayData implements Data {
             }
         }
 
+        var byteSizesSum = first.getByteSize();
         // initiate arrays
         var offset = 0;
         if (first instanceof ArrayData) {
@@ -101,6 +111,7 @@ public class ArrayData implements Data {
 
         int dataLength;
         for (final var data : rest) {
+            byteSizesSum += data.getByteSize();
             if (data instanceof ArrayData) {
                 final var arrayData = (ArrayData) data;
                 dataLength = arrayData.writeIndex + 1;
@@ -109,6 +120,7 @@ public class ArrayData implements Data {
                 offset += dataLength;
             }
         }
+        this.byteSize = byteSizesSum;
 
         reader = new ReaderImpl();
     }
@@ -122,6 +134,11 @@ public class ArrayData implements Data {
             return OptionalInt.of(++readIndex);
         }
         return OptionalInt.empty();
+    }
+
+    @Override
+    public @Range(from = 1, to = Long.MAX_VALUE) long getByteSize() {
+        return this.byteSize;
     }
 
     @NotNull

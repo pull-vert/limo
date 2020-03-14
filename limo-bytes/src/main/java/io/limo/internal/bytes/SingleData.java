@@ -7,6 +7,7 @@ package io.limo.internal.bytes;
 import io.limo.bytes.Data;
 import io.limo.bytes.Reader;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 
 import java.io.EOFException;
 import java.nio.ByteOrder;
@@ -41,7 +42,12 @@ public class SingleData implements Data {
     public SingleData(@NotNull ByteSequence byteSequence, long limit) {
         this.byteSequence = Objects.requireNonNull(byteSequence);
         this.limit = limit;
-        reader = new ReaderImpl();
+        this.reader = new ReaderImpl();
+    }
+
+    @Override
+    public @Range(from = 1, to = Long.MAX_VALUE) long getByteSize() {
+        return byteSequence.getCapacity();
     }
 
     @NotNull
