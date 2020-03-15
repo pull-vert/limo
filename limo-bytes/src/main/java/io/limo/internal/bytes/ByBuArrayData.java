@@ -6,10 +6,11 @@ package io.limo.internal.bytes;
 
 import io.limo.bytes.Data;
 import io.limo.bytes.Reader;
+import io.limo.bytes.ReaderUnderflowException;
+import io.limo.utils.BytesOps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
-import java.io.EOFException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Objects;
@@ -17,9 +18,8 @@ import java.util.Optional;
 import java.util.OptionalInt;
 
 /**
- * Implementation of the immutable {@code Data} interface based on a fixed size array of byte sequences
+ * Implementation of the immutable {@link Data} interface based on a fixed size array of {@link ByBu}
  *
- * @see Data
  * @see MutableByBuArrayData
  */
 public class ByBuArrayData implements Data {
@@ -53,13 +53,12 @@ public class ByBuArrayData implements Data {
 
     protected boolean isBigEndian = true;
 
-    private final long byteSize;
-
     /**
      * The data reader
      */
-    @NotNull
-    protected Reader reader;
+    protected @NotNull Reader reader;
+
+    private final long byteSize;
 
     public ByBuArrayData() {
         // init memories and limits with DEFAULT_CAPACITY size
@@ -191,7 +190,7 @@ public class ByBuArrayData implements Data {
         }
 
         @Override
-        public byte readByte() throws EOFException {
+        public byte readByte() {
             final var currentIndex = this.index;
             final var currentLimit = this.limit;
             final var byteSize = 1;
@@ -213,11 +212,13 @@ public class ByBuArrayData implements Data {
                 this.index = byteSize;
                 return this.byBu.readByteAt(0);
             }
-            throw new EOFException("End of file while reading byte sequence");
+
+            // 3) memory is exhausted
+            throw new ReaderUnderflowException();
         }
 
         @Override
-        public int readInt() throws EOFException {
+        public int readInt() {
             final var currentIndex = this.index;
             final var currentLimit = this.limit;
             final var intSize = 4;
@@ -240,7 +241,8 @@ public class ByBuArrayData implements Data {
                     this.index = intSize;
                     return this.byBu.readIntAt(0);
                 }
-                throw new EOFException("End of file while reading byte sequence");
+                // 3) memory is exhausted
+                throw new ReaderUnderflowException();
             }
 
             // 3) must read some bytes in current byte sequence, some others from next one
@@ -250,10 +252,10 @@ public class ByBuArrayData implements Data {
         /**
          * Switch to next byte sequence because current one is exhausted
          *
-         * @throws EOFException if no readable next byte sequence
+         * @throws ReaderUnderflowException if no readable next byte sequence
          */
-        private void nextByteSequence() throws EOFException {
-            final var nextReadIndex = getNextReadIndex().orElseThrow(() -> new EOFException("End of file while reading byte sequence"));
+        private void nextByteSequence() {
+            final var nextReadIndex = getNextReadIndex().orElseThrow(ReaderUnderflowException::new);
             this.byBu = Objects.requireNonNull(byBus[nextReadIndex]);
             this.limit = limits[nextReadIndex];
         }

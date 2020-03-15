@@ -6,42 +6,38 @@ package io.limo.internal.bytes;
 
 import io.limo.bytes.Data;
 import io.limo.bytes.Reader;
+import io.limo.bytes.ReaderUnderflowException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
-import java.io.EOFException;
 import java.nio.ByteOrder;
 import java.util.Objects;
 
 /**
- * Implementation of the immutable {@code Data} interface based on a single byte sequence
- *
- * @see Data
+ * Implementation of the immutable {@link Data} interface based on a single {@link ByBu}
  */
 public class ByBuData implements Data {
 
     /**
      * The byte sequence into which the elements of the SingleData are stored
      */
-    @NotNull
-    final ByBu byBu;
+    private final @NotNull ByBu byBu;
 
     /**
      * The limit of byte sequence
      */
-    final int limit;
+    private final int limit;
 
-    boolean isBigEndian = true;
+    private boolean isBigEndian = true;
 
     /**
      * The data reader
      */
-    @NotNull
-    Reader reader;
+    private @NotNull Reader reader;
 
-    public ByBuData(@NotNull ByBu byBu, int limit) {
+    public ByBuData(@NotNull ByBu byBu) {
         this.byBu = Objects.requireNonNull(byBu);
-        this.limit = limit;
+        this.limit = byBu.getByteSize();
         this.reader = new ReaderImpl();
     }
 
@@ -50,15 +46,13 @@ public class ByBuData implements Data {
         return byBu.getByteSize();
     }
 
-    @NotNull
     @Override
-    public Reader getReader() {
+    public @NotNull Reader getReader() {
         return reader;
     }
 
-    @NotNull
     @Override
-    public ByteOrder getByteOrder() {
+    public @NotNull ByteOrder getByteOrder() {
         return isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
     }
 
@@ -85,35 +79,35 @@ public class ByBuData implements Data {
 
 
         @Override
-        public byte readByte() throws EOFException {
-            final var currentIndex = index;
+        public byte readByte() {
+            final var currentIndex = this.index;
             final var byteSize = 1;
             final var targetLimit = currentIndex + byteSize;
 
             // 1) at least 1 byte left to read a byte in memory
             if (limit >= targetLimit) {
-                index = targetLimit;
+                this.index = targetLimit;
                 return byBu.readByteAt(currentIndex);
             }
 
             // 2) memory is exhausted
-            throw new EOFException("End of file while reading memory");
+            throw new ReaderUnderflowException();
         }
 
         @Override
-        public int readInt() throws EOFException {
-            final var currentIndex = index;
+        public int readInt() {
+            final var currentIndex = this.index;
             final var intSize = 4;
             final var targetLimit = currentIndex + intSize;
 
             // 1) at least 4 bytes left to read an int in memory
             if (limit >= targetLimit) {
-                index = targetLimit;
+                this.index = targetLimit;
                 return byBu.readIntAt(currentIndex);
             }
 
             // 2) memory is exhausted
-            throw new EOFException("End of file while reading memory");
+            throw new ReaderUnderflowException();
         }
 
         @Override

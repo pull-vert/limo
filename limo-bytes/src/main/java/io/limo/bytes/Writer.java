@@ -4,16 +4,22 @@
 
 package io.limo.bytes;
 
-import java.io.EOFException;
-
 /**
- * This interface allow to write binary data
+ * This interface allows to write binary data
  */
 public interface Writer extends AutoCloseable {
 
-    void writeByte(byte value) throws EOFException;
+    /**
+     * writes a byte in the data, write index increases by 1
+     * @throws WriterOverflowException if there is no room in data to write a byte
+     */
+    void writeByte(byte value);
 
-    void writeInt(int value) throws EOFException;
+    /**
+     * writes an int in the data, write index increases by 4
+     * @throws WriterOverflowException if there is no room in data to write an int (4 bytes)
+     */
+    void writeInt(int value);
 
     /**
      * Closes all resources that store binary data

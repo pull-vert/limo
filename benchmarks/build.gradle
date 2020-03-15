@@ -14,7 +14,8 @@ jmh {
 }
 
 dependencies {
+    implementation project(':limo-bytes')
+
     implementation "org.openjdk.jmh:jmh-core:$jmh_version"
     implementation 'com.turbo-rpc:turbo-utils:0.0.9'
-    implementation project(':limo-bytes')
 }

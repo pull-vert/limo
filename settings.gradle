@@ -9,5 +9,6 @@ pluginManagement {
 rootProject.name = 'limo'
 
 include 'limo-bytes'
+include 'limo-commons'
 
 include 'benchmarks'

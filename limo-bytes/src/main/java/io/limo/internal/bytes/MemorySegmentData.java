@@ -6,6 +6,8 @@ package io.limo.internal.bytes;
 
 import io.limo.bytes.Data;
 import io.limo.bytes.Reader;
+import io.limo.bytes.ReaderUnderflowException;
+import io.limo.utils.BytesOps;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemoryHandles;
 import jdk.incubator.foreign.MemoryLayout;
@@ -16,7 +18,6 @@ import org.jetbrains.annotations.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.EOFException;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.nio.ByteOrder;
@@ -125,7 +126,7 @@ public final class MemorySegmentData implements Data {
 
 
         @Override
-        public byte readByte() throws EOFException {
+        public byte readByte() {
             final var currentIndex = this.index;
             final var byteSize = 1;
             final var targetLimit = currentIndex + byteSize;
@@ -137,11 +138,11 @@ public final class MemorySegmentData implements Data {
             }
 
             // 2) memory is exhausted
-            throw new EOFException("End of file while reading memory");
+            throw new ReaderUnderflowException();
         }
 
         @Override
-        public int readInt() throws EOFException {
+        public int readInt() {
             final var currentIndex = this.index;
             final var intSize = 4;
             final var targetLimit = currentIndex + intSize;
@@ -160,7 +161,7 @@ public final class MemorySegmentData implements Data {
             }
 
             // 2) memory is exhausted
-            throw new EOFException("End of file while reading memory");
+            throw new ReaderUnderflowException();
         }
 
         @Override

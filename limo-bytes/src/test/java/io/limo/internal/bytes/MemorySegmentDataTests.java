@@ -4,10 +4,10 @@
 
 package io.limo.internal.bytes;
 
+import io.limo.utils.BytesOps;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.EOFException;
 import java.nio.ByteOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +62,7 @@ public final class MemorySegmentDataTests {
 
     @Test
     @DisplayName("Verify read using native Big Endian is working")
-    void readBE() throws EOFException {
+    void readBE() {
         // ByteSequence is natively Big Endian ordered
         try (final var byteSeq = new MemorySegmentData(BYTES_BIG_ENDIAN)) {
             final var reader = byteSeq.getReader();
@@ -75,7 +75,7 @@ public final class MemorySegmentDataTests {
 
     @Test
     @DisplayName("Verify read using Little Endian is working")
-    void readLE() throws EOFException {
+    void readLE() {
         // Allocate 5 bytes : 1 for byte, 4 for int
         // ByteSequence is natively Big Endian ordered
         try (final var byteSeq = new MemorySegmentData(BYTES_LITTLE_ENDIAN)) {

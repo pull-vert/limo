@@ -4,24 +4,22 @@
 
 package io.limo.bytes;
 
-import java.io.EOFException;
-
 /**
- * This interface allow to read binary data
+ * This interface allows to read binary data
  */
 public interface Reader extends AutoCloseable {
 
     /**
      * @return a byte that was read from the data, read index increases by 1
-     * @throws EOFException if there is no byte left to read in data
+     * @throws ReaderUnderflowException if there is no byte left to read in data
      */
-    byte readByte() throws EOFException;
+    byte readByte();
 
     /**
      * @return a 4 bytes int that was read from the data, read index increases by 4
-     * @throws EOFException if there is less than 4 bytes left to read in data
+     * @throws ReaderUnderflowException if there is less than 4 bytes left to read in data
      */
-    int readInt() throws EOFException;
+    int readInt();
 
     /**
      * Closes all resources that store binary data

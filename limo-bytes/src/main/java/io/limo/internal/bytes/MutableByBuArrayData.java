@@ -7,18 +7,18 @@ package io.limo.internal.bytes;
 import io.limo.bytes.Data;
 import io.limo.bytes.MutableData;
 import io.limo.bytes.Writer;
+import io.limo.bytes.WriterOverflowException;
+import io.limo.utils.BytesOps;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.EOFException;
 import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Implementation of the mutable {@code MutableData} interface based on a resizable array of byte sequences
+ * Implementation of the mutable {@link MutableData} interface based on a resizable array of {@link ByBu}
  *
  * @implNote Inspired by ArrayList
  * @see ByBuArrayData
- * @see MutableData
  */
 public final class MutableByBuArrayData extends ByBuArrayData implements MutableData {
 
@@ -108,7 +108,7 @@ public final class MutableByBuArrayData extends ByBuArrayData implements Mutable
         }
 
         @Override
-        public void writeByte(byte value) throws EOFException {
+        public void writeByte(byte value) {
             final var currentLimit = this.limit;
             final var byteSize = 1;
             final var targetLimit = currentLimit + byteSize;
@@ -127,14 +127,14 @@ public final class MutableByBuArrayData extends ByBuArrayData implements Mutable
             // we are at 0 index in newly obtained byte sequence
 
             if (this.capacity < byteSize) {
-                throw new EOFException("Empty byte sequence, no room for writing a byte");
+                throw new WriterOverflowException();
             }
             this.limit = byteSize;
             this.byBu.writeByteAt(currentLimit, value);
         }
 
         @Override
-        public void writeInt(int value) throws EOFException {
+        public void writeInt(int value) {
             final var currentLimit = this.limit;
             final var intSize = 4;
             final var targetLimit = currentLimit + intSize;
@@ -157,7 +157,7 @@ public final class MutableByBuArrayData extends ByBuArrayData implements Mutable
                     this.byBu.writeIntAt(currentLimit, value);
                     return;
                 }
-                throw new EOFException("Byte sequence too small, no room for writing an int");
+                throw new WriterOverflowException();
             }
 
             // 3) must write some bytes in current byte sequence, some others in next one
