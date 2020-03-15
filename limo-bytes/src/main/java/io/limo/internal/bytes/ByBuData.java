@@ -10,6 +10,7 @@ import io.limo.bytes.ReaderUnderflowException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
 
@@ -21,12 +22,12 @@ public class ByBuData implements Data {
     /**
      * The byte sequence into which the elements of the SingleData are stored
      */
-    private final @NotNull ByBu byBu;
+    final @NotNull ByBu byBu;
 
     /**
      * The limit of byte sequence
      */
-    private final int limit;
+    final int limit;
 
     private boolean isBigEndian = true;
 
@@ -35,36 +36,41 @@ public class ByBuData implements Data {
      */
     private @NotNull Reader reader;
 
-    public ByBuData(@NotNull ByBu byBu) {
-        this.byBu = Objects.requireNonNull(byBu);
-        this.limit = byBu.getByteSize();
+    public ByBuData(@NotNull ByteBuffer bb) {
+        this.byBu = new ByteBufferByBu(Objects.requireNonNull(bb));
+        this.limit = bb.capacity();
         this.reader = new ReaderImpl();
     }
 
     @Override
-    public @Range(from = 1, to = Long.MAX_VALUE) long getByteSize() {
+    public final @Range(from = 1, to = Integer.MAX_VALUE) long getByteSize() {
         return byBu.getByteSize();
     }
 
     @Override
-    public @NotNull Reader getReader() {
+    public final @NotNull Reader getReader() {
         return reader;
     }
 
     @Override
-    public @NotNull ByteOrder getByteOrder() {
+    public final @NotNull ByteOrder getByteOrder() {
         return isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
     }
 
     @Override
-    public void setByteOrder(@NotNull ByteOrder byteOrder) {
+    public final void setByteOrder(@NotNull ByteOrder byteOrder) {
         isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
         // affect this byte order to memory
         byBu.setByteOrder(byteOrder);
     }
 
     @Override
-    public void close() {
+    public final @Range(from = 1, to = Long.MAX_VALUE) long getLimit() {
+        return this.limit;
+    }
+
+    @Override
+    public final void close() {
     }
 
     /**

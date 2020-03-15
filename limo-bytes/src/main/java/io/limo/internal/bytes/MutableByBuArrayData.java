@@ -40,18 +40,29 @@ public final class MutableByBuArrayData extends ByBuArrayData implements Mutable
     }
 
     public MutableByBuArrayData(@NotNull Data data, @NotNull ByBuSupplier byBuSupplier) {
+        Objects.requireNonNull(data);
+        Objects.requireNonNull(byBuSupplier);
+
         // todo use instanceof pattern matching of java 14 https://openjdk.java.net/jeps/305
-        if (Objects.requireNonNull(data) instanceof ByBuArrayData) {
+        if (data instanceof ByBuArrayData) {
             final var arrayData = (ByBuArrayData) data;
             this.byBus = arrayData.byBus;
             this.limits = arrayData.limits;
             this.readIndex = arrayData.readIndex;
             this.writeIndex = arrayData.writeIndex;
             this.reader = arrayData.reader;
+        } else if (data instanceof ByBuData) {
+            final var byBuData = (ByBuData) data;
+            this.byBus = new ByBu[DEFAULT_CAPACITY];
+            this.byBus[0] = byBuData.byBu;
+            this.limits = new int[DEFAULT_CAPACITY];
+            this.limits[0] = byBuData.limit;
+            // read and write indexes both have an initial value of 0
+            this.reader = new ReaderImpl();
         } else {
-            throw new IllegalArgumentException("data type " + data.getClass().getTypeName() + " is unsupported");
+            throw new IllegalArgumentException("data type " + data.getClass().getTypeName() + " is not supported");
         }
-        this.byBuSupplier = Objects.requireNonNull(byBuSupplier);
+        this.byBuSupplier = byBuSupplier;
         this.writer = new WriterImpl();
     }
 

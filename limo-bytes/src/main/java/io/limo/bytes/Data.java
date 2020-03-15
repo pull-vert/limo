@@ -20,7 +20,7 @@ public interface Data extends AutoCloseable {
     @Range(from = 1, to = Long.MAX_VALUE) long getByteSize();
 
     /**
-     * @return the data reader
+     * @return The data reader
      */
     @NotNull Reader getReader();
 
@@ -43,6 +43,11 @@ public interface Data extends AutoCloseable {
      *                  or {@link ByteOrder#LITTLE_ENDIAN LITTLE_ENDIAN}
      */
     void setByteOrder(@NotNull ByteOrder byteOrder);
+
+    /**
+     * @return  The limit of this binary data
+     */
+    @Range(from = 1, to = Long.MAX_VALUE) long getLimit();
 
     /**
      * Closes all resources that store binary data

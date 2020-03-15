@@ -105,6 +105,11 @@ public final class MemorySegmentData implements Data {
         this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
     }
 
+    @Override
+    public @Range(from = 1, to = Long.MAX_VALUE) long getLimit() {
+        return this.limit;
+    }
+
     /**
      * Closes the {@link MemorySegment}
      */
