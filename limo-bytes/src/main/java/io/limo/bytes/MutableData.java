@@ -14,6 +14,5 @@ public interface MutableData extends Data {
     /**
      * @return the data writer
      */
-    @NotNull
-    Writer getWriter();
+    @NotNull Writer getWriter();
 }

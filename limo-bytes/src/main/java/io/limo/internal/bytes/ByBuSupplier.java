@@ -17,8 +17,7 @@ public interface ByBuSupplier extends Supplier<ByBu> {
      * @return a {@link ByBu} from the pool or create new one
      */
     @Override
-    @NotNull
-    ByBu get();
+    @NotNull ByBu get();
 
     /**
      * Returns a {@link ByBu} to the pool.

@@ -25,8 +25,7 @@ public interface ByBu {
     /**
      * @return The size (in bytes) of this byte sequence
      */
-    @Range(from = 1, to = Integer.MAX_VALUE)
-    int getByteSize();
+    @Range(from = 1, to = Integer.MAX_VALUE) int getByteSize();
 
     /**
      * Modifies this byte sequence's byte order.

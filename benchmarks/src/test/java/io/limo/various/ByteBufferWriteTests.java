@@ -5,7 +5,6 @@
 package io.limo.various;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -18,52 +17,47 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public final class ByteBufferWriteTests {
 
-    private ByteBuffer bb;
+    // Allocate 13 bytes : 4 for int, 8 for long, 1 for byte
+    // ByteBuffer is natively Big Endian ordered
+    private final ByteBuffer bb = ByteBuffer.allocateDirect(13);
 
-    private static final VarHandle intHandle = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
-    private static final VarHandle longHandle = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
-
-    @BeforeAll
-    void before() {
-        // Allocate 13 bytes : 4 for int, 8 for long, 1 for byte
-        // ByteBuffer is natively Big Endian ordered
-        bb = ByteBuffer.allocateDirect(13);
-    }
+    private static final VarHandle INT_HANDLE = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
+    private static final VarHandle LONG_HANDLE = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
 
     @AfterEach
-    void after() {
-        bb.clear();
+    void afterEach() {
+        this.bb.clear();
     }
 
     private void verifyContent() {
-        assertThat(bb.getInt(0)).isEqualTo(42);
-        assertThat(bb.getLong(4)).isEqualTo(128L);
-        assertThat(bb.get(12)).isEqualTo((byte) 0xa);
+        assertThat(this.bb.getInt(0)).isEqualTo(42);
+        assertThat(this.bb.getLong(4)).isEqualTo(128L);
+        assertThat(this.bb.get(12)).isEqualTo((byte) 0xa);
     }
 
     @Test
     @DisplayName("Direct write")
     void directWrite() {
-        bb.putInt(42);
-        bb.putLong(128L);
-        bb.put((byte) 0xa);
+        this.bb.putInt(42);
+        this.bb.putLong(128L);
+        this.bb.put((byte) 0xa);
         verifyContent();
     }
 
     @Test
     @DisplayName("Indexed write")
     void indexedWrite() {
-        bb.putInt(0, 42);
-        bb.putLong(4, 128L);
-        bb.put(12, (byte) 0xa);
+        this.bb.putInt(0, 42);
+        this.bb.putLong(4, 128L);
+        this.bb.put(12, (byte) 0xa);
         verifyContent();
     }
 
     @Test
     @DisplayName("VarHandle write")
     void varHandleWrite() {
-        intHandle.set(bb, 0, 42);
-        longHandle.set(bb, 4, 128L);
+        INT_HANDLE.set(bb, 0, 42);
+        LONG_HANDLE.set(bb, 4, 128L);
         bb.put(12, (byte) 0xa);
         verifyContent();
     }

@@ -26,7 +26,7 @@ import java.util.Objects;
  * Implementation of the immutable {@code Data} interface based on a {@link MemorySegment}
  *
  * @see Data
- * @see MutableArrayData
+ * @see MutableByBuArrayData
  */
 public final class MemorySegmentData implements Data {
 
@@ -37,11 +37,9 @@ public final class MemorySegmentData implements Data {
     private static final VarHandle INT_AS_BYTE_SEQ_HANDLE = MemoryLayout.ofSequence(4, MemoryLayouts.BITS_8_BE)
         .varHandle(byte.class, MemoryLayout.PathElement.sequenceElement());
 
-    @NotNull
-    private final MemorySegment segment;
+    private final @NotNull MemorySegment segment;
 
-    @NotNull
-    private final MemoryAddress base;
+    private final @NotNull MemoryAddress base;
 
     /**
      * The limit of memory
@@ -53,8 +51,7 @@ public final class MemorySegmentData implements Data {
     /**
      * The data reader
      */
-    @NotNull
-    private final Reader reader;
+    private final @NotNull Reader reader;
 
     /**
      * Build a byte sequence from a fresh {@link MemorySegment}
@@ -87,24 +84,9 @@ public final class MemorySegmentData implements Data {
         this.reader = new ReaderImpl();
     }
 
-//    @Override
-//    public void writeByteAt(@Range(from = 0, to = Long.MAX_VALUE - 1) long index, byte value) {
-//        BYTE_HANDLE.set(base.addOffset(index), value);
-//    }
-//
-//    @Override
-//    public void writeIntAt(@Range(from = 0, to = Long.MAX_VALUE - 1) long index, int value) {
-//        final var bytes = BytesOps.intToBytes(value, isBigEndian);
-//        final var address = base.addOffset(index);
-//        for (var i = 0; i < 4; i++) {
-//            INT_AS_BYTE_SEQ_HANDLE.set(address, (long) i, bytes[i]);
-//        }
-//    }
-
-    @Range(from = 1, to = Long.MAX_VALUE)
     @Override
-    public long getByteSize() {
-        return segment.byteSize();
+    public @Range(from = 1, to = Long.MAX_VALUE) long getByteSize() {
+        return this.segment.byteSize();
     }
 
     @Override
@@ -127,7 +109,7 @@ public final class MemorySegmentData implements Data {
      */
     @Override
     public void close() {
-        segment.close();
+        this.segment.close();
         logger.atDebug().log("Closed MemorySegment");
     }
 
@@ -144,13 +126,13 @@ public final class MemorySegmentData implements Data {
 
         @Override
         public byte readByte() throws EOFException {
-            final var currentIndex = index;
+            final var currentIndex = this.index;
             final var byteSize = 1;
             final var targetLimit = currentIndex + byteSize;
 
             // 1) at least 1 byte left to read a byte in memory
             if (limit >= targetLimit) {
-                index = targetLimit;
+                this.index = targetLimit;
                 return (byte) BYTE_HANDLE.get(base.addOffset(currentIndex));
             }
 
@@ -160,13 +142,13 @@ public final class MemorySegmentData implements Data {
 
         @Override
         public int readInt() throws EOFException {
-            final var currentIndex = index;
+            final var currentIndex = this.index;
             final var intSize = 4;
             final var targetLimit = currentIndex + intSize;
 
             // 1) at least 4 bytes left to read an int in memory
             if (limit >= targetLimit) {
-                index = targetLimit;
+                this.index = targetLimit;
                 final var address = base.addOffset(currentIndex);
                 return BytesOps.bytesToInt(
                     (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 0L),
@@ -186,4 +168,18 @@ public final class MemorySegmentData implements Data {
             MemorySegmentData.this.close();
         }
     }
+
+    //    @Override
+//    public void writeByteAt(@Range(from = 0, to = Long.MAX_VALUE - 1) long index, byte value) {
+//        BYTE_HANDLE.set(base.addOffset(index), value);
+//    }
+//
+//    @Override
+//    public void writeIntAt(@Range(from = 0, to = Long.MAX_VALUE - 1) long index, int value) {
+//        final var bytes = BytesOps.intToBytes(value, isBigEndian);
+//        final var address = base.addOffset(index);
+//        for (var i = 0; i < 4; i++) {
+//            INT_AS_BYTE_SEQ_HANDLE.set(address, (long) i, bytes[i]);
+//        }
+//    }
 }

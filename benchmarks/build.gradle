@@ -10,7 +10,7 @@ jmh {
     failOnError = true
     resultFormat = 'CSV'
     // change with your Loom JDK path
-    jvm = "C:\\dev\\jdk\\jdk-14\\bin\\java.exe"
+    jvm = "C:\\dev\\jdk\\jdk-15\\bin\\java.exe"
 }
 
 dependencies {

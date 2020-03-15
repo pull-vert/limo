@@ -18,7 +18,7 @@ import java.util.Objects;
  *
  * @see Data
  */
-public class SingleData implements Data {
+public class ByBuData implements Data {
 
     /**
      * The byte sequence into which the elements of the SingleData are stored
@@ -39,7 +39,7 @@ public class SingleData implements Data {
     @NotNull
     Reader reader;
 
-    public SingleData(@NotNull ByBu byBu, int limit) {
+    public ByBuData(@NotNull ByBu byBu, int limit) {
         this.byBu = Objects.requireNonNull(byBu);
         this.limit = limit;
         this.reader = new ReaderImpl();
@@ -118,7 +118,7 @@ public class SingleData implements Data {
 
         @Override
         public void close() {
-            SingleData.this.close();
+            ByBuData.this.close();
         }
     }
 }

@@ -17,14 +17,12 @@ public interface Data extends AutoCloseable {
     /**
      * @return The size (in bytes) of this binary data
      */
-    @Range(from = 1, to = Long.MAX_VALUE)
-    long getByteSize();
+    @Range(from = 1, to = Long.MAX_VALUE) long getByteSize();
 
     /**
      * @return the data reader
      */
-    @NotNull
-    Reader getReader();
+    @NotNull Reader getReader();
 
     /**
      * Retrieves this data's byte order.
@@ -35,8 +33,7 @@ public interface Data extends AutoCloseable {
      *
      * @return This data's byte order
      */
-    @NotNull
-    ByteOrder getByteOrder();
+    @NotNull ByteOrder getByteOrder();
 
     /**
      * Modifies this data's byte order.

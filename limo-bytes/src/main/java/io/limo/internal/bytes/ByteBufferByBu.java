@@ -18,17 +18,16 @@ import java.util.Objects;
  */
 public final class ByteBufferByBu implements ByBu {
 
-    private static final VarHandle INT_HANDLE_BIG_ENDIAN = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
-    private static final VarHandle LONG_HANDLE_BIG_ENDIAN = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
+    private static final VarHandle INT_HANDLE_BE = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
+    private static final VarHandle LONG_HANDLE_BE = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
 
     private static final VarHandle INT_HANDLE_LITTLE_ENDIAN = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.LITTLE_ENDIAN);
     private static final VarHandle LONG_HANDLE_LITTLE_ENDIAN = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.LITTLE_ENDIAN);
 
-    @NotNull
-    private final ByteBuffer bb;
+    private final @NotNull ByteBuffer bb;
 
-    private VarHandle intHandle;
-    private VarHandle longHandle;
+    private @NotNull VarHandle intHandle;
+    private @NotNull VarHandle longHandle;
 
     /**
      * Build a byte sequence from a {@link ByteBuffer}
@@ -38,8 +37,8 @@ public final class ByteBufferByBu implements ByBu {
      */
     public ByteBufferByBu(@NotNull ByteBuffer bb) {
         this.bb = Objects.requireNonNull(bb);
-        intHandle = INT_HANDLE_BIG_ENDIAN;
-        longHandle = LONG_HANDLE_BIG_ENDIAN;
+        this.intHandle = INT_HANDLE_BE;
+        this.longHandle = LONG_HANDLE_BE;
     }
 
     /**
@@ -58,45 +57,44 @@ public final class ByteBufferByBu implements ByBu {
         } else {
             this.bb = ByteBuffer.allocate(capacity);
         }
-        intHandle = INT_HANDLE_BIG_ENDIAN;
-        longHandle = LONG_HANDLE_BIG_ENDIAN;
+        this.intHandle = INT_HANDLE_BE;
+        this.longHandle = LONG_HANDLE_BE;
     }
 
     @Override
     public byte readByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index) {
-        return bb.get(index);
+        return this.bb.get(index);
     }
 
     @Override
     public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index) {
-        return (int) intHandle.get(bb, index);
+        return (int) this.intHandle.get(bb, index);
     }
 
     @Override
     public void writeByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, byte value) {
-        bb.put(index, value);
+        this.bb.put(index, value);
     }
 
     @Override
     public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value) {
-        bb.putInt(index, value);
+        this.bb.putInt(index, value);
     }
 
     @Override
-    @Range(from = 1, to = Integer.MAX_VALUE)
-    public int getByteSize() {
-        return bb.capacity();
+    public @Range(from = 1, to = Integer.MAX_VALUE) int getByteSize() {
+        return this.bb.capacity();
     }
 
     @Override
     public void setByteOrder(@NotNull ByteOrder byteOrder) {
-        bb.order(byteOrder);
+        this.bb.order(byteOrder);
         if (byteOrder == ByteOrder.BIG_ENDIAN) {
-            intHandle = INT_HANDLE_BIG_ENDIAN;
-            longHandle = LONG_HANDLE_BIG_ENDIAN;
+            this.intHandle = INT_HANDLE_BE;
+            this.longHandle = LONG_HANDLE_BE;
         } else {
-            intHandle = INT_HANDLE_LITTLE_ENDIAN;
-            longHandle = LONG_HANDLE_LITTLE_ENDIAN;
+            this.intHandle = INT_HANDLE_LITTLE_ENDIAN;
+            this.longHandle = LONG_HANDLE_LITTLE_ENDIAN;
         }
     }
 }

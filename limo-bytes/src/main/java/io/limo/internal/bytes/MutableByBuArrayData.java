@@ -17,45 +17,42 @@ import java.util.Objects;
  * Implementation of the mutable {@code MutableData} interface based on a resizable array of byte sequences
  *
  * @implNote Inspired by ArrayList
- * @see ArrayData
+ * @see ByBuArrayData
  * @see MutableData
  */
-public final class MutableArrayData extends ArrayData implements MutableData {
+public final class MutableByBuArrayData extends ByBuArrayData implements MutableData {
 
     /**
      * The memory supplier, can act as a pool
      */
-    @NotNull
-    private ByBuSupplier byBuSupplier;
+    private final @NotNull ByBuSupplier byBuSupplier;
 
     /**
      * The data writer
      */
-    @NotNull
-    private final Writer writer;
+    private final @NotNull Writer writer;
 
-    public MutableArrayData(@NotNull ByBuSupplier byBuSupplier) {
+    public MutableByBuArrayData(@NotNull ByBuSupplier byBuSupplier) {
         this.byBuSupplier = Objects.requireNonNull(byBuSupplier);
-        final var initialMemory = byBuSupplier.get();
         // First element in data = initialMemory
-        byBus[0] = initialMemory;
-        writer = new WriterImpl();
+        this.byBus[0] = byBuSupplier.get();
+        this.writer = new WriterImpl();
     }
 
-    public MutableArrayData(@NotNull Data data, @NotNull ByBuSupplier byBuSupplier) {
+    public MutableByBuArrayData(@NotNull Data data, @NotNull ByBuSupplier byBuSupplier) {
         // todo use instanceof pattern matching of java 14 https://openjdk.java.net/jeps/305
-        if (Objects.requireNonNull(data) instanceof ArrayData) {
-            final var arrayData = (ArrayData) data;
-            byBus = arrayData.byBus;
-            limits = arrayData.limits;
-            readIndex = arrayData.readIndex;
-            writeIndex = arrayData.writeIndex;
-            reader = arrayData.reader;
+        if (Objects.requireNonNull(data) instanceof ByBuArrayData) {
+            final var arrayData = (ByBuArrayData) data;
+            this.byBus = arrayData.byBus;
+            this.limits = arrayData.limits;
+            this.readIndex = arrayData.readIndex;
+            this.writeIndex = arrayData.writeIndex;
+            this.reader = arrayData.reader;
         } else {
             throw new IllegalArgumentException("data type " + data.getClass().getTypeName() + " is unsupported");
         }
         this.byBuSupplier = Objects.requireNonNull(byBuSupplier);
-        writer = new WriterImpl();
+        this.writer = new WriterImpl();
     }
 
     /**
@@ -63,37 +60,34 @@ public final class MutableArrayData extends ArrayData implements MutableData {
      *
      * @return newly obtained byte sequence
      */
-    @NotNull
-    private ByBu supplyNewByteSequence() {
+    private @NotNull ByBu supplyNewByteSequence() {
         // no room left in array
-        writeIndex += 1;
-        if (writeIndex == byBus.length) {
+        this.writeIndex += 1;
+        if (this.writeIndex == this.byBus.length) {
             // increase array size by 2 times
-            final var newLength = byBus.length * 2;
-            byBus = Arrays.copyOf(byBus, newLength);
-            limits = Arrays.copyOf(limits, newLength);
+            final var newLength = this.byBus.length * 2;
+            this.byBus = Arrays.copyOf(byBus, newLength);
+            this.limits = Arrays.copyOf(limits, newLength);
         }
-        final var newMemory = byBuSupplier.get();
-        byBus[writeIndex] = newMemory;
+        final var newMemory = this.byBuSupplier.get();
+        this.byBus[this.writeIndex] = newMemory;
         return newMemory;
     }
 
-    @NotNull
     @Override
-    public Writer getWriter() {
-        return writer;
+    public @NotNull Writer getWriter() {
+        return this.writer;
     }
 
     /**
-     * Implementation of the {@code Writer} interface that writes in data array of {@code ArrayData}
+     * Implementation of the {@code Writer} interface that writes in data array of {@link ByBuArrayData}
      */
     private final class WriterImpl implements Writer {
 
         /**
          * Current byte sequence to write in
          */
-        @NotNull
-        private ByBu byBu;
+        private @NotNull ByBu byBu;
 
         /**
          * Writing index in the current {@link #byBu}
@@ -109,20 +103,20 @@ public final class MutableArrayData extends ArrayData implements MutableData {
          * Current byte sequence is the last in the data array of {@code ArrayData}
          */
         private WriterImpl() {
-            byBu = Objects.requireNonNull(byBus[byBus.length - 1]);
-            capacity = byBu.getByteSize();
+            this.byBu = Objects.requireNonNull(byBus[byBus.length - 1]);
+            this.capacity = this.byBu.getByteSize();
         }
 
         @Override
         public void writeByte(byte value) throws EOFException {
-            final var currentLimit = limit;
+            final var currentLimit = this.limit;
             final var byteSize = 1;
             final var targetLimit = currentLimit + byteSize;
 
             // 1) at least 1 byte left to write a byte in current memory
-            if (capacity >= targetLimit) {
-                limit = targetLimit;
-                byBu.writeByteAt(currentLimit, value);
+            if (this.capacity >= targetLimit) {
+                this.limit = targetLimit;
+                this.byBu.writeByteAt(currentLimit, value);
                 return;
             }
 
@@ -132,35 +126,35 @@ public final class MutableArrayData extends ArrayData implements MutableData {
 
             // we are at 0 index in newly obtained byte sequence
 
-            if (capacity < byteSize) {
+            if (this.capacity < byteSize) {
                 throw new EOFException("Empty byte sequence, no room for writing a byte");
             }
-            limit = byteSize;
-            byBu.writeByteAt(currentLimit, value);
+            this.limit = byteSize;
+            this.byBu.writeByteAt(currentLimit, value);
         }
 
         @Override
         public void writeInt(int value) throws EOFException {
-            final var currentLimit = limit;
+            final var currentLimit = this.limit;
             final var intSize = 4;
             final var targetLimit = currentLimit + intSize;
 
             // 1) at least 4 bytes left to write an int in current byte sequence
-            if (capacity >= targetLimit) {
-                limit = targetLimit;
-                byBu.writeIntAt(currentLimit, value);
+            if (this.capacity >= targetLimit) {
+                this.limit = targetLimit;
+                this.byBu.writeIntAt(currentLimit, value);
                 return;
             }
 
             // 2) current byte sequence is exactly full
-            if (currentLimit == capacity) {
+            if (currentLimit == this.capacity) {
                 // let's add a new byte sequence from supplier
                 addNewByteSequence();
 
                 // we are at 0 index in newly obtained byte sequence
-                if (capacity >= intSize) {
-                    limit = intSize;
-                    byBu.writeIntAt(currentLimit, value);
+                if (this.capacity >= intSize) {
+                    this.limit = intSize;
+                    this.byBu.writeIntAt(currentLimit, value);
                     return;
                 }
                 throw new EOFException("Byte sequence too small, no room for writing an int");
@@ -174,16 +168,16 @@ public final class MutableArrayData extends ArrayData implements MutableData {
 
         @Override
         public void close() {
-            MutableArrayData.this.close();
+            MutableByBuArrayData.this.close();
         }
 
         /**
          * Current byte sequence is full, add a new ByteSequence in data array
          */
         private void addNewByteSequence() {
-            byBu = supplyNewByteSequence();
-            capacity = byBu.getByteSize();
-            limit = 0;
+            this.byBu = supplyNewByteSequence();
+            this.capacity = this.byBu.getByteSize();
+            this.limit = 0;
         }
     }
 }

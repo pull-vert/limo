@@ -19,40 +19,40 @@ public final class ByteBufferReadTests {
 
     private ByteBuffer bb;
 
-    private static final VarHandle intHandle = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
-    private static final VarHandle longHandle = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
+    private static final VarHandle INT_HANDLE = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
+    private static final VarHandle LONG_HANDLE = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
 
     @BeforeAll
     void before() {
         // Allocate 13 bytes : 4 for int, 8 for long, 1 for byte
         // ByteBuffer is natively Big Endian ordered
-        bb = ByteBuffer.allocateDirect(13);
-        bb.putInt(42);
-        bb.putLong(128L);
-        bb.put((byte) 0xa);
+        this.bb = ByteBuffer.allocateDirect(13);
+        this.bb.putInt(42);
+        this.bb.putLong(128L);
+        this.bb.put((byte) 0xa);
     }
 
     @Test
     @DisplayName("Direct read")
     void directRead() {
-        bb.rewind();
-        assertThat(bb.getInt()).isEqualTo(42);
-        assertThat(bb.getLong()).isEqualTo(128L);
-        assertThat(bb.get()).isEqualTo((byte) 0xa);
+        this.bb.rewind();
+        assertThat(this.bb.getInt()).isEqualTo(42);
+        assertThat(this.bb.getLong()).isEqualTo(128L);
+        assertThat(this.bb.get()).isEqualTo((byte) 0xa);
     }
 
     @Test
     @DisplayName("Indexed read")
     void indexedRead() {
-        assertThat(bb.getInt(0)).isEqualTo(42);
-        assertThat(bb.getLong(4)).isEqualTo(128L);
-        assertThat(bb.get(12)).isEqualTo((byte) 0xa);
+        assertThat(this.bb.getInt(0)).isEqualTo(42);
+        assertThat(this.bb.getLong(4)).isEqualTo(128L);
+        assertThat(this.bb.get(12)).isEqualTo((byte) 0xa);
     }
 
     @Test
     @DisplayName("VarHandle read")
     void varHandleRead() {
-        assertThat(intHandle.get(bb, 0)).isEqualTo(42);
-        assertThat(longHandle.get(bb, 4)).isEqualTo(128L);
+        assertThat(INT_HANDLE.get(bb, 0)).isEqualTo(42);
+        assertThat(LONG_HANDLE.get(bb, 4)).isEqualTo(128L);
     }
 }
