@@ -20,7 +20,7 @@ import java.util.Objects;
 public class ByBuData implements Data {
 
     /**
-     * The byte sequence into which the elements of the SingleData are stored
+     * The byte sequence into which the elements of the ByBuData are stored
      */
     final @NotNull ByBu byBu;
 
@@ -74,7 +74,7 @@ public class ByBuData implements Data {
     }
 
     /**
-     * Implementation of the {@code Reader} interface that reads in data array of {@code ArrayData}
+     * Implementation of the {@code Reader} interface that reads in {@link #byBu}
      */
     private final class ReaderImpl implements Reader {
 

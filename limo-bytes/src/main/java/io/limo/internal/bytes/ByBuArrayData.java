@@ -30,7 +30,7 @@ public class ByBuArrayData implements Data {
     protected static final int DEFAULT_CAPACITY = 4;
 
     /**
-     * The array of byte sequence into which the elements of the ArrayData are stored
+     * The array of byte sequence into which the elements of the ByBuArrayData are stored
      */
     protected ByBu @NotNull [] byBus;
 
@@ -45,7 +45,7 @@ public class ByBuArrayData implements Data {
     protected @Range(from = 0, to = Integer.MAX_VALUE - 1) int readIndex = 0;
 
     /**
-     * Last index of the memory in data array that has been written
+     * Last index of the byte sequence in array that has been written
      *
      * @implNote It has a 0 initial value, even if first memory was not written
      */
