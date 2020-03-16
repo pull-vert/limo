@@ -4,14 +4,9 @@
 
 package io.limo.internal.bytes;
 
-import io.limo.bytes.Data;
-import io.limo.bytes.Reader;
-import io.limo.bytes.ReaderUnderflowException;
-import io.limo.utils.BytesOps;
+import io.limo.bytes.*;
+import io.limo.utils.MemorySegmentOps;
 import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemoryHandles;
-import jdk.incubator.foreign.MemoryLayout;
-import jdk.incubator.foreign.MemoryLayouts;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
@@ -19,35 +14,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
 import java.nio.ByteOrder;
-import java.util.Objects;
 
 /**
  * Implementation of the immutable {@code Data} interface based on a {@link MemorySegment}
  *
  * @see Data
- * @see MutableByBuArrayData
+ * @see MutableBytesArrayData
  */
-public final class MemorySegmentData implements Data {
+public final class MutableMemorySegmentData implements MutableData {
 
     final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-    private static final VarHandle BYTE_HANDLE = MemoryHandles.varHandle(byte.class, ByteOrder.BIG_ENDIAN);
-
-    private static final VarHandle INT_AS_BYTE_SEQ_HANDLE = MemoryLayout.ofSequence(4, MemoryLayouts.BITS_8_BE)
-        .varHandle(byte.class, MemoryLayout.PathElement.sequenceElement());
 
     private final @NotNull MemorySegment segment;
 
     private final @NotNull MemoryAddress base;
 
     /**
-     * The limit of memory
+     * Capacity of the {@link #segment}
      */
-    private final long limit;
+    private final @Range(from = 1, to = Long.MAX_VALUE) long capacity;
 
-    private boolean isBigEndian;
+    /**
+     * The limit of the {@link #segment}
+     */
+    private @Range(from = 0, to = Long.MAX_VALUE - 1) long limit;
+
+    private boolean isBigEndian = true;
 
     /**
      * The data reader
@@ -55,39 +48,31 @@ public final class MemorySegmentData implements Data {
     private final @NotNull Reader reader;
 
     /**
-     * Build a byte sequence from a fresh {@link MemorySegment}
+     * The data writer
+     */
+    private final @NotNull Writer writer;
+
+    /**
+     * Build a Data from a new off-heap {@link MemorySegment}
      * <p> The byte order of a newly-created ByteSequence is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}. </p>
      *
      * @param capacity total capacity of the MemorySegment
      */
-    public MemorySegmentData(@Range(from = 1, to = Long.MAX_VALUE) long capacity) {
+    public MutableMemorySegmentData(@Range(from = 1, to = Long.MAX_VALUE) long capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("Capacity must be > 0");
         }
+        this.capacity = capacity;
         this.segment = MemorySegment.allocateNative(capacity);
         this.base = segment.baseAddress();
         this.limit = capacity;
-        this.isBigEndian = true;
         this.reader = new ReaderImpl();
-    }
-
-    /**
-     * Build a byte sequence from a fresh {@link MemorySegment} built from a byte array
-     * <p> The byte order of a newly-created ByteSequence is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}. </p>
-     *
-     * @param bytes the by array
-     */
-    public MemorySegmentData(byte @NotNull [] bytes) {
-        this.segment = MemorySegment.ofArray(Objects.requireNonNull(bytes));
-        this.base = segment.baseAddress();
-        this.limit = bytes.length;
-        this.isBigEndian = true;
-        this.reader = new ReaderImpl();
+        this.writer = new WriterImpl();
     }
 
     @Override
     public @Range(from = 1, to = Long.MAX_VALUE) long getByteSize() {
-        return this.segment.byteSize();
+        return this.capacity;
     }
 
     @Override
@@ -106,7 +91,7 @@ public final class MemorySegmentData implements Data {
     }
 
     @Override
-    public @Range(from = 1, to = Long.MAX_VALUE) long getLimit() {
+    public @Range(from = 0, to = Long.MAX_VALUE - 1) long getLimit() {
         return this.limit;
     }
 
@@ -116,7 +101,12 @@ public final class MemorySegmentData implements Data {
     @Override
     public void close() {
         this.segment.close();
-        logger.atDebug().log("Closed MemorySegment");
+        logger.debug("Closed MemorySegment");
+    }
+
+    @Override
+    public @NotNull Writer getWriter() {
+        return this.writer;
     }
 
     /**
@@ -125,7 +115,7 @@ public final class MemorySegmentData implements Data {
     private final class ReaderImpl implements Reader {
 
         /**
-         * Reading index in the memory
+         * Reading index in the memory segment
          */
         private long index = 0L;
 
@@ -139,7 +129,7 @@ public final class MemorySegmentData implements Data {
             // 1) at least 1 byte left to read a byte in memory
             if (limit >= targetLimit) {
                 this.index = targetLimit;
-                return (byte) BYTE_HANDLE.get(base.addOffset(currentIndex));
+                return MemorySegmentOps.readByte(base.addOffset(currentIndex));
             }
 
             // 2) memory is exhausted
@@ -155,14 +145,7 @@ public final class MemorySegmentData implements Data {
             // 1) at least 4 bytes left to read an int in memory
             if (limit >= targetLimit) {
                 this.index = targetLimit;
-                final var address = base.addOffset(currentIndex);
-                return BytesOps.bytesToInt(
-                    (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 0L),
-                    (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 1L),
-                    (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 2L),
-                    (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 3L),
-                    isBigEndian
-                );
+                return MemorySegmentOps.readInt(base.addOffset(currentIndex), isBigEndian);
             }
 
             // 2) memory is exhausted
@@ -171,21 +154,52 @@ public final class MemorySegmentData implements Data {
 
         @Override
         public void close() {
-            MemorySegmentData.this.close();
+            MutableMemorySegmentData.this.close();
         }
     }
 
-    //    @Override
-//    public void writeByteAt(@Range(from = 0, to = Long.MAX_VALUE - 1) long index, byte value) {
-//        BYTE_HANDLE.set(base.addOffset(index), value);
-//    }
-//
-//    @Override
-//    public void writeIntAt(@Range(from = 0, to = Long.MAX_VALUE - 1) long index, int value) {
-//        final var bytes = BytesOps.intToBytes(value, isBigEndian);
-//        final var address = base.addOffset(index);
-//        for (var i = 0; i < 4; i++) {
-//            INT_AS_BYTE_SEQ_HANDLE.set(address, (long) i, bytes[i]);
-//        }
-//    }
+    /**
+     * Implementation of the {@code Writer} interface that writes in in {@link #segment}
+     */
+    private final class WriterImpl implements Writer {
+
+        @Override
+        public void writeByte(byte value) {
+            final var currentLimit = limit;
+            final var byteSize = 1;
+            final var targetLimit = currentLimit + byteSize;
+
+            // 1) at least 1 byte left to write a byte in current memory segment
+            if (capacity >= targetLimit) {
+                limit = targetLimit;
+                MemorySegmentOps.writeByte(base.addOffset(currentLimit), value);
+                return;
+            }
+
+            // 2) memory is exhausted
+            throw new WriterOverflowException();
+        }
+
+        @Override
+        public void writeInt(int value) {
+            final var currentLimit = limit;
+            final var intSize = 4;
+            final var targetLimit = currentLimit + intSize;
+
+            // 1) at least 4 bytes left to write an int in current memory segment
+            if (capacity >= targetLimit) {
+                limit = targetLimit;
+                MemorySegmentOps.writeInt(base.addOffset(currentLimit), value, isBigEndian);
+                return;
+            }
+
+            // 2) memory is exhausted
+            throw new WriterOverflowException();
+        }
+
+        @Override
+        public void close() {
+            MutableMemorySegmentData.this.close();
+        }
+    }
 }

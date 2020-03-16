@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  *  A byte sequence based on a {@link ByteBuffer}
  */
-public final class ByteBufferByBu implements ByBu {
+public final class ByteBufferBytes implements Bytes {
 
     private static final VarHandle INT_HANDLE_BE = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
     private static final VarHandle LONG_HANDLE_BE = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
@@ -35,8 +35,20 @@ public final class ByteBufferByBu implements ByBu {
      *
      * @param bb the ByteBuffer
      */
-    public ByteBufferByBu(@NotNull ByteBuffer bb) {
+    public ByteBufferBytes(@NotNull ByteBuffer bb) {
         this.bb = Objects.requireNonNull(bb);
+        this.intHandle = INT_HANDLE_BE;
+        this.longHandle = LONG_HANDLE_BE;
+    }
+
+    /**
+     * Build a byte sequence from a {@link ByteBuffer} built from a byte array
+     * <p> The byte order of a newly-created ByteSequence is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}. </p>
+     *
+     * @param byteArray the byte array
+     */
+    public ByteBufferBytes(byte @NotNull [] byteArray) {
+        this.bb = ByteBuffer.wrap(Objects.requireNonNull(byteArray));
         this.intHandle = INT_HANDLE_BE;
         this.longHandle = LONG_HANDLE_BE;
     }
@@ -48,7 +60,7 @@ public final class ByteBufferByBu implements ByBu {
      * @param direct true for a direct ByteBuffer
      * @param capacity total capacity of the ByteBuffer
      */
-    public ByteBufferByBu(boolean direct, @Range(from = 1, to = Integer.MAX_VALUE) int capacity) {
+    public ByteBufferBytes(boolean direct, @Range(from = 1, to = Integer.MAX_VALUE) int capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("Capacity must be > 0");
         }

@@ -47,7 +47,7 @@ public interface Data extends AutoCloseable {
     /**
      * @return  The limit of this binary data
      */
-    @Range(from = 1, to = Long.MAX_VALUE) long getLimit();
+    @Range(from = 0, to = Long.MAX_VALUE - 1) long getLimit();
 
     /**
      * Closes all resources that store binary data

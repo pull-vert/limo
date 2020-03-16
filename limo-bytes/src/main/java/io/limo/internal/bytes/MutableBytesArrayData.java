@@ -10,51 +10,52 @@ import io.limo.bytes.Writer;
 import io.limo.bytes.WriterOverflowException;
 import io.limo.utils.BytesOps;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 /**
- * Implementation of the mutable {@link MutableData} interface based on a resizable array of {@link ByBu}
+ * Implementation of the mutable {@link MutableData} interface based on a resizable array of {@link Bytes}
  *
  * @implNote Inspired by ArrayList
- * @see ByBuArrayData
+ * @see BytesArrayData
  */
-public final class MutableByBuArrayData extends ByBuArrayData implements MutableData {
+public final class MutableBytesArrayData extends BytesArrayData implements MutableData {
 
     /**
-     * The memory supplier, can act as a pool
+     * The bytes supplier, can act as a pool
      */
-    private final @NotNull ByBuSupplier byBuSupplier;
+    private final @NotNull BytesSupplier bytesSupplier;
 
     /**
      * The data writer
      */
     private final @NotNull Writer writer;
 
-    public MutableByBuArrayData(@NotNull ByBuSupplier byBuSupplier) {
-        this.byBuSupplier = Objects.requireNonNull(byBuSupplier);
-        // First element in data = initialMemory
-        this.byBus[0] = byBuSupplier.get();
+    public MutableBytesArrayData(@NotNull BytesSupplier bytesSupplier) {
+        this.bytesSupplier = Objects.requireNonNull(bytesSupplier);
+        this.bytesArray[0] = bytesSupplier.get();
         this.writer = new WriterImpl();
     }
 
-    public MutableByBuArrayData(@NotNull Data data, @NotNull ByBuSupplier byBuSupplier) {
+    public MutableBytesArrayData(@NotNull Data data, @NotNull BytesSupplier bytesSupplier) {
         Objects.requireNonNull(data);
-        Objects.requireNonNull(byBuSupplier);
+        Objects.requireNonNull(bytesSupplier);
 
         // todo use instanceof pattern matching of java 14 https://openjdk.java.net/jeps/305
-        if (data instanceof ByBuArrayData) {
-            final var arrayData = (ByBuArrayData) data;
-            this.byBus = arrayData.byBus;
+        if (data instanceof BytesArrayData) {
+            final var arrayData = (BytesArrayData) data;
+            this.bytesArray = arrayData.bytesArray;
             this.limits = arrayData.limits;
             this.readIndex = arrayData.readIndex;
             this.writeIndex = arrayData.writeIndex;
             this.reader = arrayData.reader;
-        } else if (data instanceof ByBuData) {
-            final var byBuData = (ByBuData) data;
-            this.byBus = new ByBu[DEFAULT_CAPACITY];
-            this.byBus[0] = byBuData.byBu;
+        } else if (data instanceof BytesData) {
+            final var byBuData = (BytesData) data;
+            this.bytesArray = new Bytes[DEFAULT_CAPACITY];
+            this.bytesArray[0] = byBuData.bytes;
             this.limits = new int[DEFAULT_CAPACITY];
             this.limits[0] = byBuData.limit;
             // read and write indexes both have an initial value of 0
@@ -62,27 +63,27 @@ public final class MutableByBuArrayData extends ByBuArrayData implements Mutable
         } else {
             throw new IllegalArgumentException("data type " + data.getClass().getTypeName() + " is not supported");
         }
-        this.byBuSupplier = byBuSupplier;
+        this.bytesSupplier = bytesSupplier;
         this.writer = new WriterImpl();
     }
 
     /**
-     * Get a new byte sequence from {@link #byBuSupplier}
+     * Get a new byte sequence from {@link #bytesSupplier}
      *
      * @return newly obtained byte sequence
      */
-    private @NotNull ByBu supplyNewByteSequence() {
+    private @NotNull Bytes supplyNewByteSequence() {
         // no room left in array
         this.writeIndex += 1;
-        if (this.writeIndex == this.byBus.length) {
+        if (this.writeIndex == this.bytesArray.length) {
             // increase array size by 2 times
-            final var newLength = this.byBus.length * 2;
-            this.byBus = Arrays.copyOf(byBus, newLength);
+            final var newLength = this.bytesArray.length * 2;
+            this.bytesArray = Arrays.copyOf(bytesArray, newLength);
             this.limits = Arrays.copyOf(limits, newLength);
         }
-        final var newMemory = this.byBuSupplier.get();
-        this.byBus[this.writeIndex] = newMemory;
-        return newMemory;
+        final var bytes = this.bytesSupplier.get();
+        this.bytesArray[this.writeIndex] = bytes;
+        return bytes;
     }
 
     @Override
@@ -91,31 +92,35 @@ public final class MutableByBuArrayData extends ByBuArrayData implements Mutable
     }
 
     /**
-     * Implementation of the {@code Writer} interface that writes in data array of {@link ByBuArrayData}
+     * Implementation of the {@code Writer} interface that writes in data array of {@link BytesArrayData}
      */
     private final class WriterImpl implements Writer {
 
         /**
          * Current byte sequence to write in
          */
-        private @NotNull ByBu byBu;
+        private @NotNull Bytes bytes;
 
         /**
-         * Writing index in the current {@link #byBu}
+         * Writing index in the current {@link #bytes}
          */
-        private int limit = 0;
+        private @Range(from = 0, to = Integer.MAX_VALUE - 1) int limit = 0;
 
         /**
-         * Capacity of the current {@link #byBu}
+         * Capacity of the current {@link #bytes}
          */
-        private int capacity;
+        private @Range(from = 1, to = Integer.MAX_VALUE) int capacity;
 
         /**
-         * Current byte sequence is the last in the data array of {@code ArrayData}
+         * Current byte sequence is the last not null in the data array of {@code ArrayData}
          */
         private WriterImpl() {
-            this.byBu = Objects.requireNonNull(byBus[byBus.length - 1]);
-            this.capacity = this.byBu.getByteSize();
+            this.bytes = IntStream.rangeClosed(1, bytesArray.length)
+                    .mapToObj(i -> bytesArray[bytesArray.length - i])
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElseThrow();
+            this.capacity = this.bytes.getByteSize();
         }
 
         @Override
@@ -124,14 +129,14 @@ public final class MutableByBuArrayData extends ByBuArrayData implements Mutable
             final var byteSize = 1;
             final var targetLimit = currentLimit + byteSize;
 
-            // 1) at least 1 byte left to write a byte in current memory
+            // 1) at least 1 byte left to write a byte in current byte sequence
             if (this.capacity >= targetLimit) {
                 this.limit = targetLimit;
-                this.byBu.writeByteAt(currentLimit, value);
+                this.bytes.writeByteAt(currentLimit, value);
                 return;
             }
 
-            // 2) current memory is exactly full
+            // 2) current byte sequence is exactly full
             // let's add a new byte sequence from supplier
             addNewByteSequence();
 
@@ -141,7 +146,7 @@ public final class MutableByBuArrayData extends ByBuArrayData implements Mutable
                 throw new WriterOverflowException();
             }
             this.limit = byteSize;
-            this.byBu.writeByteAt(currentLimit, value);
+            this.bytes.writeByteAt(currentLimit, value);
         }
 
         @Override
@@ -153,7 +158,7 @@ public final class MutableByBuArrayData extends ByBuArrayData implements Mutable
             // 1) at least 4 bytes left to write an int in current byte sequence
             if (this.capacity >= targetLimit) {
                 this.limit = targetLimit;
-                this.byBu.writeIntAt(currentLimit, value);
+                this.bytes.writeIntAt(currentLimit, value);
                 return;
             }
 
@@ -165,7 +170,7 @@ public final class MutableByBuArrayData extends ByBuArrayData implements Mutable
                 // we are at 0 index in newly obtained byte sequence
                 if (this.capacity >= intSize) {
                     this.limit = intSize;
-                    this.byBu.writeIntAt(currentLimit, value);
+                    this.bytes.writeIntAt(currentLimit, value);
                     return;
                 }
                 throw new WriterOverflowException();
@@ -179,15 +184,15 @@ public final class MutableByBuArrayData extends ByBuArrayData implements Mutable
 
         @Override
         public void close() {
-            MutableByBuArrayData.this.close();
+            MutableBytesArrayData.this.close();
         }
 
         /**
          * Current byte sequence is full, add a new ByteSequence in data array
          */
         private void addNewByteSequence() {
-            this.byBu = supplyNewByteSequence();
-            this.capacity = this.byBu.getByteSize();
+            this.bytes = supplyNewByteSequence();
+            this.capacity = this.bytes.getByteSize();
             this.limit = 0;
         }
     }

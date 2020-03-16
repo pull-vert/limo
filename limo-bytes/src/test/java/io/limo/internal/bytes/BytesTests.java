@@ -12,14 +12,11 @@ import java.nio.ByteOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public final class MemorySegmentDataTests {
+abstract class BytesTests {
 
     private static final byte FIRST_BYTE = 0xa;
-
     private static final int FIRST_INT = 42;
-
     private static final byte SECOND_BYTE = 0xe;
-
     private static final int SECOND_INT = 4568;
 
     private static final byte[] BYTES_BIG_ENDIAN;
@@ -64,27 +61,25 @@ public final class MemorySegmentDataTests {
     @DisplayName("Verify read using native Big Endian is working")
     void readBE() {
         // ByteSequence is natively Big Endian ordered
-        try (final var byteSeq = new MemorySegmentData(BYTES_BIG_ENDIAN)) {
-            final var reader = byteSeq.getReader();
-            assertThat(reader.readByte()).isEqualTo(FIRST_BYTE);
-            assertThat(reader.readInt()).isEqualTo(FIRST_INT);
-            assertThat(reader.readByte()).isEqualTo(SECOND_BYTE);
-            assertThat(reader.readInt()).isEqualTo(SECOND_INT);
+        try (final var bytes = instanciateBytes(BYTES_BIG_ENDIAN)) {
+            assertThat(bytes.readByteAt(0)).isEqualTo(FIRST_BYTE);
+            assertThat(bytes.readIntAt(1)).isEqualTo(FIRST_INT);
+            assertThat(bytes.readByteAt(5)).isEqualTo(SECOND_BYTE);
+            assertThat(bytes.readIntAt(6)).isEqualTo(SECOND_INT);
         }
     }
 
     @Test
     @DisplayName("Verify read using Little Endian is working")
     void readLE() {
-        // Allocate 5 bytes : 1 for byte, 4 for int
-        // ByteSequence is natively Big Endian ordered
-        try (final var byteSeq = new MemorySegmentData(BYTES_LITTLE_ENDIAN)) {
-            byteSeq.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-            final var reader = byteSeq.getReader();
-            assertThat(reader.readByte()).isEqualTo(FIRST_BYTE);
-            assertThat(reader.readInt()).isEqualTo(FIRST_INT);
-            assertThat(reader.readByte()).isEqualTo(SECOND_BYTE);
-            assertThat(reader.readInt()).isEqualTo(SECOND_INT);
+        try (final var bytes = instanciateBytes(BYTES_LITTLE_ENDIAN)) {
+            bytes.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+            assertThat(bytes.readByteAt(0)).isEqualTo(FIRST_BYTE);
+            assertThat(bytes.readIntAt(1)).isEqualTo(FIRST_INT);
+            assertThat(bytes.readByteAt(5)).isEqualTo(SECOND_BYTE);
+            assertThat(bytes.readIntAt(6)).isEqualTo(SECOND_INT);
         }
     }
+
+    protected abstract Bytes instanciateBytes(byte[] byteArray);
 }

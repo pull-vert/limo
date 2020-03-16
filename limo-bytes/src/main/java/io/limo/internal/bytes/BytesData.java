@@ -15,14 +15,14 @@ import java.nio.ByteOrder;
 import java.util.Objects;
 
 /**
- * Implementation of the immutable {@link Data} interface based on a single {@link ByBu}
+ * Implementation of the immutable {@link Data} interface based on a single {@link Bytes}
  */
-public class ByBuData implements Data {
+public class BytesData implements Data {
 
     /**
      * The byte sequence into which the elements of the ByBuData are stored
      */
-    final @NotNull ByBu byBu;
+    final @NotNull Bytes bytes;
 
     /**
      * The limit of byte sequence
@@ -36,45 +36,49 @@ public class ByBuData implements Data {
      */
     private @NotNull Reader reader;
 
-    public ByBuData(@NotNull ByteBuffer bb) {
-        this.byBu = new ByteBufferByBu(Objects.requireNonNull(bb));
+    public BytesData(@NotNull ByteBuffer bb) {
+        this.bytes = new ByteBufferBytes(Objects.requireNonNull(bb));
         this.limit = bb.capacity();
         this.reader = new ReaderImpl();
     }
 
     @Override
     public final @Range(from = 1, to = Integer.MAX_VALUE) long getByteSize() {
-        return byBu.getByteSize();
+        return this.bytes.getByteSize();
     }
 
     @Override
     public final @NotNull Reader getReader() {
-        return reader;
+        return this.reader;
     }
 
     @Override
     public final @NotNull ByteOrder getByteOrder() {
-        return isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+        return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
     }
 
     @Override
     public final void setByteOrder(@NotNull ByteOrder byteOrder) {
-        isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
+        this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
         // affect this byte order to memory
-        byBu.setByteOrder(byteOrder);
+        this.bytes.setByteOrder(byteOrder);
     }
 
     @Override
-    public final @Range(from = 1, to = Long.MAX_VALUE) long getLimit() {
+    public final @Range(from = 0, to = Long.MAX_VALUE - 1) long getLimit() {
         return this.limit;
     }
 
+    /**
+     * Closes associated {@link #bytes}
+     */
     @Override
     public final void close() {
+        this.bytes.close();
     }
 
     /**
-     * Implementation of the {@code Reader} interface that reads in {@link #byBu}
+     * Implementation of the {@code Reader} interface that reads in {@link #bytes}
      */
     private final class ReaderImpl implements Reader {
 
@@ -93,7 +97,7 @@ public class ByBuData implements Data {
             // 1) at least 1 byte left to read a byte in memory
             if (limit >= targetLimit) {
                 this.index = targetLimit;
-                return byBu.readByteAt(currentIndex);
+                return bytes.readByteAt(currentIndex);
             }
 
             // 2) memory is exhausted
@@ -109,7 +113,7 @@ public class ByBuData implements Data {
             // 1) at least 4 bytes left to read an int in memory
             if (limit >= targetLimit) {
                 this.index = targetLimit;
-                return byBu.readIntAt(currentIndex);
+                return bytes.readIntAt(currentIndex);
             }
 
             // 2) memory is exhausted
@@ -118,7 +122,7 @@ public class ByBuData implements Data {
 
         @Override
         public void close() {
-            ByBuData.this.close();
+            BytesData.this.close();
         }
     }
 }

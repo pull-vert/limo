@@ -16,13 +16,14 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.stream.Stream;
 
 /**
- * Implementation of the immutable {@link Data} interface based on a fixed size array of {@link ByBu}
+ * Implementation of the immutable {@link Data} interface based on a fixed size array of {@link Bytes}
  *
- * @see MutableByBuArrayData
+ * @see MutableBytesArrayData
  */
-public class ByBuArrayData implements Data {
+public class BytesArrayData implements Data {
 
     /**
      * Default initial capacity of the array of byte sequences
@@ -32,7 +33,7 @@ public class ByBuArrayData implements Data {
     /**
      * The array of byte sequence into which the elements of the ByBuArrayData are stored
      */
-    protected ByBu @NotNull [] byBus;
+    protected Bytes @NotNull [] bytesArray;
 
     /**
      * The array of limits : one for each byte sequence
@@ -60,15 +61,15 @@ public class ByBuArrayData implements Data {
 
     private final @Range(from = 0, to = Integer.MAX_VALUE - 1) long byteSize;
 
-    protected ByBuArrayData() {
+    protected BytesArrayData() {
         // init memories and limits with DEFAULT_CAPACITY size
-        this.byBus = new ByBu[DEFAULT_CAPACITY];
+        this.bytesArray = new Bytes[DEFAULT_CAPACITY];
         this.limits = new int[DEFAULT_CAPACITY];
         this.byteSize = 0;
         this.reader = new ReaderImpl();
     }
 
-    public ByBuArrayData(@NotNull Data first, Data @NotNull ... rest) {
+    public BytesArrayData(@NotNull Data first, Data @NotNull ... rest) {
         Objects.requireNonNull(first);
         Objects.requireNonNull(rest);
 
@@ -76,9 +77,9 @@ public class ByBuArrayData implements Data {
         var totalCapacity = 0;
         // todo use instanceof pattern matching of java 14 https://openjdk.java.net/jeps/305
         for (final var data : rest) {
-            if (data instanceof ByBuArrayData) {
-                totalCapacity += ((ByBuArrayData) data).writeIndex + 1;
-            } else if (data instanceof ByBuData) {
+            if (data instanceof BytesArrayData) {
+                totalCapacity += ((BytesArrayData) data).writeIndex + 1;
+            } else if (data instanceof BytesData) {
                 totalCapacity++;
             } else {
                 throw new IllegalArgumentException("data type " + data.getClass().getTypeName() + " is not supported");
@@ -88,24 +89,24 @@ public class ByBuArrayData implements Data {
         var byteSizesSum = first.getByteSize();
         // initiate arrays
         var offset = 0;
-        if (first instanceof ByBuArrayData) {
-            final var firstArrayData = (ByBuArrayData) first;
+        if (first instanceof BytesArrayData) {
+            final var firstArrayData = (BytesArrayData) first;
             offset = firstArrayData.writeIndex + 1;
             totalCapacity += offset;
             if (totalCapacity < DEFAULT_CAPACITY) {
                 totalCapacity = DEFAULT_CAPACITY;
             }
-            this.byBus = Arrays.copyOf(firstArrayData.byBus, totalCapacity);
+            this.bytesArray = Arrays.copyOf(firstArrayData.bytesArray, totalCapacity);
             this.limits = Arrays.copyOf(firstArrayData.limits, totalCapacity);
-        } else if (first instanceof ByBuData) {
-            final var firstData = (ByBuData) first;
+        } else if (first instanceof BytesData) {
+            final var firstData = (BytesData) first;
             offset = 1;
             totalCapacity++;
             if (totalCapacity < DEFAULT_CAPACITY) {
                 totalCapacity = DEFAULT_CAPACITY;
             }
-            this.byBus = new ByBu[totalCapacity];
-            this.byBus[0] = firstData.byBu;
+            this.bytesArray = new Bytes[totalCapacity];
+            this.bytesArray[0] = firstData.bytes;
             this.limits = new int[totalCapacity];
             this.limits[0] = firstData.limit;
         } else {
@@ -116,15 +117,15 @@ public class ByBuArrayData implements Data {
         int dataLength;
         for (final var data : rest) {
             byteSizesSum += data.getByteSize();
-            if (data instanceof ByBuArrayData) {
-                final var arrayData = (ByBuArrayData) data;
+            if (data instanceof BytesArrayData) {
+                final var arrayData = (BytesArrayData) data;
                 dataLength = arrayData.writeIndex + 1;
-                System.arraycopy(arrayData.byBus, 0, this.byBus, offset, dataLength);
+                System.arraycopy(arrayData.bytesArray, 0, this.bytesArray, offset, dataLength);
                 System.arraycopy(arrayData.limits, 0, this.limits, offset, dataLength);
                 offset += dataLength;
-            } else if (first instanceof ByBuData) {
-                final var byBuData = (ByBuData) data;
-                this.byBus[offset] = byBuData.byBu;
+            } else if (first instanceof BytesData) {
+                final var byBuData = (BytesData) data;
+                this.bytesArray[offset] = byBuData.bytes;
                 this.limits[offset] = byBuData.limit;
                 offset++;
             }
@@ -163,13 +164,13 @@ public class ByBuArrayData implements Data {
     public final void setByteOrder(@NotNull ByteOrder byteOrder) {
         this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
         // set this byte order to all memories
-        for (final var byBu : this.byBus) {
+        for (final var byBu : this.bytesArray) {
             Optional.ofNullable(byBu).ifPresent(mem -> mem.setByteOrder(byteOrder));
         }
     }
 
     @Override
-    public final @Range(from = 1, to = Long.MAX_VALUE) long getLimit() {
+    public final @Range(from = 0, to = Long.MAX_VALUE - 1) long getLimit() {
         // sum of all limits
         var totalLimit = 0L;
         for (final var limit : this.limits) {
@@ -178,8 +179,14 @@ public class ByBuArrayData implements Data {
         return totalLimit;
     }
 
+    /**
+     * closes all not null bytes in bytes array
+     */
     @Override
     public final void close() {
+        Stream.of(this.bytesArray)
+                .filter(Objects::nonNull)
+                .forEach(Bytes::close);
     }
 
     /**
@@ -190,15 +197,15 @@ public class ByBuArrayData implements Data {
         /**
          * Current byte sequence to read from
          */
-        private @NotNull ByBu byBu;
+        private @NotNull Bytes bytes;
 
         /**
-         * Reading index in the current {@link #byBu}
+         * Reading index in the current {@link #bytes}
          */
         private int index = 0;
 
         /**
-         * Number of bytes loaded in the current {@link #byBu}
+         * Number of bytes loaded in the current {@link #bytes}
          */
         private int limit;
 
@@ -206,7 +213,7 @@ public class ByBuArrayData implements Data {
          * Current byte sequence is the first in the data array of {@code ArrayData}
          */
         protected ReaderImpl() {
-            this.byBu = Objects.requireNonNull(byBus[0]);
+            this.bytes = Objects.requireNonNull(bytesArray[0]);
             this.limit = limits[0];
         }
 
@@ -220,7 +227,7 @@ public class ByBuArrayData implements Data {
             // 1) at least 1 byte left to read a byte in current byte sequence
             if (currentLimit >= targetLimit) {
                 this.index = targetLimit;
-                return this.byBu.readByteAt(currentIndex);
+                return this.bytes.readByteAt(currentIndex);
             }
 
             // 2) current byte sequence is exactly exhausted
@@ -231,7 +238,7 @@ public class ByBuArrayData implements Data {
 
             if (this.limit >= byteSize) {
                 this.index = byteSize;
-                return this.byBu.readByteAt(0);
+                return this.bytes.readByteAt(0);
             }
 
             // 3) memory is exhausted
@@ -248,7 +255,7 @@ public class ByBuArrayData implements Data {
             // 1) at least 4 bytes left to read an int in current byte sequence
             if (currentLimit >= targetLimit) {
                 this.index = targetLimit;
-                return this.byBu.readIntAt(currentIndex);
+                return this.bytes.readIntAt(currentIndex);
             }
 
             // 2) current byte sequence is exactly exhausted
@@ -260,7 +267,7 @@ public class ByBuArrayData implements Data {
 
                 if (this.limit >= intSize) {
                     this.index = intSize;
-                    return this.byBu.readIntAt(0);
+                    return this.bytes.readIntAt(0);
                 }
                 // 3) memory is exhausted
                 throw new ReaderUnderflowException();
@@ -277,13 +284,13 @@ public class ByBuArrayData implements Data {
          */
         private void nextByteSequence() {
             final var nextReadIndex = getNextReadIndex().orElseThrow(ReaderUnderflowException::new);
-            this.byBu = Objects.requireNonNull(byBus[nextReadIndex]);
+            this.bytes = Objects.requireNonNull(bytesArray[nextReadIndex]);
             this.limit = limits[nextReadIndex];
         }
 
         @Override
         public void close() {
-            ByBuArrayData.this.close();
+            BytesArrayData.this.close();
         }
     }
 }

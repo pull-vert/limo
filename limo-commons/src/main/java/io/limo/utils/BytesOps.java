@@ -22,20 +22,20 @@ public final class BytesOps {
         return (b3 << 24) | ((b2 & 0xff) << 16) | ((b1 & 0xff) << 8) | (b0 & 0xff);
     }
 
-    public static byte @NotNull [] intToBytes(final int data, final boolean isBigEndian) {
+    public static byte @NotNull [] intToBytes(final int value, final boolean isBigEndian) {
         if (isBigEndian) {
             return new byte[]{
-                    (byte) ((data >> 24) & 0xff),
-                    (byte) ((data >> 16) & 0xff),
-                    (byte) ((data >> 8) & 0xff),
-                    (byte) (data & 0xff)
+                    (byte) ((value >> 24) & 0xff),
+                    (byte) ((value >> 16) & 0xff),
+                    (byte) ((value >> 8) & 0xff),
+                    (byte) (value & 0xff)
             };
         }
         return new byte[]{
-                (byte) (data & 0xff),
-                (byte) ((data >> 8) & 0xff),
-                (byte) ((data >> 16) & 0xff),
-                (byte) ((data >> 24) & 0xff)
+                (byte) (value & 0xff),
+                (byte) ((value >> 8) & 0xff),
+                (byte) ((value >> 16) & 0xff),
+                (byte) ((value >> 24) & 0xff)
         };
     }
 }

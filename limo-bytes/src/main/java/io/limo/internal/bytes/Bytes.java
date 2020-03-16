@@ -12,7 +12,7 @@ import java.nio.ByteOrder;
 /**
  * A byte sequence that store all or a part of a binary content
  */
-public interface ByBu {
+public interface Bytes extends AutoCloseable {
 
     byte readByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index);
 
@@ -30,9 +30,16 @@ public interface ByBu {
     /**
      * Modifies this byte sequence's byte order.
      *
-     * @param  byteOrder The new byte order,
-     *         either {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}
-     *         or {@link ByteOrder#LITTLE_ENDIAN LITTLE_ENDIAN}
+     * @param byteOrder The new byte order,
+     *                  either {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}
+     *                  or {@link ByteOrder#LITTLE_ENDIAN LITTLE_ENDIAN}
      */
     void setByteOrder(@NotNull ByteOrder byteOrder);
+
+    /**
+     * Closes this byte sequence
+     */
+    @Override
+    default void close() {
+    }
 }

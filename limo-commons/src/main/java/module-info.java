@@ -3,6 +3,7 @@
  */
 
 module limo.commons {
+    requires jdk.incubator.foreign;
     requires org.jetbrains.annotations;
 
     exports io.limo;
