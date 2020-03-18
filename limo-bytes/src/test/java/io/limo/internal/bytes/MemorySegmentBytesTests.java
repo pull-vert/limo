@@ -4,10 +4,12 @@
 
 package io.limo.internal.bytes;
 
+import org.jetbrains.annotations.NotNull;
+
 public final class MemorySegmentBytesTests extends BytesTests {
 
     @Override
-    protected Bytes instanciateBytes(byte[] byteArray) {
+    protected Bytes instanciateBytes(byte @NotNull [] byteArray) {
         return new MemorySegmentBytes(byteArray);
     }
 }

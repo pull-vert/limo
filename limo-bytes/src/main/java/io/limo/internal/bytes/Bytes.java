@@ -7,6 +7,7 @@ package io.limo.internal.bytes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
@@ -35,6 +36,16 @@ public interface Bytes extends AutoCloseable {
      *                  or {@link ByteOrder#LITTLE_ENDIAN LITTLE_ENDIAN}
      */
     void setByteOrder(@NotNull ByteOrder byteOrder);
+
+    /**
+     * Export the content of this byte sequence into a {@code byte[]} (could be a fresh new one or an existing one)
+     */
+    byte[] toByteArray();
+
+    /**
+     * Export the content of this byte sequence into a {@link ByteBuffer} (could be a fresh new one or an existing one)
+     */
+    @NotNull ByteBuffer toByteBuffer();
 
     /**
      * Closes this byte sequence.

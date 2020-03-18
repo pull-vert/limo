@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Range;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
 
@@ -87,5 +88,15 @@ public final class ByteArrayBytes implements Bytes {
             this.intHandle = INT_HANDLE_LITTLE_ENDIAN;
             this.longHandle = LONG_HANDLE_LITTLE_ENDIAN;
         }
+    }
+
+    @Override
+    public byte[] toByteArray() {
+        return this.byteArray;
+    }
+
+    @Override
+    public @NotNull ByteBuffer toByteBuffer() {
+        return ByteBuffer.wrap(this.byteArray);
     }
 }

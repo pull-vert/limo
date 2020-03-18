@@ -77,6 +77,16 @@ public final class MemorySegmentBytes implements Bytes {
         this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
     }
 
+    @Override
+    public byte[] toByteArray() {
+        return this.segment.toByteArray();
+    }
+
+    @Override
+    public @NotNull ByteBuffer toByteBuffer() {
+        return this.segment.asByteBuffer();
+    }
+
     /**
      * Closes associated {@link #segment}
      */

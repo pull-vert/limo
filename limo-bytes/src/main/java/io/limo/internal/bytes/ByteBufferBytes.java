@@ -106,4 +106,17 @@ public final class ByteBufferBytes implements Bytes {
             this.longHandle = LONG_HANDLE_LITTLE_ENDIAN;
         }
     }
+
+    @Override
+    public byte[] toByteArray() {
+        final var capacity = this.bb.capacity();
+        final var byteArray = new byte[capacity];
+        this.bb.get(byteArray, 0, capacity);
+        return byteArray;
+    }
+
+    @Override
+    public @NotNull ByteBuffer toByteBuffer() {
+        return this.bb;
+    }
 }

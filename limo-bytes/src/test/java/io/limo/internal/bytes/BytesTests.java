@@ -81,5 +81,27 @@ abstract class BytesTests {
         }
     }
 
+    protected void testWriteBE(Bytes bytes) {
+        // Bytes is natively Big Endian ordered
+        try (bytes) {
+            bytes.writeByteAt(0, FIRST_BYTE);
+            bytes.writeIntAt(1, FIRST_INT);
+            bytes.writeByteAt(5, SECOND_BYTE);
+            bytes.writeIntAt(6, SECOND_INT);
+            assertThat(bytes.toByteArray()).isEqualTo(BYTES_BIG_ENDIAN);
+        }
+    }
+
+    protected void testWriteLE(Bytes bytes) {
+        try (bytes) {
+            bytes.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+            bytes.writeByteAt(0, FIRST_BYTE);
+            bytes.writeIntAt(1, FIRST_INT);
+            bytes.writeByteAt(5, SECOND_BYTE);
+            bytes.writeIntAt(6, SECOND_INT);
+            assertThat(bytes.toByteArray()).isEqualTo(BYTES_LITTLE_ENDIAN);
+        }
+    }
+
     protected abstract Bytes instanciateBytes(byte[] byteArray);
 }
