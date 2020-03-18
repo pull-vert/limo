@@ -81,7 +81,7 @@ abstract class BytesTests {
         }
     }
 
-    protected void testWriteBE(Bytes bytes) {
+    protected void testWriteBE(MutableBytes bytes) {
         // Bytes is natively Big Endian ordered
         try (bytes) {
             bytes.writeByteAt(0, FIRST_BYTE);
@@ -92,7 +92,7 @@ abstract class BytesTests {
         }
     }
 
-    protected void testWriteLE(Bytes bytes) {
+    protected void testWriteLE(MutableBytes bytes) {
         try (bytes) {
             bytes.setByteOrder(ByteOrder.LITTLE_ENDIAN);
             bytes.writeByteAt(0, FIRST_BYTE);

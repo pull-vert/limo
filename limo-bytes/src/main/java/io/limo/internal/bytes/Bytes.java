@@ -11,17 +11,13 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * A byte sequence that store all or a part of a complete binary content
+ * A read-only (immutable) byte sequence that store all or a part of a complete binary content
  */
 public interface Bytes extends AutoCloseable {
 
     byte readByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index);
 
     int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index);
-
-    void writeByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, byte value);
-
-    void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value);
 
     /**
      * @return The size (in bytes) of this byte sequence

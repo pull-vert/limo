@@ -4,7 +4,6 @@
 
 package io.limo.internal.bytes;
 
-import io.limo.bytes.Data;
 import io.limo.bytes.MutableData;
 import io.limo.bytes.Writer;
 import io.limo.bytes.WriterOverflowException;
@@ -17,62 +16,41 @@ import java.util.Objects;
 import java.util.stream.IntStream;
 
 /**
- * Implementation of the mutable {@link MutableData} interface based on a resizable array of {@link Bytes}
+ * Implementation of the mutable {@link MutableData} interface based on a resizable array of {@link MutableBytes}
  *
  * @implNote Inspired by ArrayList
  * @see BytesArrayData
  */
-public final class MutableBytesArrayData extends BytesArrayData implements MutableData {
+public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableBytes> implements MutableData {
 
     /**
      * The bytes supplier, can act as a pool
      */
-    private final @NotNull BytesSupplier bytesSupplier;
+    private final @NotNull MutableBytesSupplier mutableBytesSupplier;
 
     /**
      * The data writer
      */
     private final @NotNull Writer writer;
 
-    public MutableBytesArrayData(@NotNull BytesSupplier bytesSupplier) {
-        this.bytesSupplier = Objects.requireNonNull(bytesSupplier);
-        this.bytesArray[0] = bytesSupplier.get();
-        this.writer = new WriterImpl();
-    }
+    public MutableBytesArrayData(@NotNull MutableBytesSupplier mutableBytesSupplier) {
+        this.mutableBytesSupplier = Objects.requireNonNull(mutableBytesSupplier);
 
-    public MutableBytesArrayData(@NotNull Data data, @NotNull BytesSupplier bytesSupplier) {
-        Objects.requireNonNull(data);
-        Objects.requireNonNull(bytesSupplier);
-
-        // todo use instanceof pattern matching of java 14 https://openjdk.java.net/jeps/305
-        if (data instanceof BytesArrayData) {
-            final var arrayData = (BytesArrayData) data;
-            this.bytesArray = arrayData.bytesArray;
-            this.limits = arrayData.limits;
-            this.readIndex = arrayData.readIndex;
-            this.writeIndex = arrayData.writeIndex;
-            this.reader = arrayData.reader;
-        } else if (data instanceof BytesData) {
-            final var byBuData = (BytesData) data;
-            this.bytesArray = new Bytes[DEFAULT_CAPACITY];
-            this.bytesArray[0] = byBuData.bytes;
-            this.limits = new int[DEFAULT_CAPACITY];
-            this.limits[0] = byBuData.limit;
-            // read and write indexes both have an initial value of 0
-            this.reader = new ReaderImpl();
-        } else {
-            throw new IllegalArgumentException("data type " + data.getClass().getTypeName() + " is not supported");
-        }
-        this.bytesSupplier = bytesSupplier;
+        // init memories and limits with DEFAULT_CAPACITY size
+        this.bytesArray = new MutableBytes[DEFAULT_CAPACITY];
+        this.limits = new int[DEFAULT_CAPACITY];
+        this.byteSize = 0;
+        this.bytesArray[0] = mutableBytesSupplier.get();
+        this.reader = new ReaderImpl();
         this.writer = new WriterImpl();
     }
 
     /**
-     * Get a new byte sequence from {@link #bytesSupplier}
+     * Get a new byte sequence from {@link #mutableBytesSupplier}
      *
      * @return newly obtained byte sequence
      */
-    private @NotNull Bytes supplyNewBytes() {
+    private @NotNull MutableBytes supplyNewBytes() {
         // no room left in array
         this.writeIndex += 1;
         if (this.writeIndex == this.bytesArray.length) {
@@ -81,7 +59,7 @@ public final class MutableBytesArrayData extends BytesArrayData implements Mutab
             this.bytesArray = Arrays.copyOf(bytesArray, newLength);
             this.limits = Arrays.copyOf(limits, newLength);
         }
-        final var bytes = this.bytesSupplier.get();
+        final var bytes = this.mutableBytesSupplier.get();
         this.bytesArray[this.writeIndex] = bytes;
         return bytes;
     }
@@ -99,7 +77,7 @@ public final class MutableBytesArrayData extends BytesArrayData implements Mutab
         /**
          * Current byte sequence to write in
          */
-        private @NotNull Bytes bytes;
+        private @NotNull MutableBytes bytes;
 
         /**
          * Writing index in the current {@link #bytes}

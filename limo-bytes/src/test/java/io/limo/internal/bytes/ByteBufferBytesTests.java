@@ -18,12 +18,12 @@ public final class ByteBufferBytesTests extends BytesTests {
     @Test
     @DisplayName("Verify write using native Big Endian is working")
     void writeBE() {
-        testWriteBE(new ByteBufferBytes(true, 10));
+        testWriteBE(new MutableByteBufferBytes(true, 10));
     }
 
     @Test
     @DisplayName("Verify write using Little Endian is working")
     void writeLE() {
-        testWriteLE(new ByteBufferBytes(false, 10));
+        testWriteLE(new MutableByteBufferBytes(false, 10));
     }
 }

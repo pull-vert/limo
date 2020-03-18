@@ -15,18 +15,16 @@ import java.nio.ByteOrder;
 import java.util.Objects;
 
 /**
- *  A read-only byte sequence based on a {@link MemorySegment} from a {@code byte[]} or a {@code ByteBuffer}
+ *  A read-only (immutable) byte sequence based on a {@link MemorySegment} from a {@code byte[]} or a {@code ByteBuffer}
  */
 public final class MemorySegmentBytes implements Bytes {
 
     private final @NotNull MemorySegment segment;
-
     private final @NotNull MemoryAddress base;
-
     private boolean isBigEndian = true;
 
     /**
-     * Build a byte sequence from a read-only {@link MemorySegment} built from an existing {@code byte[]}
+     * Build a read-only (immutable) byte sequence from a read-only {@link MemorySegment} built from an existing {@code byte[]}
      * <p>The byte order of a newly-created Bytes is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}
      *
      * @param byteArray the byte array
@@ -37,7 +35,7 @@ public final class MemorySegmentBytes implements Bytes {
     }
 
     /**
-     * Build a byte sequence from a read-only {@link MemorySegment} built from an existing {@link ByteBuffer}
+     * Build a read-only (immutable) byte sequence from a read-only {@link MemorySegment} built from an existing {@link ByteBuffer}
      * <p>The byte order of a newly-created Bytes is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}
      *
      * @param bb the ByteBuffer
@@ -55,16 +53,6 @@ public final class MemorySegmentBytes implements Bytes {
     @Override
     public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index) {
         return MemorySegmentOps.readInt(this.base.addOffset(index), isBigEndian);
-    }
-
-    @Override
-    public void writeByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, byte value) {
-        throwUnsupportedWriteException();
-    }
-
-    @Override
-    public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value) {
-        throwUnsupportedWriteException();
     }
 
     @Override
@@ -93,9 +81,5 @@ public final class MemorySegmentBytes implements Bytes {
     @Override
     public void close() {
         this.segment.close();
-    }
-
-    private Exception throwUnsupportedWriteException() {
-        throw new UnsupportedOperationException("No write operation on MemorySegmentBytes !");
     }
 }
