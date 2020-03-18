@@ -2,25 +2,25 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.internal.bytes;
+package io.limo.internal.data;
 
 import io.limo.bytes.Data;
 import io.limo.bytes.Reader;
 import io.limo.bytes.ReaderUnderflowException;
+import io.limo.internal.bytes.Bytes;
 import io.limo.utils.BytesOps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 import java.nio.ByteOrder;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Stream;
 
 abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
 
     /**
-     * The array of byte sequence into which the elements of the ByBuArrayData are stored
+     * The array of byte sequence into which the elements of this BytesArrayData are stored
      */
     protected T @NotNull [] bytesArray;
 
@@ -84,8 +84,10 @@ abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
     public final void setByteOrder(@NotNull ByteOrder byteOrder) {
         this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
         // set this byte order to all memories
-        for (final var byBu : this.bytesArray) {
-            Optional.ofNullable(byBu).ifPresent(mem -> mem.setByteOrder(byteOrder));
+        for (final var bytes : this.bytesArray) {
+            if (bytes != null) {
+                bytes.setByteOrder(byteOrder);
+            }
         }
     }
 

@@ -2,11 +2,12 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.internal.bytes;
+package io.limo.internal.data;
 
 import io.limo.bytes.MutableData;
 import io.limo.bytes.Writer;
 import io.limo.bytes.WriterOverflowException;
+import io.limo.internal.bytes.MutableBytes;
 import io.limo.utils.BytesOps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;

@@ -2,21 +2,14 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.internal.bytes;
+package io.limo.internal.data;
 
 import io.limo.bytes.Data;
-import io.limo.bytes.Reader;
-import io.limo.bytes.ReaderUnderflowException;
-import io.limo.utils.BytesOps;
+import io.limo.internal.bytes.Bytes;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Range;
 
-import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.stream.Stream;
 
 /**
  * Implementation of the immutable {@link Data} interface based on a fixed size array of {@link Bytes}
@@ -49,25 +42,25 @@ public class BytesArrayData extends AbstractBytesArrayData<Bytes> {
         // initiate arrays
         var offset = 0;
         if (first instanceof BytesArrayData) {
-            final var firstArrayData = (BytesArrayData) first;
-            offset = firstArrayData.writeIndex + 1;
+            final var arrayData = (BytesArrayData) first;
+            offset = arrayData.writeIndex + 1;
             totalCapacity += offset;
             if (totalCapacity < DEFAULT_CAPACITY) {
                 totalCapacity = DEFAULT_CAPACITY;
             }
-            this.bytesArray = Arrays.copyOf(firstArrayData.bytesArray, totalCapacity);
-            this.limits = Arrays.copyOf(firstArrayData.limits, totalCapacity);
+            this.bytesArray = Arrays.copyOf(arrayData.bytesArray, totalCapacity);
+            this.limits = Arrays.copyOf(arrayData.limits, totalCapacity);
         } else if (first instanceof BytesData) {
-            final var firstData = (BytesData) first;
+            final var bytesData = (BytesData) first;
             offset = 1;
             totalCapacity++;
             if (totalCapacity < DEFAULT_CAPACITY) {
                 totalCapacity = DEFAULT_CAPACITY;
             }
             this.bytesArray = new Bytes[totalCapacity];
-            this.bytesArray[0] = firstData.bytes;
+            this.bytesArray[0] = bytesData.bytes;
             this.limits = new int[totalCapacity];
-            this.limits[0] = firstData.limit;
+            this.limits[0] = bytesData.limit;
         } else {
             throw new IllegalArgumentException("data type " + first.getClass().getTypeName() + " is not supported");
         }
@@ -83,9 +76,9 @@ public class BytesArrayData extends AbstractBytesArrayData<Bytes> {
                 System.arraycopy(arrayData.limits, 0, this.limits, offset, dataLength);
                 offset += dataLength;
             } else if (first instanceof BytesData) {
-                final var byBuData = (BytesData) data;
-                this.bytesArray[offset] = byBuData.bytes;
-                this.limits[offset] = byBuData.limit;
+                final var bytesData = (BytesData) data;
+                this.bytesArray[offset] = bytesData.bytes;
+                this.limits[offset] = bytesData.limit;
                 offset++;
             }
         }

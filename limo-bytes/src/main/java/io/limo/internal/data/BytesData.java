@@ -2,11 +2,13 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.internal.bytes;
+package io.limo.internal.data;
 
 import io.limo.bytes.Data;
 import io.limo.bytes.Reader;
 import io.limo.bytes.ReaderUnderflowException;
+import io.limo.internal.bytes.ByteBufferBytes;
+import io.limo.internal.bytes.Bytes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -20,7 +22,7 @@ import java.util.Objects;
 public class BytesData implements Data {
 
     /**
-     * The byte sequence into which the elements of the ByBuData are stored
+     * The byte sequence into which the elements of this BytesData are stored
      */
     final @NotNull Bytes bytes;
 

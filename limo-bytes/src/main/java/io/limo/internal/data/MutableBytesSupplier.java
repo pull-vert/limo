@@ -2,8 +2,10 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.internal.bytes;
+package io.limo.internal.data;
 
+import io.limo.internal.bytes.Bytes;
+import io.limo.internal.bytes.MutableBytes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
@@ -24,7 +26,7 @@ public interface MutableBytesSupplier extends Supplier<MutableBytes> {
      *
      * @param bytes This must be a byte sequence previously obtained
      *               by calling MemorySupplier::get. The caller must
-     *               not touch the buffer after returning it to
+     *               not touch the bytes after returning it to
      *               the pool.
      */
     void recycle(@NotNull MutableBytes bytes);
