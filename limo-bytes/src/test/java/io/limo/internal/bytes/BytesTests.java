@@ -60,7 +60,7 @@ abstract class BytesTests {
     @Test
     @DisplayName("Verify read using native Big Endian is working")
     void readBE() {
-        // ByteSequence is natively Big Endian ordered
+        // Bytes is natively Big Endian ordered
         try (final var bytes = instanciateBytes(BYTES_BIG_ENDIAN)) {
             assertThat(bytes.readByteAt(0)).isEqualTo(FIRST_BYTE);
             assertThat(bytes.readIntAt(1)).isEqualTo(FIRST_INT);

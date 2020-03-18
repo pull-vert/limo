@@ -54,7 +54,7 @@ public final class MutableMemorySegmentData implements MutableData {
 
     /**
      * Build a Data from a new off-heap {@link MemorySegment}
-     * <p> The byte order of a newly-created ByteSequence is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}. </p>
+     * <p> The byte order of a newly-created Bytes is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}. </p>
      *
      * @param capacity total capacity of the MemorySegment
      */

@@ -232,7 +232,7 @@ public class BytesArrayData implements Data {
 
             // 2) current byte sequence is exactly exhausted
             // let's get next byte sequence and if present read it
-            nextByteSequence();
+            nextBytes();
 
             // we are at 0 index in newly obtained byte sequence
 
@@ -261,7 +261,7 @@ public class BytesArrayData implements Data {
             // 2) current byte sequence is exactly exhausted
             if (currentLimit == currentIndex) {
                 // let's get next byte sequence and if present read it
-                nextByteSequence();
+                nextBytes();
 
                 // we are at 0 index in newly obtained byte sequence
 
@@ -282,7 +282,7 @@ public class BytesArrayData implements Data {
          *
          * @throws ReaderUnderflowException if no readable next byte sequence
          */
-        private void nextByteSequence() {
+        private void nextBytes() {
             final var nextReadIndex = getNextReadIndex().orElseThrow(ReaderUnderflowException::new);
             this.bytes = Objects.requireNonNull(bytesArray[nextReadIndex]);
             this.limit = limits[nextReadIndex];

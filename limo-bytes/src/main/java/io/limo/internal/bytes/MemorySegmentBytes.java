@@ -26,8 +26,8 @@ public final class MemorySegmentBytes implements Bytes {
     private boolean isBigEndian = true;
 
     /**
-     * Build a byte sequence from a read-only {@link MemorySegment} built from a byte array
-     * <p> The byte order of a newly-created ByteSequence is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}. </p>
+     * Build a byte sequence from a read-only {@link MemorySegment} built from an existing {@code byte[]}
+     * <p>The byte order of a newly-created Bytes is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}
      *
      * @param byteArray the byte array
      */
@@ -37,8 +37,8 @@ public final class MemorySegmentBytes implements Bytes {
     }
 
     /**
-     * Build a byte sequence from a read-only {@link MemorySegment} built from a {@link ByteBuffer}
-     * <p> The byte order of a newly-created ByteSequence is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}. </p>
+     * Build a byte sequence from a read-only {@link MemorySegment} built from an existing {@link ByteBuffer}
+     * <p>The byte order of a newly-created Bytes is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}
      *
      * @param bb the ByteBuffer
      */

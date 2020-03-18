@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Range;
 import java.nio.ByteOrder;
 
 /**
- * A byte sequence that store all or a part of a binary content
+ * A byte sequence that store all or a part of a complete binary content
  */
 public interface Bytes extends AutoCloseable {
 
@@ -37,7 +37,8 @@ public interface Bytes extends AutoCloseable {
     void setByteOrder(@NotNull ByteOrder byteOrder);
 
     /**
-     * Closes this byte sequence
+     * Closes this byte sequence.
+     * <p>Default close is NOP
      */
     @Override
     default void close() {

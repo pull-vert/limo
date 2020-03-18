@@ -72,7 +72,7 @@ public final class MutableBytesArrayData extends BytesArrayData implements Mutab
      *
      * @return newly obtained byte sequence
      */
-    private @NotNull Bytes supplyNewByteSequence() {
+    private @NotNull Bytes supplyNewBytes() {
         // no room left in array
         this.writeIndex += 1;
         if (this.writeIndex == this.bytesArray.length) {
@@ -138,7 +138,7 @@ public final class MutableBytesArrayData extends BytesArrayData implements Mutab
 
             // 2) current byte sequence is exactly full
             // let's add a new byte sequence from supplier
-            addNewByteSequence();
+            addNewBytes();
 
             // we are at 0 index in newly obtained byte sequence
 
@@ -165,7 +165,7 @@ public final class MutableBytesArrayData extends BytesArrayData implements Mutab
             // 2) current byte sequence is exactly full
             if (currentLimit == this.capacity) {
                 // let's add a new byte sequence from supplier
-                addNewByteSequence();
+                addNewBytes();
 
                 // we are at 0 index in newly obtained byte sequence
                 if (this.capacity >= intSize) {
@@ -188,10 +188,10 @@ public final class MutableBytesArrayData extends BytesArrayData implements Mutab
         }
 
         /**
-         * Current byte sequence is full, add a new ByteSequence in data array
+         * Current byte sequence is full, add a new Bytes in data array
          */
-        private void addNewByteSequence() {
-            this.bytes = supplyNewByteSequence();
+        private void addNewBytes() {
+            this.bytes = supplyNewBytes();
             this.capacity = this.bytes.getByteSize();
             this.limit = 0;
         }
