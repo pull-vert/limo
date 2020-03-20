@@ -8,8 +8,6 @@ import io.limo.utils.BytesOps;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.nio.ByteOrder;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 abstract class BytesTests {
@@ -63,9 +61,9 @@ abstract class BytesTests {
         // Bytes is natively Big Endian ordered
         try (final var bytes = instanciateBytes(BYTES_BIG_ENDIAN)) {
             assertThat(bytes.readByteAt(0)).isEqualTo(FIRST_BYTE);
-            assertThat(bytes.readIntAt(1)).isEqualTo(FIRST_INT);
+            assertThat(bytes.readIntAt(1, true)).isEqualTo(FIRST_INT);
             assertThat(bytes.readByteAt(5)).isEqualTo(SECOND_BYTE);
-            assertThat(bytes.readIntAt(6)).isEqualTo(SECOND_INT);
+            assertThat(bytes.readIntAt(6, true)).isEqualTo(SECOND_INT);
         }
     }
 
@@ -73,11 +71,10 @@ abstract class BytesTests {
     @DisplayName("Verify read using Little Endian is working")
     void readLE() {
         try (final var bytes = instanciateBytes(BYTES_LITTLE_ENDIAN)) {
-            bytes.setByteOrder(ByteOrder.LITTLE_ENDIAN);
             assertThat(bytes.readByteAt(0)).isEqualTo(FIRST_BYTE);
-            assertThat(bytes.readIntAt(1)).isEqualTo(FIRST_INT);
+            assertThat(bytes.readIntAt(1, false)).isEqualTo(FIRST_INT);
             assertThat(bytes.readByteAt(5)).isEqualTo(SECOND_BYTE);
-            assertThat(bytes.readIntAt(6)).isEqualTo(SECOND_INT);
+            assertThat(bytes.readIntAt(6, false)).isEqualTo(SECOND_INT);
         }
     }
 
@@ -85,20 +82,19 @@ abstract class BytesTests {
         // Bytes is natively Big Endian ordered
         try (bytes) {
             bytes.writeByteAt(0, FIRST_BYTE);
-            bytes.writeIntAt(1, FIRST_INT);
+            bytes.writeIntAt(1, FIRST_INT, true);
             bytes.writeByteAt(5, SECOND_BYTE);
-            bytes.writeIntAt(6, SECOND_INT);
+            bytes.writeIntAt(6, SECOND_INT, true);
             assertThat(bytes.toByteArray()).isEqualTo(BYTES_BIG_ENDIAN);
         }
     }
 
     protected void testWriteLE(MutableBytes bytes) {
         try (bytes) {
-            bytes.setByteOrder(ByteOrder.LITTLE_ENDIAN);
             bytes.writeByteAt(0, FIRST_BYTE);
-            bytes.writeIntAt(1, FIRST_INT);
+            bytes.writeIntAt(1, FIRST_INT, false);
             bytes.writeByteAt(5, SECOND_BYTE);
-            bytes.writeIntAt(6, SECOND_INT);
+            bytes.writeIntAt(6, SECOND_INT, false);
             assertThat(bytes.toByteArray()).isEqualTo(BYTES_LITTLE_ENDIAN);
         }
     }

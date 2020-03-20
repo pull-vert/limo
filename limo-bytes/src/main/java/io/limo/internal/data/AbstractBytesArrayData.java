@@ -46,8 +46,6 @@ abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
      */
     @Range(from = 0, to = Integer.MAX_VALUE - 1) int writeIndex = 0;
 
-    boolean isBigEndian = true;
-
     /**
      * The data reader
      */
@@ -73,22 +71,6 @@ abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
     @Override
     public final @NotNull Reader getReader() {
         return this.reader;
-    }
-
-    @Override
-    public final @NotNull ByteOrder getByteOrder() {
-        return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-    }
-
-    @Override
-    public final void setByteOrder(@NotNull ByteOrder byteOrder) {
-        this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
-        // set this byte order to all memories
-        for (final var bytes : this.bytesArray) {
-            if (bytes != null) {
-                bytes.setByteOrder(byteOrder);
-            }
-        }
     }
 
     @Override
@@ -130,6 +112,8 @@ abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
          * Number of bytes loaded in the current {@link #bytes}
          */
         private int limit;
+
+        boolean isBigEndian = true;
 
         /**
          * Current byte sequence is the first in the data array of {@code ArrayData}
@@ -177,7 +161,7 @@ abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
             // 1) at least 4 bytes left to read an int in current byte sequence
             if (currentLimit >= targetLimit) {
                 this.index = targetLimit;
-                return this.bytes.readIntAt(currentIndex);
+                return this.bytes.readIntAt(currentIndex, this.isBigEndian);
             }
 
             // 2) current byte sequence is exactly exhausted
@@ -186,17 +170,17 @@ abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
                 nextBytes();
 
                 // we are at 0 index in newly obtained byte sequence
-
                 if (this.limit >= intSize) {
                     this.index = intSize;
-                    return this.bytes.readIntAt(0);
+                    return this.bytes.readIntAt(0, this.isBigEndian);
                 }
+
                 // 3) memory is exhausted
                 throw new ReaderUnderflowException();
             }
 
             // 3) must read some bytes in current byte sequence, some others from next one
-            return BytesOps.bytesToInt(readByte(), readByte(), readByte(), readByte(), isBigEndian);
+            return BytesOps.bytesToInt(readByte(), readByte(), readByte(), readByte(), this.isBigEndian);
         }
 
         /**
@@ -208,6 +192,16 @@ abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
             final var nextReadIndex = getNextReadIndex().orElseThrow(ReaderUnderflowException::new);
             this.bytes = Objects.requireNonNull(bytesArray[nextReadIndex]);
             this.limit = limits[nextReadIndex];
+        }
+
+        @Override
+        public final @NotNull ByteOrder getByteOrder() {
+            return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+        }
+
+        @Override
+        public final void setByteOrder(@NotNull ByteOrder byteOrder) {
+            this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
         }
 
         @Override

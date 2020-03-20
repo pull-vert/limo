@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Objects;
 
 /**
@@ -21,11 +20,9 @@ public final class MemorySegmentBytes implements Bytes {
 
     private final @NotNull MemorySegment segment;
     private final @NotNull MemoryAddress base;
-    private boolean isBigEndian = true;
 
     /**
      * Build a read-only (immutable) byte sequence from a read-only {@link MemorySegment} built from an existing {@code byte[]}
-     * <p>The byte order of a newly-created Bytes is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}
      *
      * @param byteArray the byte array
      */
@@ -36,7 +33,6 @@ public final class MemorySegmentBytes implements Bytes {
 
     /**
      * Build a read-only (immutable) byte sequence from a read-only {@link MemorySegment} built from an existing {@link ByteBuffer}
-     * <p>The byte order of a newly-created Bytes is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}
      *
      * @param bb the ByteBuffer
      */
@@ -51,18 +47,13 @@ public final class MemorySegmentBytes implements Bytes {
     }
 
     @Override
-    public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index) {
+    public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, boolean isBigEndian) {
         return MemorySegmentOps.readInt(this.base.addOffset(index), isBigEndian);
     }
 
     @Override
     public @Range(from = 1, to = Integer.MAX_VALUE) int getByteSize() {
         return (int) this.segment.byteSize();
-    }
-
-    @Override
-    public final void setByteOrder(@NotNull ByteOrder byteOrder) {
-        this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
     }
 
     @Override

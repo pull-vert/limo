@@ -12,6 +12,7 @@ import io.limo.utils.BytesOps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.IntStream;
@@ -90,6 +91,8 @@ public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableB
          */
         private @Range(from = 1, to = Integer.MAX_VALUE) int capacity;
 
+        boolean isBigEndian = true;
+
         /**
          * Current byte sequence is the last not null in the data array of {@code ArrayData}
          */
@@ -137,7 +140,7 @@ public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableB
             // 1) at least 4 bytes left to write an int in current byte sequence
             if (this.capacity >= targetLimit) {
                 this.limit = targetLimit;
-                this.bytes.writeIntAt(currentLimit, value);
+                this.bytes.writeIntAt(currentLimit, value, this.isBigEndian);
                 return;
             }
 
@@ -149,16 +152,26 @@ public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableB
                 // we are at 0 index in newly obtained byte sequence
                 if (this.capacity >= intSize) {
                     this.limit = intSize;
-                    this.bytes.writeIntAt(currentLimit, value);
+                    this.bytes.writeIntAt(currentLimit, value, this.isBigEndian);
                     return;
                 }
                 throw new WriterOverflowException();
             }
 
             // 3) must write some bytes in current byte sequence, some others in next one
-            for (final var b : BytesOps.intToBytes(value, isBigEndian)) {
+            for (final var b : BytesOps.intToBytes(value, this.isBigEndian)) {
                 writeByte(b);
             }
+        }
+
+        @Override
+        public final @NotNull ByteOrder getByteOrder() {
+            return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+        }
+
+        @Override
+        public final void setByteOrder(@NotNull ByteOrder byteOrder) {
+            this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
         }
 
         @Override

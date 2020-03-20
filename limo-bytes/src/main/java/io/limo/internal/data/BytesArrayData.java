@@ -18,9 +18,6 @@ import java.util.Objects;
  */
 public class BytesArrayData extends AbstractBytesArrayData<Bytes> {
 
-    BytesArrayData() {
-    }
-
     public BytesArrayData(@NotNull Data first, Data @NotNull ... rest) {
         Objects.requireNonNull(first);
         Objects.requireNonNull(rest);

@@ -27,11 +27,14 @@ public class BytesData implements Data {
     final @NotNull Bytes bytes;
 
     /**
+     * The capacity of byte sequence
+     */
+    final int capacity;
+
+    /**
      * The limit of byte sequence
      */
     final int limit;
-
-    private boolean isBigEndian = true;
 
     /**
      * The data reader
@@ -40,30 +43,19 @@ public class BytesData implements Data {
 
     public BytesData(@NotNull ByteBuffer bb) {
         this.bytes = new ByteBufferBytes(Objects.requireNonNull(bb));
-        this.limit = bb.capacity();
+        this.capacity = bb.capacity();
+        this.limit = bb.limit();
         this.reader = new ReaderImpl();
     }
 
     @Override
     public final @Range(from = 1, to = Integer.MAX_VALUE) long getByteSize() {
-        return this.bytes.getByteSize();
+        return this.capacity;
     }
 
     @Override
     public final @NotNull Reader getReader() {
         return this.reader;
-    }
-
-    @Override
-    public final @NotNull ByteOrder getByteOrder() {
-        return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-    }
-
-    @Override
-    public final void setByteOrder(@NotNull ByteOrder byteOrder) {
-        this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
-        // affect this byte order to memory
-        this.bytes.setByteOrder(byteOrder);
     }
 
     @Override
@@ -88,6 +80,7 @@ public class BytesData implements Data {
          * Reading index in the memory
          */
         private int index = 0;
+        private boolean isBigEndian = true;
 
 
         @Override
@@ -115,11 +108,21 @@ public class BytesData implements Data {
             // 1) at least 4 bytes left to read an int in memory
             if (limit >= targetLimit) {
                 this.index = targetLimit;
-                return bytes.readIntAt(currentIndex);
+                return bytes.readIntAt(currentIndex, this.isBigEndian);
             }
 
             // 2) memory is exhausted
             throw new ReaderUnderflowException();
+        }
+
+        @Override
+        public final @NotNull ByteOrder getByteOrder() {
+            return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+        }
+
+        @Override
+        public final void setByteOrder(@NotNull ByteOrder byteOrder) {
+            this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
         }
 
         @Override

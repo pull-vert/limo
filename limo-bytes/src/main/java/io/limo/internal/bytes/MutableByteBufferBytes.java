@@ -7,7 +7,6 @@ package io.limo.internal.bytes;
 import org.jetbrains.annotations.Range;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 /**
  * A read-write (mutable) byte sequence based on a {@link ByteBuffer}
@@ -16,7 +15,6 @@ public class MutableByteBufferBytes extends ByteBufferBytes implements MutableBy
 
     /**
      * Build read-write (mutable) a byte sequence from a fresh {@link ByteBuffer}
-     * <p>The byte order of a newly-created Bytes is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}
      *
      * @param direct   true for a direct ByteBuffer
      * @param capacity total capacity of the ByteBuffer
@@ -39,7 +37,11 @@ public class MutableByteBufferBytes extends ByteBufferBytes implements MutableBy
     }
 
     @Override
-    public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value) {
-        this.bb.putInt(index, value);
+    public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value, boolean isBigEndian) {
+        if (isBigEndian) {
+            INT_HANDLE_BE.set(bb, index, value);
+        } else {
+            INT_HANDLE_LE.set(bb, index, value);
+        }
     }
 }

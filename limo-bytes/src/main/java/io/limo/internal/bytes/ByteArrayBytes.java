@@ -18,16 +18,14 @@ import java.util.Objects;
  */
 public class ByteArrayBytes implements Bytes {
 
-    private static final VarHandle INT_HANDLE_BE = MethodHandles.byteArrayViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
-    private static final VarHandle LONG_HANDLE_BE = MethodHandles.byteArrayViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
+    static final VarHandle INT_HANDLE_BE = MethodHandles.byteArrayViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
+    static final VarHandle LONG_HANDLE_BE = MethodHandles.byteArrayViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
 
-    private static final VarHandle INT_HANDLE_LITTLE_ENDIAN = MethodHandles.byteArrayViewVarHandle(int[].class, ByteOrder.LITTLE_ENDIAN);
-    private static final VarHandle LONG_HANDLE_LITTLE_ENDIAN = MethodHandles.byteArrayViewVarHandle(long[].class, ByteOrder.LITTLE_ENDIAN);
+    static final VarHandle INT_HANDLE_LE = MethodHandles.byteArrayViewVarHandle(int[].class, ByteOrder.LITTLE_ENDIAN);
+    static final VarHandle LONG_HANDLE_LE = MethodHandles.byteArrayViewVarHandle(long[].class, ByteOrder.LITTLE_ENDIAN);
 
     byte @NotNull [] byteArray;
     @Range(from = 1, to = Integer.MAX_VALUE) int capacity;
-    @NotNull VarHandle intHandle = INT_HANDLE_BE;
-    @NotNull VarHandle longHandle = LONG_HANDLE_BE;
     boolean isReadOnly;
 
     ByteArrayBytes() {
@@ -35,7 +33,6 @@ public class ByteArrayBytes implements Bytes {
 
     /**
      * Build a read-only (immutable) byte sequence from an existing {@code byte[]}
-     * <p>The byte order of a newly-created Bytes is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}
      *
      * @param byteArray the byte array
      */
@@ -51,24 +48,16 @@ public class ByteArrayBytes implements Bytes {
     }
 
     @Override
-    public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index) {
-        return (int) this.intHandle.get(byteArray, index);
+    public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, boolean isBigEndian) {
+        if (isBigEndian) {
+            return (int)  INT_HANDLE_BE.get(byteArray, index);
+        }
+        return (int) INT_HANDLE_LE.get(byteArray, index);
     }
 
     @Override
     public @Range(from = 1, to = Integer.MAX_VALUE) int getByteSize() {
         return this.capacity;
-    }
-
-    @Override
-    public void setByteOrder(@NotNull ByteOrder byteOrder) {
-        if (byteOrder == ByteOrder.BIG_ENDIAN) {
-            this.intHandle = INT_HANDLE_BE;
-            this.longHandle = LONG_HANDLE_BE;
-        } else {
-            this.intHandle = INT_HANDLE_LITTLE_ENDIAN;
-            this.longHandle = LONG_HANDLE_LITTLE_ENDIAN;
-        }
     }
 
     @Override

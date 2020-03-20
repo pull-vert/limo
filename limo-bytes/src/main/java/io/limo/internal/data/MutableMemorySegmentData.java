@@ -17,10 +17,7 @@ import java.lang.invoke.MethodHandles;
 import java.nio.ByteOrder;
 
 /**
- * Implementation of the immutable {@code Data} interface based on a {@link MemorySegment}
- *
- * @see Data
- * @see MutableBytesArrayData
+ * Implementation of the mutable {@link MutableData} interface based on a {@link MemorySegment}
  */
 public final class MutableMemorySegmentData implements MutableData {
 
@@ -39,8 +36,6 @@ public final class MutableMemorySegmentData implements MutableData {
      * The limit of the {@link #segment}
      */
     private @Range(from = 0, to = Long.MAX_VALUE - 1) long limit;
-
-    private boolean isBigEndian = true;
 
     /**
      * The data reader
@@ -81,16 +76,6 @@ public final class MutableMemorySegmentData implements MutableData {
     }
 
     @Override
-    public @NotNull ByteOrder getByteOrder() {
-        return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-    }
-
-    @Override
-    public void setByteOrder(@NotNull ByteOrder byteOrder) {
-        this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
-    }
-
-    @Override
     public @Range(from = 0, to = Long.MAX_VALUE - 1) long getLimit() {
         return this.limit;
     }
@@ -119,6 +104,8 @@ public final class MutableMemorySegmentData implements MutableData {
          */
         private long index = 0L;
 
+        private boolean isBigEndian = true;
+
 
         @Override
         public byte readByte() {
@@ -145,11 +132,21 @@ public final class MutableMemorySegmentData implements MutableData {
             // 1) at least 4 bytes left to read an int in memory
             if (limit >= targetLimit) {
                 this.index = targetLimit;
-                return MemorySegmentOps.readInt(base.addOffset(currentIndex), isBigEndian);
+                return MemorySegmentOps.readInt(base.addOffset(currentIndex), this.isBigEndian);
             }
 
             // 2) memory is exhausted
             throw new ReaderUnderflowException();
+        }
+
+        @Override
+        public @NotNull ByteOrder getByteOrder() {
+            return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+        }
+
+        @Override
+        public void setByteOrder(@NotNull ByteOrder byteOrder) {
+            this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
         }
 
         @Override
@@ -162,6 +159,8 @@ public final class MutableMemorySegmentData implements MutableData {
      * Implementation of the {@code Writer} interface that writes in in {@link #segment}
      */
     private final class WriterImpl implements Writer {
+
+        private boolean isBigEndian = true;
 
         @Override
         public void writeByte(byte value) {
@@ -189,12 +188,22 @@ public final class MutableMemorySegmentData implements MutableData {
             // 1) at least 4 bytes left to write an int in current memory segment
             if (capacity >= targetLimit) {
                 limit = targetLimit;
-                MemorySegmentOps.writeInt(base.addOffset(currentLimit), value, isBigEndian);
+                MemorySegmentOps.writeInt(base.addOffset(currentLimit), value, this.isBigEndian);
                 return;
             }
 
             // 2) memory is exhausted
             throw new WriterOverflowException();
+        }
+
+        @Override
+        public @NotNull ByteOrder getByteOrder() {
+            return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+        }
+
+        @Override
+        public void setByteOrder(@NotNull ByteOrder byteOrder) {
+            this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
         }
 
         @Override

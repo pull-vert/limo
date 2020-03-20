@@ -10,5 +10,6 @@ rootProject.name = 'limo'
 
 include 'limo-bytes'
 include 'limo-commons'
+include 'limo-tcp'
 
 include 'benchmarks'

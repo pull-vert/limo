@@ -6,8 +6,6 @@ package io.limo.internal.bytes;
 
 import org.jetbrains.annotations.Range;
 
-import java.nio.ByteOrder;
-
 /**
  * A read-write (mutable) byte sequence based on a {@code byte[]}
  */
@@ -15,7 +13,6 @@ public final class MutableByteArrayBytes extends ByteArrayBytes implements Mutab
 
     /**
      * Build a read-write (mutable) byte sequence from a fresh {@code byte[]}
-     * <p>The byte order of a newly-created Bytes is always {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}
      *
      * @param capacity total capacity of the ByteBuffer
      */
@@ -35,9 +32,13 @@ public final class MutableByteArrayBytes extends ByteArrayBytes implements Mutab
     }
 
     @Override
-    public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value) {
+    public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value, boolean isBigEndian) {
         checkNotReadOnly();
-        this.intHandle.set(byteArray, index, value);
+        if (isBigEndian) {
+            INT_HANDLE_BE.set(byteArray, index, value);
+        } else {
+            INT_HANDLE_LE.set(byteArray, index, value);
+        }
     }
 
     private void checkNotReadOnly() {

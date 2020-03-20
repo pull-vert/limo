@@ -13,5 +13,5 @@ public interface MutableBytes extends Bytes {
 
     void writeByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, byte value);
 
-    void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value);
+    void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value, boolean isBigEndian);
 }
