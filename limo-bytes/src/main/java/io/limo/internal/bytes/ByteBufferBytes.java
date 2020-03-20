@@ -74,6 +74,11 @@ public class ByteBufferBytes implements Bytes {
 
     @Override
     public byte[] toByteArray() {
+        // fast-path if ByteBuffer is backed by an accessible byte array
+        if (this.bb.hasArray()) {
+            return this.bb.array();
+        }
+
         final var capacity = this.bb.capacity();
         final var byteArray = new byte[capacity];
         this.bb.get(byteArray, 0, capacity);
