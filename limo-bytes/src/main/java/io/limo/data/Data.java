@@ -2,12 +2,10 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.bytes;
+package io.limo.data;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
-
-import java.nio.ByteOrder;
 
 /**
  * A complete read-only (immutable) binary data

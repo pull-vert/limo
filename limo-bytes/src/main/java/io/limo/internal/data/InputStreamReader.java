@@ -5,8 +5,8 @@
 package io.limo.internal.data;
 
 import io.limo.LimoIOException;
-import io.limo.bytes.Reader;
-import io.limo.bytes.ReaderUnderflowException;
+import io.limo.data.Reader;
+import io.limo.data.ReaderUnderflowException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

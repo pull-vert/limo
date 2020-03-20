@@ -4,9 +4,9 @@
 
 package io.limo.internal.data;
 
-import io.limo.bytes.Data;
-import io.limo.bytes.Reader;
-import io.limo.bytes.ReaderUnderflowException;
+import io.limo.data.Data;
+import io.limo.data.Reader;
+import io.limo.data.ReaderUnderflowException;
 import io.limo.internal.bytes.Bytes;
 import io.limo.utils.BytesOps;
 import org.jetbrains.annotations.NotNull;

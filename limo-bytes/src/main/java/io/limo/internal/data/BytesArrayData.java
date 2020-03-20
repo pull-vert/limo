@@ -4,7 +4,7 @@
 
 package io.limo.internal.data;
 
-import io.limo.bytes.Data;
+import io.limo.data.Data;
 import io.limo.internal.bytes.Bytes;
 import org.jetbrains.annotations.NotNull;
 

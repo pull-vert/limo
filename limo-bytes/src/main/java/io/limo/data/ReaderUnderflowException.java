@@ -1,4 +1,4 @@
-package io.limo.bytes;
+package io.limo.data;
 
 import io.limo.LimoIOException;
 

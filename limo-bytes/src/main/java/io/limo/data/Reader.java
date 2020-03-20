@@ -2,40 +2,40 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.bytes;
+package io.limo.data;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteOrder;
 
 /**
- * This interface allows to write binary data
+ * This interface allows to read binary data
  */
-public interface Writer extends AutoCloseable {
+public interface Reader extends AutoCloseable {
 
     /**
-     * writes a byte in the data, write index increases by 1
-     * @throws WriterOverflowException if there is no room in data to write a byte
+     * @return a byte that was read from the data, read index increases by 1
+     * @throws ReaderUnderflowException if there is no byte left to read in data
      */
-    void writeByte(byte value);
+    byte readByte();
 
     /**
-     * writes an int in the data, write index increases by 4
-     * @throws WriterOverflowException if there is no room in data to write an int (4 bytes)
+     * @return a 4 bytes int that was read from the data, read index increases by 4
+     * @throws ReaderUnderflowException if there is less than 4 bytes left to read in data
      */
-    void writeInt(int value);
+    int readInt();
 
     /**
-     * Retrieves this writer's byte order.
+     * Retrieves this reader's byte order.
      *
-     * <p>The byte order is used when writing multibyte values.
+     * <p>The byte order is used when reading multibyte values.
      *
      * @return This reader's byte order
      */
     @NotNull ByteOrder getByteOrder();
 
     /**
-     * Modifies this writer's byte order.
+     * Modifies this reader's byte order.
      *
      * @param byteOrder The new byte order,
      *                  either {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}

@@ -8,5 +8,5 @@ module limo.buffer {
     requires org.jetbrains.annotations;
     requires org.slf4j;
 
-    exports io.limo.bytes;
+    exports io.limo.data;
 }

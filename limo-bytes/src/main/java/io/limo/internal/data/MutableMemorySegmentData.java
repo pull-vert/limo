@@ -4,7 +4,7 @@
 
 package io.limo.internal.data;
 
-import io.limo.bytes.*;
+import io.limo.data.*;
 import io.limo.utils.MemorySegmentOps;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
