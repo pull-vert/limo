@@ -3,8 +3,8 @@ plugins {
 }
 
 //def javaExecutablesPath = "/home/fred/dev-tools/jdk/jdk-15/bin/"
-def javaExecutablesPath = "/home/frederic/dev-tools/jdks/jdk-15/bin/"
-//def javaExecutablesPath = "C:\\dev\\jdk\\jdk-15\\bin\\"
+//def javaExecutablesPath = "/home/frederic/dev-tools/jdks/jdk-15/bin/"
+def javaExecutablesPath = "C:\\dev\\jdk\\jdk-15\\bin\\"
 
 subprojects {
     apply plugin: 'java'

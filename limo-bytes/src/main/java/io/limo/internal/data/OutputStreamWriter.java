@@ -5,55 +5,49 @@
 package io.limo.internal.data;
 
 import io.limo.LimoIOException;
-import io.limo.data.Reader;
-import io.limo.data.ReaderUnderflowException;
+import io.limo.data.Writer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteOrder;
 
 /**
- * Implementation of the {@link Reader} interface based on a {@link InputStream}
+ * Implementation of the {@link Writer} interface based on a {@link OutputStream}
  */
-public final class InputStreamReader implements Reader {
+public final class OutputStreamWriter implements Writer {
 
-    private final @NotNull InputStream in;
+    private final @NotNull OutputStream out;
 
     private boolean isBigEndian = true;
 
-    public InputStreamReader(@NotNull InputStream in) {
-        this.in = in;
+    public OutputStreamWriter(@NotNull OutputStream out) {
+        this.out = out;
     }
 
-
     @Override
-    public byte readByte() {
+    public void writeByte(byte value) {
         try {
-            final var ch = in.read();
-            if (ch < 0) {
-                throw new ReaderUnderflowException();
-            }
-            return (byte) ch;
+            out.write(value);
         } catch (IOException ioException) {
             throw new LimoIOException(ioException);
         }
     }
 
     @Override
-    public int readInt() {
+    public void writeInt(int value) {
         try {
-            final var i0 = this.in.read();
-            final var i1 = this.in.read();
-            final var i2 = this.in.read();
-            final var i3 = this.in.read();
-            if ((i0 | i1 | i2 | i3) < 0) {
-                throw new ReaderUnderflowException();
-            }
             if (isBigEndian) {
-                return ((i0 << 24) + (i1 << 16) + (i2 << 8) + i3);
+                out.write((value >>> 24) & 0xFF);
+                out.write((value >>> 16) & 0xFF);
+                out.write((value >>> 8) & 0xFF);
+                out.write((value) & 0xFF);
+            } else {
+                out.write((value) & 0xFF);
+                out.write((value >>> 8) & 0xFF);
+                out.write((value >>> 16) & 0xFF);
+                out.write((value >>> 24) & 0xFF);
             }
-            return ((i3 << 24) + (i2 << 16) + (i1 << 8) + i0);
         } catch (IOException ioException) {
             throw new LimoIOException(ioException);
         }
@@ -72,7 +66,7 @@ public final class InputStreamReader implements Reader {
     @Override
     public void close() {
         try {
-            this.in.close();
+            this.out.close();
         } catch (IOException ioException) {
             throw new LimoIOException(ioException);
         }

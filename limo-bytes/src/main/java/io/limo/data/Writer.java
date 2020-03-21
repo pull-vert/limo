@@ -4,6 +4,7 @@
 
 package io.limo.data;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteOrder;
@@ -44,8 +45,11 @@ public interface Writer extends AutoCloseable {
     void setByteOrder(@NotNull ByteOrder byteOrder);
 
     /**
-     * Closes all resources that store binary data
+     * Closes associated resources
+     *
+     * <p>This API is experimental, maybe a Writer should not expose the close behavior
      */
+    @ApiStatus.Experimental
     @Override
     void close();
 }

@@ -8,4 +8,5 @@ module limo.commons {
 
     exports io.limo;
     exports io.limo.utils;
+    exports io.limo.concurrent;
 }
