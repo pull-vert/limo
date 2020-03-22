@@ -2,23 +2,17 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.benchmarks;
+package io.limo.bench;
 
-import org.openjdk.jmh.annotations.*;
+import jdk.incubator.foreign.MemoryAddress;
+import jdk.incubator.foreign.MemorySegment;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.concurrent.TimeUnit;
 
-@Warmup(iterations = 1, time = 1)
-@Measurement(iterations = 1, time = 1)
-@Fork(value = 1)
-@BenchmarkMode(Mode.Throughput)
-@OutputTimeUnit(TimeUnit.SECONDS)
-@State(Scope.Benchmark)
-public class ByteBufferReadBenchmark {
+public final class ByteBufferWriteBench {
 
     private static final int OBJ_SIZE = 8 + 4 + 1;
     private static final int NUM_ELEM = 1_000_000;
@@ -27,10 +21,19 @@ public class ByteBufferReadBenchmark {
     private static final VarHandle longHandle = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
 
     private ByteBuffer bb;
+    private ByteBuffer bb2;
+    private MemorySegment segment;
+    private MemoryAddress base;
 
-    @Setup
     public void setup() {
         bb = ByteBuffer.allocateDirect(OBJ_SIZE * NUM_ELEM);
+        segment = MemorySegment.allocateNative(OBJ_SIZE * NUM_ELEM);
+        base = segment.baseAddress();
+        bb2 = segment.asByteBuffer();
+    }
+
+    public void directWrite() {
+        bb.clear();
         for (int i = 0; i < NUM_ELEM; i++) {
             bb.putLong(i);
             bb.putInt(i);
@@ -38,41 +41,25 @@ public class ByteBufferReadBenchmark {
         }
     }
 
-    @Benchmark
-    public long directRead() {
-        bb.rewind();
-        var val = 0L;
-        for (int i = 0; i < NUM_ELEM; i++) {
-            val += bb.getLong();
-            bb.getInt();
-            bb.get();
-        }
-        return val;
-    }
-
-    @Benchmark
-    public long indexedRead() {
-        var val = 0L;
+    public void indexedWrite() {
+        bb.clear();
         var index = 0;
         for (int i = 0; i < NUM_ELEM; i++) {
             index = OBJ_SIZE * i;
-            val += bb.getLong(index);
-            bb.getInt(index + 8);
-            bb.get(index + 12);
+            bb.putLong(index, i);
+            bb.putInt(index + 8, i);
+            bb.put(index + 12, (byte) (i & 1));
         }
-        return val;
     }
 
-    @Benchmark
-    public long varhandleRead() {
-        var val = 0L;
+    public void varhandleWrite() {
+        bb.clear();
         var index = 0;
         for (int i = 0; i < NUM_ELEM; i++) {
             index = OBJ_SIZE * i;
-            val += (long) longHandle.get(bb, index);
-            intHandle.get(bb, index + 8);
-            bb.get(index + 12);
+            longHandle.set(bb, index, i);
+            intHandle.set(bb, index + 8, i);
+            bb.put(index + 12, (byte) (i & 1));
         }
-        return val;
     }
 }

@@ -2,18 +2,13 @@ plugins {
     id 'org.javamodularity.moduleplugin' apply false
 }
 
-//def javaExecutablesPath = "/home/fred/dev-tools/jdk/jdk-15/bin/"
-//def javaExecutablesPath = "/home/frederic/dev-tools/jdks/jdk-15/bin/"
-def javaExecutablesPath = "C:\\dev\\jdk\\jdk-15\\bin\\"
-
 subprojects {
     apply plugin: 'java'
 //    apply plugin: 'jacoco'
     apply plugin: 'org.javamodularity.moduleplugin'
 
-    // todo upgrade to actual loom version, at least 15
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_14
+    targetCompatibility = JavaVersion.VERSION_14
 
     repositories {
         mavenCentral()
@@ -37,19 +32,6 @@ subprojects {
 
     configurations.all {
         exclude module: 'checker-framework'
-    }
-
-    tasks.withType(AbstractCompile) {
-        options.with {
-            fork = true
-            forkOptions.executable = javaExecutablesPath + "javac"
-        }
-    }
-    tasks.withType(Test) {
-        executable = javaExecutablesPath + "java"
-    }
-    tasks.withType(JavaExec) {
-        executable = javaExecutablesPath + "java"
     }
 
     test {
@@ -86,6 +68,6 @@ task build {
 
 // execute ./gradlew wrapper then remove .gradle directory when version change
 wrapper {
-    gradleVersion = '6.2.2'
+    gradleVersion = '6.3-rc-4'
     distributionType = Wrapper.DistributionType.ALL
 }
