@@ -3,4 +3,4 @@
   org.assertj.core
 
 --add-reads
-  limo.buffer=org.assertj.core
+  limo.bytes=org.assertj.core
