@@ -38,4 +38,9 @@ public class ByteBufferWriteBenchmark {
     public void varhandleWrite() {
         parent.varhandleWrite();
     }
+
+    @Benchmark
+    public void varhandleMemorySegmentWrite() {
+        parent.varhandleMemorySegmentWrite();
+    }
 }

@@ -4,13 +4,13 @@
 
 package io.limo.bench;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.*;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Objects;
 
 public final class ByteBufferWriteBench {
 
@@ -19,6 +19,12 @@ public final class ByteBufferWriteBench {
 
     private static final VarHandle intHandle = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
     private static final VarHandle longHandle = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
+
+    private static final VarHandle BYTE_HANDLE = MemoryHandles.varHandle(byte.class, ByteOrder.BIG_ENDIAN);
+    private static final VarHandle INT_AS_BYTE_SEQ_HANDLE = MemoryLayout.ofSequence(4, MemoryLayouts.BITS_8_BE)
+            .varHandle(byte.class, MemoryLayout.PathElement.sequenceElement());
+    private static final VarHandle LONG_AS_BYTE_SEQ_HANDLE = MemoryLayout.ofSequence(8, MemoryLayouts.BITS_8_BE)
+            .varHandle(byte.class, MemoryLayout.PathElement.sequenceElement());
 
     private ByteBuffer bb;
     private ByteBuffer bb2;
@@ -61,5 +67,37 @@ public final class ByteBufferWriteBench {
             intHandle.set(bb, index + 8, i);
             bb.put(index + 12, (byte) (i & 1));
         }
+    }
+
+    public void varhandleMemorySegmentWrite() {
+        var index = 0;
+        for (int i = 0; i < NUM_ELEM; i++) {
+            index = OBJ_SIZE * i;
+            writeLong(base.addOffset(index), i);
+            writeInt(base.addOffset(index + 8), i);
+            writeByte(base.addOffset(index + 12), (byte) (i & 1));
+        }
+    }
+
+    private static void writeByte(MemoryAddress address, byte value) {
+        BYTE_HANDLE.set(Objects.requireNonNull(address), value);
+    }
+
+    private static void writeInt(MemoryAddress address, final int value) {
+        INT_AS_BYTE_SEQ_HANDLE.set(address, 0L, (byte) ((value >> 24) & 0xff));
+        INT_AS_BYTE_SEQ_HANDLE.set(address, 1L, (byte) ((value >> 16) & 0xff));
+        INT_AS_BYTE_SEQ_HANDLE.set(address, 2L, (byte) ((value >> 8) & 0xff));
+        INT_AS_BYTE_SEQ_HANDLE.set(address, 3L, (byte) (value & 0xff));
+    }
+
+    private static void writeLong(MemoryAddress address, final long value) {
+        LONG_AS_BYTE_SEQ_HANDLE.set(address, 0L, (byte) ((value >> 56) & 0xff));
+        LONG_AS_BYTE_SEQ_HANDLE.set(address, 1L, (byte) ((value >> 48) & 0xff));
+        LONG_AS_BYTE_SEQ_HANDLE.set(address, 2L, (byte) ((value >> 40) & 0xff));
+        LONG_AS_BYTE_SEQ_HANDLE.set(address, 3L, (byte) ((value >> 32) & 0xff));
+        LONG_AS_BYTE_SEQ_HANDLE.set(address, 4L, (byte) ((value >> 24) & 0xff));
+        LONG_AS_BYTE_SEQ_HANDLE.set(address, 5L, (byte) ((value >> 16) & 0xff));
+        LONG_AS_BYTE_SEQ_HANDLE.set(address, 6L, (byte) ((value >> 8) & 0xff));
+        LONG_AS_BYTE_SEQ_HANDLE.set(address, 7L, (byte) (value & 0xff));
     }
 }
