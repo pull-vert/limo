@@ -9,8 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
@@ -19,12 +17,6 @@ import java.util.Objects;
  * A read-only (immutable) byte sequence based on a {@link ByteBuffer}
  */
 public class ByteBufferBytes implements Bytes {
-
-    static final VarHandle INT_HANDLE_BE = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
-    static final VarHandle LONG_HANDLE_BE = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
-
-    static final VarHandle INT_HANDLE_LE = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.LITTLE_ENDIAN);
-    static final VarHandle LONG_HANDLE_LE = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.LITTLE_ENDIAN);
 
     @NotNull ByteBuffer bb;
     @Range(from = 1, to = Integer.MAX_VALUE) int capacity;
@@ -54,17 +46,25 @@ public class ByteBufferBytes implements Bytes {
         this.capacity = byteArray.length;
     }
 
+    /**
+     * Build a read-only (immutable) byte sequence from an existing {@link MemorySegment}
+     *
+     * @param segment   the memory segment
+     */
+    ByteBufferBytes(@NotNull MemorySegment segment) {
+        this.segment = Objects.requireNonNull(segment);
+        this.bb = this.segment.asByteBuffer();
+        this.capacity = bb.capacity();
+    }
+
     @Override
     public byte readByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index) {
         return this.bb.get(index);
     }
 
     @Override
-    public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, boolean isBigEndian) {
-        if (isBigEndian) {
-            return (int) INT_HANDLE_BE.get(bb, index);
-        }
-        return (int) INT_HANDLE_LE.get(bb, index);
+    public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index) {
+        return this.bb.getInt(index);
     }
 
     @Override
@@ -73,9 +73,14 @@ public class ByteBufferBytes implements Bytes {
     }
 
     @Override
+    public void setByteOrder(@NotNull ByteOrder byteOrder) {
+        this.bb.order(byteOrder);
+    }
+
+    @Override
     public @NotNull Bytes acquire() {
         if (this.segment != null) {
-            this.segment = this.segment.acquire();
+            return new ByteBufferBytes(this.segment.acquire());
         }
         return this;
     }

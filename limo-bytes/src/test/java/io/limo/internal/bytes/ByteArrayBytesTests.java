@@ -4,17 +4,33 @@
 
 package io.limo.internal.bytes;
 
-import org.jetbrains.annotations.NotNull;
+import io.limo.internal.BinaryTestData;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 public final class ByteArrayBytesTests implements BytesTests, MutableBytesTests {
 
-    @Override
-    public Bytes instanciateBytes(byte @NotNull [] byteArray) {
-        return new ByteArrayBytes(byteArray);
+    @Test
+    @DisplayName("Verify read using Big Endian is working")
+    void readBE() {
+        readBETest(new ByteArrayBytes(BinaryTestData.BYTES_BIG_ENDIAN));
     }
 
-    @Override
-    public MutableBytes instanciateMutableBytes() {
-        return new MutableByteArrayBytes(10);
+    @Test
+    @DisplayName("Verify read using Little Endian is working")
+    void readLE() {
+        readLETest(new ByteArrayBytes(BinaryTestData.BYTES_LITTLE_ENDIAN));
+    }
+
+    @Test
+    @DisplayName("Verify write using Big Endian is working")
+    void writeBE() {
+        writeBETest(new MutableByteArrayBytes(10));
+    }
+
+    @Test
+    @DisplayName("Verify write using Little Endian is working")
+    void writeLE() {
+        writeLETest(new MutableByteArrayBytes(10));
     }
 }

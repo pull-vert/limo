@@ -53,6 +53,8 @@ abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
 
     @Range(from = 0, to = Integer.MAX_VALUE - 1) long byteSize;
 
+    @NotNull ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+
     /**
      * @return next not empty byte sequence index from array, or empty if none exists
      */
@@ -81,6 +83,13 @@ abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
             totalLimit += limit;
         }
         return totalLimit;
+    }
+
+    final void setByteOrder(@NotNull ByteOrder byteOrder) {
+        this.byteOrder = byteOrder;
+        Stream.of(this.bytesArray)
+                .filter(Objects::nonNull)
+                .forEach(bytes -> bytes.setByteOrder(byteOrder));
     }
 
     /**
@@ -161,7 +170,7 @@ abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
             // 1) at least 4 bytes left to read an int in current byte sequence
             if (currentLimit >= targetLimit) {
                 this.index = targetLimit;
-                return this.bytes.readIntAt(currentIndex, this.isBigEndian);
+                return this.bytes.readIntAt(currentIndex);
             }
 
             // 2) current byte sequence is exactly exhausted
@@ -172,7 +181,7 @@ abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
                 // we are at 0 index in newly obtained byte sequence
                 if (this.limit >= intSize) {
                     this.index = intSize;
-                    return this.bytes.readIntAt(0, this.isBigEndian);
+                    return this.bytes.readIntAt(0);
                 }
 
                 // 3) memory is exhausted
@@ -196,12 +205,13 @@ abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
 
         @Override
         public final @NotNull ByteOrder getByteOrder() {
-            return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+            return byteOrder;
         }
 
         @Override
         public final void setByteOrder(@NotNull ByteOrder byteOrder) {
             this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
+            AbstractBytesArrayData.this.setByteOrder(byteOrder);
         }
 
         @Override

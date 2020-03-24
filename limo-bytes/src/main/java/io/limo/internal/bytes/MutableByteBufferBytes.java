@@ -16,7 +16,7 @@ import java.nio.ByteBuffer;
 public class MutableByteBufferBytes extends ByteBufferBytes implements MutableBytes {
 
     /**
-     * Build read-write (mutable) a byte sequence from a fresh {@link ByteBuffer}
+     * Build a read-write (mutable) byte sequence from a fresh {@link ByteBuffer}
      *
      * @param direct           true for a direct ByteBuffer
      * @param capacity         total capacity of the ByteBuffer
@@ -26,7 +26,7 @@ public class MutableByteBufferBytes extends ByteBufferBytes implements MutableBy
     }
 
     /**
-     * Build read-write (mutable) a byte sequence from a fresh {@link ByteBuffer}
+     * Build a read-write (mutable) byte sequence from a fresh {@link ByteBuffer}
      *
      * @param direct           true for a direct ByteBuffer
      * @param useMemorySegment true to use a MemorySegment
@@ -50,6 +50,16 @@ public class MutableByteBufferBytes extends ByteBufferBytes implements MutableBy
         this.isReadOnly = false;
     }
 
+    /**
+     * Build a read-write (mutable) byte sequence from an existing {@link MemorySegment}
+     *
+     * @param segment   the memory segment
+     */
+    private MutableByteBufferBytes(@NotNull MemorySegment segment) {
+        super(segment);
+        this.isReadOnly = false;
+    }
+
     @Override
     public void writeByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, byte value) {
         checkNotReadOnly();
@@ -57,13 +67,9 @@ public class MutableByteBufferBytes extends ByteBufferBytes implements MutableBy
     }
 
     @Override
-    public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value, boolean isBigEndian) {
+    public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value) {
         checkNotReadOnly();
-        if (isBigEndian) {
-            INT_HANDLE_BE.set(bb, index, value);
-        } else {
-            INT_HANDLE_LE.set(bb, index, value);
-        }
+        this.bb.putInt(index, value);
     }
 
     @Override
@@ -75,7 +81,7 @@ public class MutableByteBufferBytes extends ByteBufferBytes implements MutableBy
     @Override
     public @NotNull MutableBytes acquire() {
         if (this.segment != null) {
-            this.segment = this.segment.acquire();
+            return new MutableByteBufferBytes(this.segment.acquire());
         }
         return this;
     }

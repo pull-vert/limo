@@ -30,6 +30,7 @@ public class ByteArrayBytes implements Bytes {
     @Range(from = 1, to = Integer.MAX_VALUE) int capacity;
     boolean isReadOnly = true;
     @Nullable MemorySegment segment = null;
+    boolean isBigEndian = true;
 
     ByteArrayBytes() {
     }
@@ -44,15 +45,27 @@ public class ByteArrayBytes implements Bytes {
         this.capacity = byteArray.length;
     }
 
+    /**
+     * Build a read-only (immutable) byte sequence from existing {@code byte[]} and {@link MemorySegment}
+     *
+     * @param byteArray the byte array
+     * @param segment   the memory segment
+     */
+    ByteArrayBytes(byte @NotNull [] byteArray, @NotNull MemorySegment segment) {
+        this.byteArray = Objects.requireNonNull(byteArray);
+        this.segment = Objects.requireNonNull(segment);
+        this.capacity = byteArray.length;
+    }
+
     @Override
     public byte readByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index) {
         return this.byteArray[index];
     }
 
     @Override
-    public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, boolean isBigEndian) {
-        if (isBigEndian) {
-            return (int)  INT_HANDLE_BE.get(byteArray, index);
+    public int readIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index) {
+        if (this.isBigEndian) {
+            return (int) INT_HANDLE_BE.get(byteArray, index);
         }
         return (int) INT_HANDLE_LE.get(byteArray, index);
     }
@@ -63,9 +76,14 @@ public class ByteArrayBytes implements Bytes {
     }
 
     @Override
+    public void setByteOrder(@NotNull ByteOrder byteOrder) {
+        this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
+    }
+
+    @Override
     public @NotNull Bytes acquire() {
         if (this.segment != null) {
-            this.segment = this.segment.acquire();
+            return new ByteArrayBytes(this.byteArray, this.segment.acquire());
         }
         return this;
     }

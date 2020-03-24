@@ -41,6 +41,8 @@ public class BytesData implements Data {
      */
     private @NotNull Reader reader;
 
+    private @NotNull ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+
     public BytesData(@NotNull ByteBuffer bb) {
         this.bytes = new ByteBufferBytes(Objects.requireNonNull(bb));
         this.capacity = bb.capacity();
@@ -61,6 +63,10 @@ public class BytesData implements Data {
     @Override
     public final @Range(from = 0, to = Long.MAX_VALUE - 1) long getLimit() {
         return this.limit;
+    }
+
+    final void setByteOrder(@NotNull ByteOrder byteOrder) {
+        this.byteOrder = byteOrder;
     }
 
     /**
@@ -108,7 +114,7 @@ public class BytesData implements Data {
             // 1) at least 4 bytes left to read an int in memory
             if (limit >= targetLimit) {
                 this.index = targetLimit;
-                return bytes.readIntAt(currentIndex, this.isBigEndian);
+                return bytes.readIntAt(currentIndex);
             }
 
             // 2) memory is exhausted
@@ -117,12 +123,12 @@ public class BytesData implements Data {
 
         @Override
         public final @NotNull ByteOrder getByteOrder() {
-            return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+            return byteOrder;
         }
 
         @Override
         public final void setByteOrder(@NotNull ByteOrder byteOrder) {
-            this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
+            BytesData.this.setByteOrder(byteOrder);
         }
 
         @Override

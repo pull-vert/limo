@@ -40,6 +40,17 @@ public final class MutableByteArrayBytes extends ByteArrayBytes implements Mutab
         this.isReadOnly = false;
     }
 
+    /**
+     * Build a read-write (mutable) byte sequence from existing {@code byte[]} and {@link MemorySegment}
+     *
+     * @param byteArray the byte array
+     * @param segment   the memory segment
+     */
+    private MutableByteArrayBytes(byte @NotNull [] byteArray, @NotNull MemorySegment segment) {
+        super(byteArray, segment);
+        this.isReadOnly = false;
+    }
+
     @Override
     public void writeByteAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, byte value) {
         checkNotReadOnly();
@@ -47,9 +58,9 @@ public final class MutableByteArrayBytes extends ByteArrayBytes implements Mutab
     }
 
     @Override
-    public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value, boolean isBigEndian) {
+    public void writeIntAt(@Range(from = 0, to = Integer.MAX_VALUE - 1) int index, int value) {
         checkNotReadOnly();
-        if (isBigEndian) {
+        if (this.isBigEndian) {
             INT_HANDLE_BE.set(byteArray, index, value);
         } else {
             INT_HANDLE_LE.set(byteArray, index, value);
@@ -65,7 +76,7 @@ public final class MutableByteArrayBytes extends ByteArrayBytes implements Mutab
     @Override
     public @NotNull MutableBytes acquire() {
         if (this.segment != null) {
-            this.segment = this.segment.acquire();
+            return new MutableByteArrayBytes(this.byteArray, this.segment.acquire());
         }
         return this;
     }

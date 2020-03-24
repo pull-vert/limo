@@ -140,7 +140,7 @@ public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableB
             // 1) at least 4 bytes left to write an int in current byte sequence
             if (this.capacity >= targetLimit) {
                 this.limit = targetLimit;
-                this.bytes.writeIntAt(currentLimit, value, this.isBigEndian);
+                this.bytes.writeIntAt(currentLimit, value);
                 return;
             }
 
@@ -152,7 +152,7 @@ public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableB
                 // we are at 0 index in newly obtained byte sequence
                 if (this.capacity >= intSize) {
                     this.limit = intSize;
-                    this.bytes.writeIntAt(currentLimit, value, this.isBigEndian);
+                    this.bytes.writeIntAt(currentLimit, value);
                     return;
                 }
                 throw new WriterOverflowException();
@@ -166,12 +166,13 @@ public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableB
 
         @Override
         public final @NotNull ByteOrder getByteOrder() {
-            return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+            return byteOrder;
         }
 
         @Override
         public final void setByteOrder(@NotNull ByteOrder byteOrder) {
             this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
+            MutableBytesArrayData.this.setByteOrder(byteOrder);
         }
 
         @Override
