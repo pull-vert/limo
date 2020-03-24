@@ -4,7 +4,9 @@
 
 package io.limo.internal.bytes;
 
+import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.lang.invoke.MethodHandles;
@@ -26,7 +28,8 @@ public class ByteArrayBytes implements Bytes {
 
     byte @NotNull [] byteArray;
     @Range(from = 1, to = Integer.MAX_VALUE) int capacity;
-    boolean isReadOnly;
+    boolean isReadOnly = true;
+    @Nullable MemorySegment segment = null;
 
     ByteArrayBytes() {
     }
@@ -39,7 +42,6 @@ public class ByteArrayBytes implements Bytes {
     public ByteArrayBytes(byte @NotNull [] byteArray) {
         this.byteArray = Objects.requireNonNull(byteArray);
         this.capacity = byteArray.length;
-        this.isReadOnly = true;
     }
 
     @Override
@@ -61,12 +63,38 @@ public class ByteArrayBytes implements Bytes {
     }
 
     @Override
-    public byte[] toByteArray() {
+    public @NotNull Bytes acquire() {
+        if (this.segment != null) {
+            this.segment = this.segment.acquire();
+        }
+        return this;
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.isReadOnly;
+    }
+
+    @Override
+    public byte @NotNull [] toByteArray() {
         return this.byteArray;
     }
 
     @Override
     public @NotNull ByteBuffer toByteBuffer() {
+        if (this.segment != null) {
+            return this.segment.asByteBuffer();
+        }
         return ByteBuffer.wrap(this.byteArray);
+    }
+
+    /**
+     * Closes associated {@link #segment} if exists
+     */
+    @Override
+    public void close() {
+        if (this.segment != null) {
+            this.segment.close();
+        }
     }
 }

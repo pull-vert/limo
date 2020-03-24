@@ -4,6 +4,8 @@
 
 package io.limo.internal.bytes;
 
+import jdk.incubator.foreign.MemorySegment;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 /**
@@ -14,13 +16,26 @@ public final class MutableByteArrayBytes extends ByteArrayBytes implements Mutab
     /**
      * Build a read-write (mutable) byte sequence from a fresh {@code byte[]}
      *
-     * @param capacity total capacity of the ByteBuffer
+     * @param capacity         total capacity of the ByteBuffer
      */
     public MutableByteArrayBytes(@Range(from = 1, to = Integer.MAX_VALUE) int capacity) {
+        this(false, capacity);
+    }
+
+    /**
+     * Build a read-write (mutable) byte sequence from a fresh {@code byte[]}
+     *
+     * @param useMemorySegment true to use a MemorySegment
+     * @param capacity         total capacity of the ByteBuffer
+     */
+    public MutableByteArrayBytes(boolean useMemorySegment, @Range(from = 1, to = Integer.MAX_VALUE) int capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("Capacity must be > 0");
         }
         this.byteArray = new byte[capacity];
+        if (useMemorySegment) {
+            this.segment = MemorySegment.ofArray(this.byteArray);
+        }
         this.capacity = capacity;
         this.isReadOnly = false;
     }
@@ -39,6 +54,20 @@ public final class MutableByteArrayBytes extends ByteArrayBytes implements Mutab
         } else {
             INT_HANDLE_LE.set(byteArray, index, value);
         }
+    }
+
+    @Override
+    public @NotNull Bytes asReadOnly() {
+        this.isReadOnly = true;
+        return this;
+    }
+
+    @Override
+    public @NotNull MutableBytes acquire() {
+        if (this.segment != null) {
+            this.segment = this.segment.acquire();
+        }
+        return this;
     }
 
     private void checkNotReadOnly() {

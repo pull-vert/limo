@@ -24,20 +24,36 @@ public interface Bytes extends AutoCloseable {
     @Range(from = 1, to = Integer.MAX_VALUE) int getByteSize();
 
     /**
+     * Obtains an acquired byte sequence which can be used to
+     * access memory associated with this byte sequence from the current thread.
+     *
+     * <p>Some implementations do not support thread-confinement, in this case current byte sequence is returned
+     *
+     * @return an acquired byte sequence which can be used to access memory associated
+     * with this byte sequence from the current thread.
+     * @throws IllegalStateException can be thrown in some implementations, if this byte sequence has been closed
+     */
+    @NotNull Bytes acquire();
+
+    /**
+     * @return true, if the byte sequence is read-only.
+     * @see MutableBytes#asReadOnly()
+     */
+    boolean isReadOnly();
+
+    /**
+     * Closes this byte sequence.
+     */
+    @Override
+    void close();
+
+    /**
      * Export the content of this byte sequence into a {@code byte[]} (could be a fresh new one or an existing one)
      */
-    byte[] toByteArray();
+    byte @NotNull [] toByteArray();
 
     /**
      * Export the content of this byte sequence into a {@link ByteBuffer} (could be a fresh new one or an existing one)
      */
     @NotNull ByteBuffer toByteBuffer();
-
-    /**
-     * Closes this byte sequence.
-     * <p>Default close is NOP
-     */
-    @Override
-    default void close() {
-    }
 }

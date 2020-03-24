@@ -22,22 +22,32 @@ public final class MemorySegmentBytes implements Bytes {
     private final @NotNull MemoryAddress base;
 
     /**
-     * Build a read-only (immutable) byte sequence from a read-only {@link MemorySegment} built from an existing {@code byte[]}
+     * Build a read-only (immutable) byte sequence from a {@link MemorySegment}
      *
-     * @param byteArray the byte array
+     * @param segment the memory segment
      */
-    public MemorySegmentBytes(byte @NotNull [] byteArray) {
-        this.segment = MemorySegment.ofArray(Objects.requireNonNull(byteArray)).asReadOnly();
+    public MemorySegmentBytes(@NotNull MemorySegment segment) {
+        this.segment = segment;
         this.base = segment.baseAddress();
     }
 
     /**
-     * Build a read-only (immutable) byte sequence from a read-only {@link MemorySegment} built from an existing {@link ByteBuffer}
+     * Build a read-only (immutable) byte sequence from a {@link MemorySegment} built from an existing {@code byte[]}
+     *
+     * @param byteArray the byte array
+     */
+    public MemorySegmentBytes(byte @NotNull [] byteArray) {
+        this.segment = MemorySegment.ofArray(Objects.requireNonNull(byteArray));
+        this.base = segment.baseAddress();
+    }
+
+    /**
+     * Build a read-only (immutable) byte sequence from a {@link MemorySegment} built from an existing {@link ByteBuffer}
      *
      * @param bb the ByteBuffer
      */
     public MemorySegmentBytes(@NotNull ByteBuffer bb) {
-        this.segment = MemorySegment.ofByteBuffer(Objects.requireNonNull(bb)).asReadOnly();
+        this.segment = MemorySegment.ofByteBuffer(Objects.requireNonNull(bb));
         this.base = segment.baseAddress();
     }
 
@@ -57,7 +67,17 @@ public final class MemorySegmentBytes implements Bytes {
     }
 
     @Override
-    public byte[] toByteArray() {
+    public @NotNull Bytes acquire() {
+        return new MemorySegmentBytes(this.segment.acquire());
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
+
+    @Override
+    public byte @NotNull [] toByteArray() {
         return this.segment.toByteArray();
     }
 

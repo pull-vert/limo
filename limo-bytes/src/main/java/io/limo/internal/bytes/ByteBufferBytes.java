@@ -4,7 +4,9 @@
 
 package io.limo.internal.bytes;
 
+import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.lang.invoke.MethodHandles;
@@ -26,6 +28,8 @@ public class ByteBufferBytes implements Bytes {
 
     @NotNull ByteBuffer bb;
     @Range(from = 1, to = Integer.MAX_VALUE) int capacity;
+    boolean isReadOnly = true;
+    @Nullable MemorySegment segment = null;
 
     ByteBufferBytes() {
     }
@@ -36,11 +40,7 @@ public class ByteBufferBytes implements Bytes {
      * @param bb the ByteBuffer
      */
     public ByteBufferBytes(@NotNull ByteBuffer bb) {
-        if (Objects.requireNonNull(bb).isReadOnly()) {
-            this.bb = bb;
-        } else {
-            this.bb = bb.asReadOnlyBuffer();
-        }
+        this.bb = Objects.requireNonNull(bb);
         this.capacity = bb.capacity();
     }
 
@@ -50,7 +50,7 @@ public class ByteBufferBytes implements Bytes {
      * @param byteArray the byte array
      */
     public ByteBufferBytes(byte @NotNull [] byteArray) {
-        this.bb = ByteBuffer.wrap(Objects.requireNonNull(byteArray)).asReadOnlyBuffer();
+        this.bb = ByteBuffer.wrap(Objects.requireNonNull(byteArray));
         this.capacity = byteArray.length;
     }
 
@@ -73,20 +73,47 @@ public class ByteBufferBytes implements Bytes {
     }
 
     @Override
-    public byte[] toByteArray() {
+    public @NotNull Bytes acquire() {
+        if (this.segment != null) {
+            this.segment = this.segment.acquire();
+        }
+        return this;
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.isReadOnly;
+    }
+
+    @Override
+    public byte @NotNull [] toByteArray() {
         // fast-path if ByteBuffer is backed by an accessible byte array
         if (this.bb.hasArray()) {
             return this.bb.array();
         }
 
-        final var capacity = this.bb.capacity();
-        final var byteArray = new byte[capacity];
-        this.bb.get(byteArray, 0, capacity);
+        if (this.segment != null) {
+            return this.segment.toByteArray();
+        }
+
+        final var limit = this.bb.limit();
+        final var byteArray = new byte[limit];
+        this.bb.get(byteArray, 0, limit);
         return byteArray;
     }
 
     @Override
     public @NotNull ByteBuffer toByteBuffer() {
         return this.bb;
+    }
+
+    /**
+     * Closes associated {@link #segment} if exists
+     */
+    @Override
+    public void close() {
+        if (this.segment != null) {
+            this.segment.close();
+        }
     }
 }
