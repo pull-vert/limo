@@ -10,7 +10,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Objects;
 
 public final class DirectMemoryReadBench {
 
@@ -19,12 +18,6 @@ public final class DirectMemoryReadBench {
 
     private static final VarHandle intHandle = MethodHandles.byteBufferViewVarHandle(int[].class, ByteOrder.BIG_ENDIAN);
     private static final VarHandle longHandle = MethodHandles.byteBufferViewVarHandle(long[].class, ByteOrder.BIG_ENDIAN);
-
-    private static final VarHandle BYTE_HANDLE = MemoryHandles.varHandle(byte.class, ByteOrder.BIG_ENDIAN);
-    private static final VarHandle INT_AS_BYTE_SEQ_HANDLE = MemoryLayout.ofSequence(4, MemoryLayouts.BITS_8_BE)
-            .varHandle(byte.class, MemoryLayout.PathElement.sequenceElement());
-    private static final VarHandle LONG_AS_BYTE_SEQ_HANDLE = MemoryLayout.ofSequence(8, MemoryLayouts.BITS_8_BE)
-            .varHandle(byte.class, MemoryLayout.PathElement.sequenceElement());
 
     private static final GroupLayout STRUCT_LAYOUT = MemoryLayout.ofStruct(
             MemoryLayouts.BITS_64_BE.withName("long"),
@@ -117,27 +110,5 @@ public final class DirectMemoryReadBench {
             INT_HANDLE_STRUCT.get(base2, (long) i);
             BYTE_HANDLE_STRUCT.get(base2, (long) i);
         }
-    }
-
-    private static void writeByte(MemoryAddress address, byte value) {
-        BYTE_HANDLE.set(Objects.requireNonNull(address), value);
-    }
-
-    private static void writeInt(MemoryAddress address, final int value) {
-        INT_AS_BYTE_SEQ_HANDLE.set(address, 0L, (byte) ((value >> 24) & 0xff));
-        INT_AS_BYTE_SEQ_HANDLE.set(address, 1L, (byte) ((value >> 16) & 0xff));
-        INT_AS_BYTE_SEQ_HANDLE.set(address, 2L, (byte) ((value >> 8) & 0xff));
-        INT_AS_BYTE_SEQ_HANDLE.set(address, 3L, (byte) (value & 0xff));
-    }
-
-    private static void writeLong(MemoryAddress address, final long value) {
-        LONG_AS_BYTE_SEQ_HANDLE.set(address, 0L, (byte) ((value >> 56) & 0xff));
-        LONG_AS_BYTE_SEQ_HANDLE.set(address, 1L, (byte) ((value >> 48) & 0xff));
-        LONG_AS_BYTE_SEQ_HANDLE.set(address, 2L, (byte) ((value >> 40) & 0xff));
-        LONG_AS_BYTE_SEQ_HANDLE.set(address, 3L, (byte) ((value >> 32) & 0xff));
-        LONG_AS_BYTE_SEQ_HANDLE.set(address, 4L, (byte) ((value >> 24) & 0xff));
-        LONG_AS_BYTE_SEQ_HANDLE.set(address, 5L, (byte) ((value >> 16) & 0xff));
-        LONG_AS_BYTE_SEQ_HANDLE.set(address, 6L, (byte) ((value >> 8) & 0xff));
-        LONG_AS_BYTE_SEQ_HANDLE.set(address, 7L, (byte) (value & 0xff));
     }
 }
