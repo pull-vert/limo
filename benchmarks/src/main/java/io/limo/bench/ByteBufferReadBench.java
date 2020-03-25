@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
 
-public final class ByteBufferWriteBench {
+public final class ByteBufferReadBench {
 
     private static final int OBJ_SIZE = 8 + 4 + 1;
     private static final int NUM_ELEM = 1_000_000;
@@ -54,6 +54,17 @@ public final class ByteBufferWriteBench {
         bb2 = segment.asByteBuffer();
         segment2 = MemorySegment.allocateNative(SEQ_LAYOUT);
         base2 = segment2.baseAddress();
+        for (int i = 0; i < NUM_ELEM; i++) {
+            bb.putLong(i);
+            bb2.putLong(i);
+            bb.putInt(i);
+            bb2.putInt(i);
+            bb.put((byte) (i & 1));
+            bb2.put((byte) (i & 1));
+            LONG_HANDLE_STRUCT.set(base2, (long) i, (long) i);
+            INT_HANDLE_STRUCT.set(base2, (long) i, i);
+            BYTE_HANDLE_STRUCT.set(base2, (long) i, (byte) (i & 1));
+        }
     }
 
     public void tearDown() {
@@ -61,60 +72,50 @@ public final class ByteBufferWriteBench {
         segment2.close();
     }
 
-    public void directWrite() {
-        bb.clear();
+    public void directRead() {
+        bb.rewind();
         for (int i = 0; i < NUM_ELEM; i++) {
-            bb.putLong(i);
-            bb.putInt(i);
-            bb.put((byte) (i & 1));
+            bb.getLong();
+            bb.getInt();
+            bb.get();
         }
     }
 
-    public void indexedWrite() {
+    public void indexedRead() {
         var index = 0;
         for (int i = 0; i < NUM_ELEM; i++) {
             index = OBJ_SIZE * i;
-            bb.putLong(index, i);
-            bb.putInt(index + 8, i);
-            bb.put(index + 12, (byte) (i & 1));
+            bb.getLong(index);
+            bb.getInt(index + 8);
+            bb.get(index + 12);
         }
     }
 
-    public void varhandleWrite() {
+    public void varhandleRead() {
         var index = 0;
         for (int i = 0; i < NUM_ELEM; i++) {
             index = OBJ_SIZE * i;
-            longHandle.set(bb, index, i);
-            intHandle.set(bb, index + 8, i);
-            bb.put(index + 12, (byte) (i & 1));
+            longHandle.get(bb, index);
+            intHandle.get(bb, index + 8);
+            bb.get(index + 12);
         }
     }
 
-    public void indexedWriteMemorySegmentAssociated() {
+    public void indexedReadMemorySegmentAssociated() {
         var index = 0;
         for (int i = 0; i < NUM_ELEM; i++) {
             index = OBJ_SIZE * i;
-            bb2.putLong(index, i);
-            bb2.putInt(index + 8, i);
-            bb2.put(index + 12, (byte) (i & 1));
+            bb2.getLong(index);
+            bb2.getInt(index + 8);
+            bb2.get(index + 12);
         }
     }
 
-    public void varhandleMemorySegmentWrite() {
-        var index = 0;
+    public void varhandleMemorySegmentReadGroupAndStruct() {
         for (int i = 0; i < NUM_ELEM; i++) {
-            index = OBJ_SIZE * i;
-            writeLong(base.addOffset(index), i);
-            writeInt(base.addOffset(index + 8), i);
-            writeByte(base.addOffset(index + 12), (byte) (i & 1));
-        }
-    }
-
-    public void varhandleMemorySegmentWriteGroupAndStruct() {
-        for (int i = 0; i < NUM_ELEM; i++) {
-            LONG_HANDLE_STRUCT.set(base2, (long) i, (long) i);
-            INT_HANDLE_STRUCT.set(base2, (long) i, i);
-            BYTE_HANDLE_STRUCT.set(base2, (long) i, (byte) (i & 1));
+            LONG_HANDLE_STRUCT.get(base2, (long) i);
+            INT_HANDLE_STRUCT.get(base2, (long) i);
+            BYTE_HANDLE_STRUCT.get(base2, (long) i);
         }
     }
 

@@ -9,8 +9,8 @@ import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
 
-@Warmup(iterations = 1, time = 1)
-@Measurement(iterations = 1, time = 1)
+@Warmup(iterations = 5, time = 1)
+@Measurement(iterations = 5, time = 1)
 @Fork(value = 1)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -22,6 +22,11 @@ public class ByteBufferWriteBenchmark {
     @Setup
     public void setup() {
         parent.setup();
+    }
+
+    @TearDown
+    public void tearDown() {
+        parent.tearDown();
     }
 
     @Benchmark
@@ -40,7 +45,17 @@ public class ByteBufferWriteBenchmark {
     }
 
     @Benchmark
+    public void indexedWriteMemorySegmentAssociated() {
+        parent.indexedWriteMemorySegmentAssociated();
+    }
+
+    @Benchmark
     public void varhandleMemorySegmentWrite() {
         parent.varhandleMemorySegmentWrite();
+    }
+
+    @Benchmark
+    public void varhandleMemorySegmentWriteGroupAndStruct() {
+        parent.varhandleMemorySegmentWriteGroupAndStruct();
     }
 }

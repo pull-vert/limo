@@ -4,9 +4,7 @@
 
 package io.limo.various.foreignmemory;
 
-import jdk.incubator.foreign.MemoryHandles;
-import jdk.incubator.foreign.MemoryLayout;
-import jdk.incubator.foreign.MemorySegment;
+import jdk.incubator.foreign.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +16,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 public final class ForeignMemoryTests {
 
     private static final VarHandle BYTE_HANDLE = MemoryHandles.varHandle(byte.class, ByteOrder.BIG_ENDIAN);
+
+    private static final GroupLayout STRUCT_LAYOUT = MemoryLayout.ofStruct(
+            MemoryLayouts.BITS_64_BE.withName("long"),
+            MemoryLayouts.BITS_32_BE.withName("int"),
+            MemoryLayouts.BITS_8_BE.withName("byte"),
+            MemoryLayout.ofPaddingBits(8),
+            MemoryLayout.ofPaddingBits(16));
+    private static final SequenceLayout SEQ_LAYOUT = MemoryLayout.ofSequence(3, STRUCT_LAYOUT);
+    private static final VarHandle LONG_HANDLE_STRUCT = SEQ_LAYOUT.varHandle(long.class,
+            MemoryLayout.PathElement.sequenceElement(), MemoryLayout.PathElement.groupElement("long"));
+    private static final VarHandle INT_HANDLE_STRUCT = SEQ_LAYOUT.varHandle(int.class,
+            MemoryLayout.PathElement.sequenceElement(), MemoryLayout.PathElement.groupElement("int"));
+    private static final VarHandle BYTE_HANDLE_STRUCT = SEQ_LAYOUT.varHandle(byte.class,
+            MemoryLayout.PathElement.sequenceElement(), MemoryLayout.PathElement.groupElement("byte"));
 
     @Test
     @DisplayName("Verify read using Big Endian is working with Layout")
@@ -39,6 +51,23 @@ public final class ForeignMemoryTests {
 
             assertThat(byteHandle.get(base)).isEqualTo((byte) 0xa);
             assertThat(intHandle.get(base)).isEqualTo(42);
+        }
+    }
+
+    @Test
+    @DisplayName("Verify read using Big Endian is working with a complex Layout")
+    void readComplexLayout() {
+        final var segment = MemorySegment.allocateNative(SEQ_LAYOUT);
+        final var base = segment.baseAddress();
+        for (int i = 0; i < 3; i++) {
+            LONG_HANDLE_STRUCT.set(base, (long) i, (long) i);
+            INT_HANDLE_STRUCT.set(base, (long) i, i);
+            BYTE_HANDLE_STRUCT.set(base, (long) i, (byte) (i & 1));
+        }
+        for (int i = 0; i < 3; i++) {
+            assertThat(LONG_HANDLE_STRUCT.get(base, (long) i)).isEqualTo((long) i);
+            assertThat(INT_HANDLE_STRUCT.get(base, (long) i)).isEqualTo(i);
+            assertThat(BYTE_HANDLE_STRUCT.get(base, (long) i)).isEqualTo((byte) (i & 1));
         }
     }
 
