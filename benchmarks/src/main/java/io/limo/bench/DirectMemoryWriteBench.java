@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
 
-public final class ByteBufferWriteBench {
+public final class DirectMemoryWriteBench {
 
     private static final int OBJ_SIZE = 8 + 4 + 1;
     private static final int NUM_ELEM = 1_000_000;

@@ -4,7 +4,7 @@
 
 package io.limo.benchmarks;
 
-import io.limo.bench.ByteBufferWriteBench;
+import io.limo.bench.DirectMemoryWriteBench;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
@@ -15,9 +15,9 @@ import java.util.concurrent.TimeUnit;
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
 @State(Scope.Benchmark)
-public class ByteBufferWriteBenchmark {
+public class DirectMemoryWriteBenchmark {
 
-    ByteBufferWriteBench parent = new ByteBufferWriteBench();
+    DirectMemoryWriteBench parent = new DirectMemoryWriteBench();
 
     @Setup
     public void setup() {
