@@ -22,4 +22,20 @@ dependencies {
 
     implementation "org.openjdk.jmh:jmh-core:$jmh_version"
     implementation 'com.turbo-rpc:turbo-utils:0.0.9'
+    implementation 'org.apache.hadoop:hadoop-common:3.2.1'
+}
+
+configurations.all {
+    exclude module: 'kerb-simplekdc'
+    exclude module: 'hadoop-auth'
+    exclude module: 'log4j'
+    exclude module: 'slf4j-log4j12'
+    exclude module: 'stax-api'
+    exclude module: 'javax.servlet-api'
+    exclude module: 'avro'
+    exclude module: 'jackson-databind'
+    exclude module: 'htrace-core4'
+    exclude module: 'dnsjava'
+    exclude module: 'failureaccess'
+
 }
