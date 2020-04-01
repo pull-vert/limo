@@ -16,7 +16,7 @@ import org.jetbrains.annotations.ApiStatus;
  * href="http://www.reactive-streams.org/"> reactive-streams</a>
  * specification.
  * They apply in both concurrent and distributed
- * asynchronous settings: All (two) methods are defined in {@code
+ * asynchronous settings: All (three) methods are defined in {@code
  * void} "one-way" message style.
  *
  * <p>Loom allows an imperative style code that greatly simplify syntax.
@@ -35,8 +35,8 @@ public final class LoomFlow {
     }
 
     @ApiStatus.Experimental
-    @FunctionalInterface
     public interface Subscriber<T> {
         void emit(T item);
+        void cancel();
     }
 }
