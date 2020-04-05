@@ -7,6 +7,7 @@ module limo.commons {
     requires org.jetbrains.annotations;
 
     exports io.limo;
-    exports io.limo.utils;
     exports io.limo.concurrent;
+    exports io.limo.utf8;
+    exports io.limo.utils;
 }
