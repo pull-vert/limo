@@ -17,14 +17,14 @@ public class StringCharsetTests {
      * ASCII Format
      * Each character is stored with a sing byte (using 7 bits)
      */
-    private final static String ASCII = "1234567890abcdefghijklmnopqrstuvwxyz";
+    private final static String ASCII = "1";
 
     /**
      * ISO Latin Alphabet {@literal No. 1}, also known as ISO-LATIN-1.
      * Each character is stored with a sing byte
      * <p>This String contains a non ASCII char
      */
-    private final static String  ISO_8859_1 = "1234567890abcdefghijklmnopqrstuvwxyz¡";
+    private final static String ISO_8859_1 = "¡";
 
     /**
      * Sixteen-bit UCS Transformation Format, byte order identified by an
@@ -50,16 +50,16 @@ public class StringCharsetTests {
     @Test
     @DisplayName("check that a ASCII String has same length in UTF-8 than number of characters")
     void utf8_ascii_text() {
-        Text utf8 = new Text(ASCII);
+        final var utf8 = new Text(ASCII);
         assertThat(utf8.getLength())
-                .isEqualTo(36);
+                .isEqualTo(1);
     }
 
     @Test
     @DisplayName("check that a ISO_8859_1 non ASCII String has not same length in UTF-8 than number of characters")
     void utf8_non_ascii_text() {
-        Text utf8 = new Text(ISO_8859_1);
+        final var utf8 = new Text(ISO_8859_1);
         assertThat(utf8.getLength())
-                .isEqualTo(38);
+                .isEqualTo(4);
     }
 }
