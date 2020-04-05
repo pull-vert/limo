@@ -16,44 +16,18 @@ import java.nio.ByteBuffer;
 public class MutableByteBufferBytes extends ByteBufferBytes implements MutableBytes {
 
     /**
-     * Build a read-write (mutable) byte sequence from a fresh {@link ByteBuffer}
+     * Build a read-write (mutable) byte sequence from a fresh {@link MemorySegment}
      *
-     * @param direct           true for a direct ByteBuffer
-     * @param capacity         total capacity of the ByteBuffer
+     * @param capacity total capacity of the MemorySegment
      */
-    public MutableByteBufferBytes(boolean direct, @Range(from = 1, to = Integer.MAX_VALUE) int capacity) {
-        this(direct, false, capacity);
-    }
-
-    /**
-     * Build a read-write (mutable) byte sequence from a fresh {@link ByteBuffer}
-     *
-     * @param direct           true for a direct ByteBuffer
-     * @param useMemorySegment true to use a MemorySegment
-     * @param capacity         total capacity of the ByteBuffer
-     */
-    public MutableByteBufferBytes(boolean direct, boolean useMemorySegment, @Range(from = 1, to = Integer.MAX_VALUE) int capacity) {
-        if (capacity <= 0) {
-            throw new IllegalArgumentException("Capacity must be > 0");
-        }
-        if (direct) {
-            if (useMemorySegment) {
-                this.segment = MemorySegment.allocateNative(capacity);
-                this.bb = this.segment.asByteBuffer();
-            } else {
-                this.bb = ByteBuffer.allocateDirect(capacity);
-            }
-        } else {
-            this.bb = ByteBuffer.allocate(capacity);
-        }
-        this.capacity = capacity;
-        this.isReadOnly = false;
+    public MutableByteBufferBytes(@Range(from = 1, to = Integer.MAX_VALUE) int capacity) {
+        this(MemorySegment.allocateNative(capacity));
     }
 
     /**
      * Build a read-write (mutable) byte sequence from an existing {@link MemorySegment}
      *
-     * @param segment   the memory segment
+     * @param segment the memory segment
      */
     private MutableByteBufferBytes(@NotNull MemorySegment segment) {
         super(segment);
@@ -80,10 +54,7 @@ public class MutableByteBufferBytes extends ByteBufferBytes implements MutableBy
 
     @Override
     public @NotNull MutableBytes acquire() {
-        if (this.segment != null) {
-            return new MutableByteBufferBytes(this.segment.acquire());
-        }
-        return this;
+       return new MutableByteBufferBytes(this.segment.acquire());
     }
 
     private void checkNotReadOnly() {

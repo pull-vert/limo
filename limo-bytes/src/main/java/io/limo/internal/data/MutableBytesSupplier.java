@@ -6,6 +6,7 @@ package io.limo.internal.data;
 
 import io.limo.internal.bytes.Bytes;
 import io.limo.internal.bytes.MutableBytes;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
@@ -29,5 +30,6 @@ public interface MutableBytesSupplier extends Supplier<MutableBytes> {
      *               not touch the bytes after returning it to
      *               the pool.
      */
+    @ApiStatus.Experimental
     void recycle(@NotNull MutableBytes bytes);
 }

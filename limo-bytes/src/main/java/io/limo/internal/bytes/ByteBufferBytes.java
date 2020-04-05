@@ -6,54 +6,69 @@ package io.limo.internal.bytes;
 
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
- * A read-only (immutable) byte sequence based on a {@link ByteBuffer}
+ * A read-only (immutable) byte sequence based on a direct {@link ByteBuffer} associated to a native {@link MemorySegment}
  */
 public class ByteBufferBytes implements Bytes {
 
-    @NotNull ByteBuffer bb;
-    @Range(from = 1, to = Integer.MAX_VALUE) int capacity;
-    boolean isReadOnly = true;
-    @Nullable MemorySegment segment = null;
+    @NotNull MemorySegment segment;
 
-    ByteBufferBytes() {
-    }
+    @NotNull ByteBuffer bb;
+
+    @Range(from = 1, to = Integer.MAX_VALUE) int capacity;
+
+    boolean isReadOnly = true;
 
     /**
-     * Build a read-only (immutable) byte sequence from an existing {@link ByteBuffer}
+     * Build a read-only (immutable) byte sequence from an existing direct {@link ByteBuffer}
      *
      * @param bb the ByteBuffer
      */
     public ByteBufferBytes(@NotNull ByteBuffer bb) {
-        this.bb = Objects.requireNonNull(bb);
-        this.capacity = bb.capacity();
+        this(MemorySegment.ofByteBuffer(
+            Optional.of(Objects.requireNonNull(bb))
+                .filter(ByteBuffer::isDirect)
+                .orElseThrow(() -> new IllegalArgumentException("ByteBuffer must be direct")))
+        );
     }
 
     /**
-     * Build a read-only (immutable) byte sequence from a {@link ByteBuffer} built from a byte array
+     * Build a read-only (immutable) byte sequence from a direct {@link ByteBuffer} filled with a byte array
      *
      * @param byteArray the byte array
      */
     public ByteBufferBytes(byte @NotNull [] byteArray) {
-        this.bb = ByteBuffer.wrap(Objects.requireNonNull(byteArray));
+        this.segment = MemorySegment.allocateNative(Objects.requireNonNull(byteArray).length);
+        this.bb = this.segment.asByteBuffer()
+            .put(byteArray);
         this.capacity = byteArray.length;
     }
 
     /**
      * Build a read-only (immutable) byte sequence from an existing {@link MemorySegment}
      *
-     * @param segment   the memory segment
+     * @param segment the memory segment
      */
     ByteBufferBytes(@NotNull MemorySegment segment) {
+        this(Objects.requireNonNull(segment), segment.asByteBuffer());
+    }
+
+    /**
+     * Build a read-only (immutable) byte sequence from an existing {@link MemorySegment} and associated {@link ByteBuffer}
+     *
+     * @param segment the memory segment
+     * @param bb      the ByteBuffer
+     */
+    public ByteBufferBytes(@NotNull MemorySegment segment, @NotNull ByteBuffer bb) {
         this.segment = Objects.requireNonNull(segment);
-        this.bb = this.segment.asByteBuffer();
+        this.bb = Objects.requireNonNull(bb);
         this.capacity = bb.capacity();
     }
 
@@ -79,10 +94,7 @@ public class ByteBufferBytes implements Bytes {
 
     @Override
     public @NotNull Bytes acquire() {
-        if (this.segment != null) {
-            return new ByteBufferBytes(this.segment.acquire());
-        }
-        return this;
+        return new ByteBufferBytes(this.segment.acquire());
     }
 
     @Override
@@ -92,19 +104,7 @@ public class ByteBufferBytes implements Bytes {
 
     @Override
     public byte @NotNull [] toByteArray() {
-        // fast-path if ByteBuffer is backed by an accessible byte array
-        if (this.bb.hasArray()) {
-            return this.bb.array();
-        }
-
-        if (this.segment != null) {
-            return this.segment.toByteArray();
-        }
-
-        final var limit = this.bb.limit();
-        final var byteArray = new byte[limit];
-        this.bb.get(byteArray, 0, limit);
-        return byteArray;
+        return this.segment.toByteArray();
     }
 
     @Override
@@ -117,8 +117,6 @@ public class ByteBufferBytes implements Bytes {
      */
     @Override
     public void close() {
-        if (this.segment != null) {
-            this.segment.close();
-        }
+        this.segment.close();
     }
 }

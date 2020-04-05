@@ -68,13 +68,4 @@ public final class InputStreamReader implements Reader {
     public void setByteOrder(@NotNull ByteOrder byteOrder) {
         this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
     }
-
-    @Override
-    public void close() {
-        try {
-            this.in.close();
-        } catch (IOException ioException) {
-            throw new LimoIOException(ioException);
-        }
-    }
 }

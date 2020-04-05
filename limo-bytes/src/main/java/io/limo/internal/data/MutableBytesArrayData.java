@@ -47,6 +47,11 @@ public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableB
         this.writer = new WriterImpl();
     }
 
+    @Override
+    public @NotNull Writer getWriter() {
+        return this.writer;
+    }
+
     /**
      * Get a new byte sequence from {@link #mutableBytesSupplier}
      *
@@ -64,11 +69,6 @@ public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableB
         final var bytes = this.mutableBytesSupplier.get();
         this.bytesArray[this.writeIndex] = bytes;
         return bytes;
-    }
-
-    @Override
-    public @NotNull Writer getWriter() {
-        return this.writer;
     }
 
     /**
@@ -173,11 +173,6 @@ public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableB
         public final void setByteOrder(@NotNull ByteOrder byteOrder) {
             this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
             MutableBytesArrayData.this.setByteOrder(byteOrder);
-        }
-
-        @Override
-        public void close() {
-            MutableBytesArrayData.this.close();
         }
 
         /**

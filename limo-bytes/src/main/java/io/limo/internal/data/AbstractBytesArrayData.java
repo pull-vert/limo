@@ -213,10 +213,5 @@ abstract class AbstractBytesArrayData<T extends Bytes> implements Data {
             this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
             AbstractBytesArrayData.this.setByteOrder(byteOrder);
         }
-
-        @Override
-        public void close() {
-            AbstractBytesArrayData.this.close();
-        }
     }
 }

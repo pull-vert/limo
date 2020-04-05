@@ -16,7 +16,7 @@ import java.util.Objects;
  *
  * @see MutableBytesArrayData
  */
-public class BytesArrayData extends AbstractBytesArrayData<Bytes> {
+public final class BytesArrayData extends AbstractBytesArrayData<Bytes> {
 
     public BytesArrayData(@NotNull Data first, Data @NotNull ... rest) {
         Objects.requireNonNull(first);

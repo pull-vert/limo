@@ -10,7 +10,6 @@ import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.ByteBuffer;
 import java.util.Objects;
 
 /**
@@ -22,14 +21,17 @@ public interface OffString {
 
     @NotNull MemorySegment getSegment();
 
-    @NotNull ByteBuffer getByteBuffer();
-
     /**
      * @return a CharSequence built from this OffString
      */
     @ApiStatus.Experimental
     @NotNull CharSequence toCharSequence();
 
+    /**
+     * Best effort to return a String from the {@link MemorySegment} (that may contains too much for one single String)
+     *
+     * @return a String that contains all chars from this OffString
+     */
     @Override
     @NotNull String toString();
 
@@ -37,7 +39,7 @@ public interface OffString {
         return new StringOffString(Objects.requireNonNull(string));
     }
 
-    static @NotNull OffString of(@NotNull MemorySegment segment, @NotNull ByteBuffer bb) {
-        return new SegmentOffstring(Objects.requireNonNull(segment), Objects.requireNonNull(bb));
+    static @NotNull OffString of(@NotNull MemorySegment segment) {
+        return new SegmentOffstring(Objects.requireNonNull(segment));
     }
 }

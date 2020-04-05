@@ -24,24 +24,22 @@ interface ReaderTests {
     @DisplayName("Verify read using native Big Endian is working")
     default void readBE() {
         // Reader is natively Big Endian ordered
-        try (final var reader = instanciateReader(BYTES_BIG_ENDIAN)) {
-            assertThat(reader.readByte()).isEqualTo(FIRST_BYTE);
-            assertThat(reader.readInt()).isEqualTo(FIRST_INT);
-            assertThat(reader.readByte()).isEqualTo(SECOND_BYTE);
-            assertThat(reader.readInt()).isEqualTo(SECOND_INT);
-        }
+        final var reader = instanciateReader(BYTES_BIG_ENDIAN);
+        assertThat(reader.readByte()).isEqualTo(FIRST_BYTE);
+        assertThat(reader.readInt()).isEqualTo(FIRST_INT);
+        assertThat(reader.readByte()).isEqualTo(SECOND_BYTE);
+        assertThat(reader.readInt()).isEqualTo(SECOND_INT);
     }
 
     @Test
     @DisplayName("Verify read using Little Endian is working")
     default void readLE() {
-        try (final var reader = instanciateReader(BYTES_LITTLE_ENDIAN)) {
-            reader.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-            assertThat(reader.readByte()).isEqualTo(FIRST_BYTE);
-            assertThat(reader.readInt()).isEqualTo(FIRST_INT);
-            assertThat(reader.readByte()).isEqualTo(SECOND_BYTE);
-            assertThat(reader.readInt()).isEqualTo(SECOND_INT);
-        }
+        final var reader = instanciateReader(BYTES_LITTLE_ENDIAN);
+        reader.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        assertThat(reader.readByte()).isEqualTo(FIRST_BYTE);
+        assertThat(reader.readInt()).isEqualTo(FIRST_INT);
+        assertThat(reader.readByte()).isEqualTo(SECOND_BYTE);
+        assertThat(reader.readInt()).isEqualTo(SECOND_INT);
     }
 
     Reader instanciateReader(byte[] byteArray);

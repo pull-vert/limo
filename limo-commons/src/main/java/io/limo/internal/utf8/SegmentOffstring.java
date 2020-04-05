@@ -8,20 +8,19 @@ import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class SegmentOffstring extends AbstractOffString {
+public final class SegmentOffstring extends AbstractOffString {
 
     /**
      * late init string, only assigned if {@link #toString} is called here or in CharSequence
      */
     @Nullable String string;
 
-    public SegmentOffstring(@NotNull MemorySegment segment, @NotNull ByteBuffer bb) {
-        super(segment, bb);
+    public SegmentOffstring(@NotNull MemorySegment segment) {
+        super(Objects.requireNonNull(segment));
     }
 
     @Override
@@ -52,7 +51,7 @@ public class SegmentOffstring extends AbstractOffString {
     /**
      * Simple CharSequence implementation for Ascii
      */
-    private class AsciiCharSeq implements CharSequence {
+    private final class AsciiCharSeq implements CharSequence {
 
         private final byte @NotNull [] bytes;
 

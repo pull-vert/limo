@@ -4,7 +4,6 @@
 
 package io.limo.data;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteOrder;
@@ -12,7 +11,7 @@ import java.nio.ByteOrder;
 /**
  * This interface allows to write binary data
  */
-public interface Writer extends AutoCloseable {
+public interface Writer {
 
     /**
      * writes a byte in the data, write index increases by 1
@@ -43,13 +42,4 @@ public interface Writer extends AutoCloseable {
      *                  or {@link ByteOrder#LITTLE_ENDIAN LITTLE_ENDIAN}
      */
     void setByteOrder(@NotNull ByteOrder byteOrder);
-
-    /**
-     * Closes associated resources
-     *
-     * <p>This API is experimental, maybe a Writer should not expose the close behavior
-     */
-    @ApiStatus.Experimental
-    @Override
-    void close();
 }

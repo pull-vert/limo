@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * OffString built from a java.lang.String
  */
-public class StringOffString extends AbstractOffString {
+public final class StringOffString extends AbstractOffString {
 
     private final @NotNull String string;
 

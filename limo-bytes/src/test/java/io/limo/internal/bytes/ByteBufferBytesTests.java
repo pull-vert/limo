@@ -29,19 +29,19 @@ public final class ByteBufferBytesTests implements BytesTests, MutableBytesTests
     @Test
     @DisplayName("Verify write using Big Endian is working (direct ByteBuffer)")
     void writeBE() {
-        writeBETest(new MutableByteBufferBytes(true, 10));
+        writeBETest(new MutableByteBufferBytes(10));
     }
 
     @Test
     @DisplayName("Verify write using Little Endian is working (direct ByteBuffer)")
     void writeLE() {
-        writeLETest(new MutableByteBufferBytes(true, 10));
+        writeLETest(new MutableByteBufferBytes(10));
     }
 
     @Test
     @DisplayName("Verify all operations on closed Bytes throw IllegalStateException")
     void closed() {
-        final var mutableBytes = new MutableByteBufferBytes(true, true, 10);
+        final var mutableBytes = new MutableByteBufferBytes( 10);
         mutableBytes.close();
         assertThatThrownBy(() -> mutableBytes.readByteAt(0))
                 .isInstanceOf(IllegalStateException.class)
