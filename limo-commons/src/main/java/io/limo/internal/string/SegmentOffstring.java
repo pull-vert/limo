@@ -28,7 +28,7 @@ public final class SegmentOffstring extends AbstractOffString {
 
         // fast-path for Latin1
         if (this.isLatin1 != null && this.isLatin1) {
-            return UnsafeStringCoding.toLatin1String(this.segment.toByteArray());
+            return this.string = UnsafeStringCoding.toLatin1String(this.segment.toByteArray());
         }
         return this.string = new String(this.segment.toByteArray(), this.charset);
     }
