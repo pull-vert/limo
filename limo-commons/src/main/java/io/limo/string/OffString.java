@@ -2,14 +2,14 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.utf8;
+package io.limo.string;
 
-import io.limo.internal.utf8.SegmentOffstring;
-import io.limo.internal.utf8.StringOffString;
+import io.limo.internal.string.SegmentOffstring;
+import io.limo.internal.string.StringOffString;
 import jdk.incubator.foreign.MemorySegment;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.charset.Charset;
 import java.util.Objects;
 
 /**
@@ -19,13 +19,9 @@ import java.util.Objects;
  */
 public interface OffString {
 
-    @NotNull MemorySegment getSegment();
+    @NotNull MemorySegment toSegment(@NotNull Charset charset);
 
-    /**
-     * @return a CharSequence built from this OffString
-     */
-    @ApiStatus.Experimental
-    @NotNull CharSequence toCharSequence();
+    @NotNull Charset getCharset();
 
     /**
      * Best effort to return a String from the {@link MemorySegment} (that may contains too much for one single String)
@@ -35,11 +31,11 @@ public interface OffString {
     @Override
     @NotNull String toString();
 
-    static @NotNull OffString of(@NotNull String string) {
-        return new StringOffString(Objects.requireNonNull(string));
+    static @NotNull OffString of(@NotNull String string, @NotNull Charset charset) {
+        return new StringOffString(Objects.requireNonNull(string), Objects.requireNonNull(charset));
     }
 
-    static @NotNull OffString of(@NotNull MemorySegment segment) {
-        return new SegmentOffstring(Objects.requireNonNull(segment));
+    static @NotNull OffString of(@NotNull MemorySegment segment, @NotNull Charset charset) {
+        return new SegmentOffstring(Objects.requireNonNull(segment), Objects.requireNonNull(charset));
     }
 }

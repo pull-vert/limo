@@ -4,10 +4,11 @@
 
 module limo.commons {
     requires jdk.incubator.foreign;
+    requires jdk.unsupported;
     requires org.jetbrains.annotations;
 
     exports io.limo;
     exports io.limo.concurrent;
-    exports io.limo.utf8;
+    exports io.limo.string;
     exports io.limo.utils;
 }

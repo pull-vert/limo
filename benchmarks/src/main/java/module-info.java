@@ -6,5 +6,4 @@ module limo.benchmarks {
     requires hadoop.common;
     requires jdk.incubator.foreign;
     requires limo.bytes;
-    requires turbo.utils;
 }

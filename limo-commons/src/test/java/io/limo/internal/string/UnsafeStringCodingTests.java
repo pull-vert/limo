@@ -2,15 +2,14 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.various.string;
+package io.limo.internal.string;
 
-import org.apache.hadoop.io.Text;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class StringCharsetTests {
+public class UnsafeStringCodingTests {
 
     /**
      * ASCII Format
@@ -33,18 +32,16 @@ public class StringCharsetTests {
     private final static String UTF_16 = "€";
 
     @Test
-    @DisplayName("check that a ASCII String has same length in UTF-8 than number of characters")
-    void utf8_ascii_text() {
-        final var utf8 = new Text(ASCII);
-        assertThat(utf8.getLength())
-                .isEqualTo(1);
+    @DisplayName("check that a ISO_8859_1 String isLatin true using Compact String String#isLatin1 of JDK9")
+    void isISO_8859_1() {
+        assertThat(UnsafeStringCoding.isLatin1(ISO_8859_1))
+            .isTrue();
     }
 
     @Test
-    @DisplayName("check that a ISO_8859_1 non ASCII String has not same length in UTF-8 than number of characters")
-    void utf8_non_ascii_text() {
-        final var utf8 = new Text(ISO_8859_1);
-        assertThat(utf8.getLength())
-                .isEqualTo(4);
+    @DisplayName("check that a non ISO_8859_1 String isLatin false using Compact String String#isLatin1 of JDK9")
+    void isNotISO_8859_1() {
+        assertThat(UnsafeStringCoding.isLatin1(UTF_16))
+            .isFalse();
     }
 }
