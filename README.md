@@ -15,15 +15,15 @@ Limo is a IO library based on [Project Loom virtual threads](https://wiki.openjd
 * JDK9 Limo is modular thanks to Jigsaw modules
 * JDK15 Project Loom virtual threads (in progress)
 * JDK14 foreign memory (in progress)
+* JDK9 compact Strings (in progress)
 * JDK11 TLSv1.3 (later)
-* JDK9 compact Strings (later)
 ... more to come
 
 ## Requirements
 
 Limo compiles and executes on a [Project Loom EA JDK](http://jdk.java.net/loom/).
 
-## Inspirations and related documentation
+## Inspirations and other nice IO libraries
 * [Quasar](https://github.com/puniverse/quasar), loom ancestor on JDK
 * [Chronicle Bytes](https://github.com/OpenHFT/Chronicle-Bytes)
 * [kotlinx-io](https://github.com/Kotlin/kotlinx-io)
