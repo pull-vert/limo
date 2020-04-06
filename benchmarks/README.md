@@ -1,7 +1,6 @@
 # benchmarks for limo
 
 This is also a place to test efficiency of concepts from other frameworks :
-* turbo-utils from turbo-rpc provides UnsafeStringUtils to test compact Strings from JDK 9
 * hadoop-common provides Text class that stores String as UTF-8 byte[]
 * protobuf-java provides ByteString that stores String as byte[] with interesting implementations LiteralByteString and RopeByteString
 
