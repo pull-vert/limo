@@ -49,5 +49,5 @@ abstract class AbstractOffString implements OffString {
     }
 
     @Override
-    abstract @NotNull public String toString();
+    abstract public @NotNull String toString();
 }

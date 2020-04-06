@@ -7,7 +7,7 @@ package io.limo.internal.string;
 import sun.misc.Unsafe;
 
 final class UnsafeAccess {
-    final static private Unsafe unsafe;
+    private static final Unsafe unsafe;
 
     static {
         final Unsafe tmpUnsafe;
@@ -16,7 +16,7 @@ final class UnsafeAccess {
             final var field = Unsafe.class.getDeclaredField("theUnsafe");
             field.setAccessible(true);
             tmpUnsafe = (Unsafe) field.get(null);
-        } catch (java.lang.Exception e) {
+        } catch (Exception e) {
             throw new Error(e);
         }
 

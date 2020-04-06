@@ -12,7 +12,7 @@ import java.nio.charset.Charset;
 public final class SegmentOffstring extends AbstractOffString {
 
     /**
-     * late init string, only assigned if {@link #toString} is called here or in CharSequence
+     * late init string, only assigned if {@link SegmentOffstring#toString} is called
      */
     private String string;
 
