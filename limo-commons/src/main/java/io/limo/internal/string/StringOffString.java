@@ -27,7 +27,7 @@ public final class StringOffString extends AbstractOffString {
     }
 
     @Override
-    public @NotNull String toString() {
+    public final @NotNull String toString() {
         return this.string;
     }
 }

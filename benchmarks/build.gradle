@@ -22,6 +22,7 @@ dependencies {
 
     implementation "org.openjdk.jmh:jmh-core:$jmh_version"
     implementation 'org.apache.hadoop:hadoop-common:3.2.1'
+    implementation 'com.google.protobuf:protobuf-java:3.11.4'
 }
 
 configurations.all {

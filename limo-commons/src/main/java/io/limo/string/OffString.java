@@ -9,8 +9,10 @@ import io.limo.internal.string.StringOffString;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * String stored in off-heap memory as {@link MemorySegment} with a current {@link Charset}
@@ -19,8 +21,6 @@ import java.util.Objects;
  */
 public interface OffString extends AutoCloseable {
 
-    @NotNull MemorySegment toSegment(@NotNull Charset charset);
-
     /**
      * @return the current off-heap {@link MemorySegment} encoded with {@link Charset}
      * @see #getCharset() to obtain current charset
@@ -28,15 +28,22 @@ public interface OffString extends AutoCloseable {
     @NotNull MemorySegment getSegment();
 
     /**
+     * @return a native off-heap ByteBuffer bound to the {@link MemorySegment} (if exists)
+     */
+    @NotNull Optional<ByteBuffer> getByteBuffer();
+
+    /**
      * @return the current {@link Charset} used to encode String in off-heap memory
      * @see #getSegment() to obtain current MemorySegment
      */
     @NotNull Charset getCharset();
 
+    @NotNull MemorySegment toSegment(@NotNull Charset charset);
+
     /**
      * Best effort to return a String from the {@link MemorySegment} (that may be too big for one single String)
      *
-     * @return a String that contains all chars from this OffString
+     * @return a String that contains all content of this OffString
      */
     @Override
     @NotNull String toString();

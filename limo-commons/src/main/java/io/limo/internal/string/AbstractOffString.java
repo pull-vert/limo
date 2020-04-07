@@ -8,8 +8,11 @@ import io.limo.string.OffString;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 
 abstract class AbstractOffString implements OffString {
 
@@ -18,34 +21,65 @@ abstract class AbstractOffString implements OffString {
      */
     final MemorySegment segment;
 
+    /**
+     * An optional native off-heap ByteBuffer bound to the segment
+     */
+    private final ByteBuffer bb;
+
     final Charset charset;
 
     Boolean isLatin1;
 
     Boolean isAscii;
 
-    AbstractOffString(byte[] bytes, Charset charset) {
-        this(MemorySegment.allocateNative(bytes.length), charset);
-        segment.asByteBuffer().put(bytes);
+    AbstractOffString(MemorySegment segment, Charset charset) {
+        this(segment, charset, null);
     }
 
-    AbstractOffString(MemorySegment segment, Charset charset) {
+    AbstractOffString(byte[] bytes, Charset charset) {
+        this(MemorySegment.allocateNative(bytes.length), bytes, charset);
+    }
+
+    private AbstractOffString(MemorySegment segment, byte[] bytes, Charset charset) {
+        this(segment, charset, segment.asByteBuffer().put(bytes));
+    }
+
+    private AbstractOffString(MemorySegment segment, Charset charset, ByteBuffer bb) {
         this.segment = segment;
         this.charset = charset;
+        this.bb = bb;
     }
 
     @Override
-    public final @NotNull MemorySegment toSegment(@NotNull Charset charset) {
-        // fast-path 1) if destination charset is the same, or is fully compatible
-        if (Objects.requireNonNull(charset).contains(this.charset)) {
-            return this.segment;
-        }
-        return MemorySegment.allocateNative(0); // fixme implement !
+    public final @NotNull MemorySegment getSegment() {
+        return this.segment;
+    }
+
+    @Override
+    public final @NotNull Optional<ByteBuffer> getByteBuffer() {
+        return Optional.ofNullable(this.bb);
     }
 
     @Override
     public final @NotNull Charset getCharset() {
         return this.charset;
+    }
+
+    @Override
+    public final @NotNull MemorySegment toSegment(@NotNull Charset charset) {
+        // fast-path 1) if destination charset is the same, or is fully compatible with current
+        if (Objects.requireNonNull(charset).contains(this.charset)) {
+            return this.segment;
+        }
+
+        // fast-path 2) if destination and current charsets are ASCII compatible, then current OffString is maybe ASCII
+        if (charset.contains(StandardCharsets.US_ASCII)
+                && this.charset.contains(StandardCharsets.US_ASCII)
+                && this.isAscii == null) {
+
+        }
+
+        return MemorySegment.allocateNative(0); // fixme implement !
     }
 
     @Override
