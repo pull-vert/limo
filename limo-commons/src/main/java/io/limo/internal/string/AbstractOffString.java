@@ -35,7 +35,7 @@ abstract class AbstractOffString implements OffString {
     }
 
     @Override
-    public @NotNull MemorySegment toSegment(@NotNull Charset charset) {
+    public final @NotNull MemorySegment toSegment(@NotNull Charset charset) {
         // fast-path 1) if destination charset is the same, or is fully compatible
         if (Objects.requireNonNull(charset).contains(this.charset)) {
             return this.segment;
@@ -44,10 +44,15 @@ abstract class AbstractOffString implements OffString {
     }
 
     @Override
-    public @NotNull Charset getCharset() {
+    public final @NotNull Charset getCharset() {
         return this.charset;
     }
 
     @Override
-    abstract public @NotNull String toString();
+    public final void close() {
+        this.segment.close();
+    }
+
+    @Override
+    public abstract @NotNull String toString();
 }

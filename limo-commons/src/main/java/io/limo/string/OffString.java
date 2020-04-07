@@ -17,7 +17,7 @@ import java.util.Objects;
  * <p>
  * OffStrings are constant (immutable), their values cannot be changed after they are created.
  */
-public interface OffString {
+public interface OffString extends AutoCloseable {
 
     @NotNull MemorySegment toSegment(@NotNull Charset charset);
 
