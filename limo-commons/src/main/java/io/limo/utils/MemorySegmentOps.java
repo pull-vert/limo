@@ -4,10 +4,7 @@
 
 package io.limo.utils;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemoryHandles;
-import jdk.incubator.foreign.MemoryLayout;
-import jdk.incubator.foreign.MemoryLayouts;
+import jdk.incubator.foreign.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.VarHandle;

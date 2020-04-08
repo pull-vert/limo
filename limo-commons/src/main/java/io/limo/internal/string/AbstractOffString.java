@@ -4,6 +4,7 @@
 
 package io.limo.internal.string;
 
+import io.limo.ByteBufferSegment;
 import io.limo.string.OffString;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +34,7 @@ abstract class AbstractOffString implements OffString {
     Boolean isAscii;
 
     AbstractOffString(MemorySegment segment, Charset charset) {
-        this(segment, charset, null);
+        this(segment, (ByteBuffer) null, charset);
     }
 
     AbstractOffString(byte[] bytes, Charset charset) {
@@ -41,13 +42,17 @@ abstract class AbstractOffString implements OffString {
     }
 
     private AbstractOffString(MemorySegment segment, byte[] bytes, Charset charset) {
-        this(segment, charset, segment.asByteBuffer().put(bytes));
+        this(segment, segment.asByteBuffer().put(bytes), charset);
     }
 
-    private AbstractOffString(MemorySegment segment, Charset charset, ByteBuffer bb) {
+    public AbstractOffString(ByteBufferSegment bbSegment, Charset charset) {
+this(bbSegment.getSegment(), bbSegment.getByteBuffer(), charset);
+    }
+
+    private AbstractOffString(MemorySegment segment, ByteBuffer bb, Charset charset) {
         this.segment = segment;
-        this.charset = charset;
         this.bb = bb;
+        this.charset = charset;
     }
 
     @Override

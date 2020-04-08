@@ -4,6 +4,7 @@
 
 package io.limo.internal.string;
 
+import io.limo.internal.utils.Strings;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +36,7 @@ public final class SegmentOffstring extends AbstractOffString {
 
         // fast-path for Latin1 or ASCII (Latin1 is ASCII compatible)
         if (Boolean.TRUE.equals(this.isLatin1) || Boolean.TRUE.equals(this.isAscii)) {
-            return this.string = UnsafeStringCoding.toLatin1String(this.segment.toByteArray());
+            return this.string = Strings.toLatin1String(this.segment.toByteArray());
         }
         return this.string = new String(this.segment.toByteArray(), this.charset);
     }

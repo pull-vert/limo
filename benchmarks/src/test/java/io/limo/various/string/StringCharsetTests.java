@@ -45,6 +45,6 @@ public class StringCharsetTests {
     void utf8_non_ascii_text() {
         final var utf8 = new Text(ISO_8859_1);
         assertThat(utf8.getLength())
-                .isEqualTo(4);
+                .isEqualTo(2);
     }
 }

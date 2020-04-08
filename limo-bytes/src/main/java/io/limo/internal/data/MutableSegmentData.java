@@ -19,8 +19,6 @@ import java.nio.ByteOrder;
  */
 public final class MutableSegmentData extends SegmentData implements MutableData {
 
-    // final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
     /**
      * The data writer
      */

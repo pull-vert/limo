@@ -6,6 +6,7 @@ module limo.commons {
     requires jdk.incubator.foreign;
     requires jdk.unsupported;
     requires org.jetbrains.annotations;
+    requires org.slf4j;
 
     exports io.limo;
     exports io.limo.concurrent;

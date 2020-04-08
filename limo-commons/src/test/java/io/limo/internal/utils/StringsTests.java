@@ -2,14 +2,14 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.internal.string;
+package io.limo.internal.utils;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UnsafeStringCodingTests {
+public class StringsTests {
 
     /**
      * ASCII Format
@@ -34,14 +34,14 @@ public class UnsafeStringCodingTests {
     @Test
     @DisplayName("check that a ISO_8859_1 String isLatin true using Compact String String#isLatin1 of JDK9")
     void isISO_8859_1() {
-        assertThat(UnsafeStringCoding.isLatin1(ISO_8859_1))
+        assertThat(Strings.UnsafeOps.isLatin1(ISO_8859_1))
             .isTrue();
     }
 
     @Test
     @DisplayName("check that a non ISO_8859_1 String isLatin false using Compact String String#isLatin1 of JDK9")
     void isNotISO_8859_1() {
-        assertThat(UnsafeStringCoding.isLatin1(UTF_16))
+        assertThat(Strings.UnsafeOps.isLatin1(UTF_16))
             .isFalse();
     }
 }
