@@ -13,7 +13,7 @@ public final class AsciiOps {
     }
 
     /**
-     * @return if byte[] contains a negative value
+     * @return if byte[] contains a negative value (= a non ASCII value)
      */
     public static boolean hasNegatives(byte[] bytes) {
         return hasNegativesInternal(bytes, 0, bytes.length);
@@ -22,7 +22,7 @@ public final class AsciiOps {
     /**
      * @param offset from position (inclusive)
      * @param length  number of elements to get
-     * @return if byte[] section contains a negative value
+     * @return if byte[] section contains a negative value (= a non ASCII value)
      */
     public static boolean hasNegatives(byte[] bytes, int offset, int length) {
         if ((offset | length | bytes.length - offset - length) < 0) {
