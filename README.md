@@ -1,6 +1,9 @@
 # Limo
 
-Limo is a IO library that runs on [Project Loom virtual threads](https://wiki.openjdk.java.net/display/loom/Main) and uses [JDK14 foreign memory](http://cr.openjdk.java.net/~mcimadamore/panama/memaccess_javadoc/jdk/incubator/foreign/package-summary.html).
+* Limo is a IO library that works with one thread per IO operation, for example a multiplexed TCP server that runs with Limo will create two threads for each client Socket : one thread for read operations and one thread for write operations.
+* Limo's goal is to use [Project Loom virtual threads](https://wiki.openjdk.java.net/display/loom/Main) and [JDK14 foreign memory](http://cr.openjdk.java.net/~mcimadamore/panama/memaccess_javadoc/jdk/incubator/foreign/package-summary.html).
+* Base modules of Limo require JDK11, the last Long Term Support Java version.
+* Additional modules allow to benefit from more recent features available in newer JDKs, such as virtual threads and foreign memory, transparently thanks to ServiceLoader.
 
 ## Limo features
 
@@ -23,12 +26,14 @@ Limo is a IO library that runs on [Project Loom virtual threads](https://wiki.op
   * Compact Strings (in progress)
 * JDK11 TLSv1.3 (later)
 * JDK14 foreign memory (in progress)
-* JDK15 (maybe) Project Loom virtual threads (in progress)
-... more to come
+* JDK1X (release version is not known yet) Project Loom virtual threads (in progress)
+
+... and more to come
 
 ## Requirements
 
-Limo compiles and executes on a [Project Loom Early Access JDK](http://jdk.java.net/loom/).
+Base modules of Limo require JDK11.
+To compile all Limo project you will need a [Project Loom Early Access JDK](http://jdk.java.net/loom/).
 
 ## Inspirations and other nice IO libraries
 * [Quasar](https://github.com/puniverse/quasar), loom ancestor on JDK
