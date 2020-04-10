@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 
@@ -18,7 +19,7 @@ import java.security.PrivilegedExceptionAction;
  */
 public final class UnsafeAccess {
 
-    private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private static final sun.misc.Unsafe UNSAFE = getUnsafe();
 
     static final StringOffsets UNSAFE_STRING_OFFSETS = unsafeStringOffsets();
@@ -104,6 +105,7 @@ public final class UnsafeAccess {
             unsafeClass.getMethod("putLong", long.class, long.class);
             unsafeClass.getMethod("copyMemory", long.class, long.class, long.class);
             unsafeClass.getMethod("copyMemory", Object.class, long.class, Object.class, long.class, long.class);
+            unsafeClass.getMethod("invokeCleaner", ByteBuffer.class);
 
             // must have access to address field of Buffer class
             final var field = getField(Buffer.class, "address");
@@ -181,6 +183,11 @@ public final class UnsafeAccess {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    static <T> T allocateInstance(Class<T> clazz) throws InstantiationException {
+        return (T) UNSAFE.allocateInstance(clazz);
+    }
+
     static void putByte(long address, byte value) {
         UNSAFE.putByte(address, value);
     }
@@ -221,8 +228,11 @@ public final class UnsafeAccess {
         return UNSAFE.arrayBaseOffset(clazz);
     }
 
-    @SuppressWarnings("unchecked")
-    static <T> T allocateInstance(Class<T> clazz) throws InstantiationException {
-        return (T) UNSAFE.allocateInstance(clazz);
+    static void invokeCleaner(ByteBuffer bb) {
+        UNSAFE.invokeCleaner(bb);
+    }
+
+    static void copyMemory(Object srcBase, long srcOffset, Object destBase, long destOffset, long bytes) {
+        UNSAFE.copyMemory(srcBase, srcOffset, destBase, destOffset, bytes);
     }
 }

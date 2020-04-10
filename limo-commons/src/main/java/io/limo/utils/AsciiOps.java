@@ -32,7 +32,7 @@ public final class AsciiOps {
         return hasNegativesInternal(bytes, offset, length);
     }
 
-    public static boolean hasNegativesInternal(byte[] bytes, int offset, int length) {
+    private static boolean hasNegativesInternal(byte[] bytes, int offset, int length) {
         for (var i = offset; i < offset + length; i++) {
             if (Arrays.getByte(bytes, i) < 0) {
                 return true;

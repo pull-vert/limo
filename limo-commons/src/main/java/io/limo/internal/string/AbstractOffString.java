@@ -4,28 +4,21 @@
 
 package io.limo.internal.string;
 
-import io.limo.ByteBufferSegment;
+import io.limo.memory.OffHeap;
+import io.limo.memory.OffHeapFactory;
 import io.limo.string.OffString;
-import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import java.util.Optional;
 
 abstract class AbstractOffString implements OffString {
 
     /**
-     * This MemorySegment stores bytes
+     * This OffHeap stores this String's bytes
      */
-    final MemorySegment segment;
-
-    /**
-     * An optional native off-heap ByteBuffer bound to the segment
-     */
-    private final ByteBuffer bb;
+    final OffHeap memory;
 
     final Charset charset;
 
@@ -33,36 +26,14 @@ abstract class AbstractOffString implements OffString {
 
     Boolean isAscii;
 
-    AbstractOffString(MemorySegment segment, Charset charset) {
-        this(segment, (ByteBuffer) null, charset);
-    }
-
-    AbstractOffString(byte[] bytes, Charset charset) {
-        this(MemorySegment.allocateNative(bytes.length), bytes, charset);
-    }
-
-    private AbstractOffString(MemorySegment segment, byte[] bytes, Charset charset) {
-        this(segment, segment.asByteBuffer().put(bytes), charset);
-    }
-
-    public AbstractOffString(ByteBufferSegment bbSegment, Charset charset) {
-this(bbSegment.getSegment(), bbSegment.getByteBuffer(), charset);
-    }
-
-    private AbstractOffString(MemorySegment segment, ByteBuffer bb, Charset charset) {
-        this.segment = segment;
-        this.bb = bb;
+    AbstractOffString(OffHeap memory, Charset charset) {
+        this.memory = memory;
         this.charset = charset;
     }
 
     @Override
-    public final @NotNull MemorySegment getSegment() {
-        return this.segment;
-    }
-
-    @Override
-    public final @NotNull Optional<ByteBuffer> getByteBuffer() {
-        return Optional.ofNullable(this.bb);
+    public final @NotNull OffHeap getMemory() {
+        return this.memory;
     }
 
     @Override
@@ -71,10 +42,10 @@ this(bbSegment.getSegment(), bbSegment.getByteBuffer(), charset);
     }
 
     @Override
-    public final @NotNull MemorySegment toSegment(@NotNull Charset charset) {
+    public final @NotNull OffHeap toMemory(@NotNull Charset charset) {
         // fast-path 1) if destination charset is the same, or is fully compatible with current
         if (Objects.requireNonNull(charset).contains(this.charset)) {
-            return this.segment;
+            return this.memory;
         }
 
         // fast-path 2) if destination and current charsets are ASCII compatible, then current OffString is maybe ASCII
@@ -84,12 +55,12 @@ this(bbSegment.getSegment(), bbSegment.getByteBuffer(), charset);
 
         }
 
-        return MemorySegment.allocateNative(0); // fixme implement !
+        return OffHeapFactory.allocate(0); // fixme implement !
     }
 
     @Override
     public final void close() {
-        this.segment.close();
+        this.memory.close();
     }
 
     @Override

@@ -9,7 +9,7 @@ package io.limo.internal.utils;
  */
 public final class Arrays {
 
-    private static Ops OPS = UnsafeAccess.SUPPORT_UNSAFE_ARRAY_OPS ? new UnsafeOps() : new SafeOps();
+    private static final Ops OPS = UnsafeAccess.SUPPORT_UNSAFE_ARRAY_OPS ? new UnsafeOps() : new SafeOps();
 
     // uninstanciable
     private Arrays() {
@@ -28,13 +28,13 @@ public final class Arrays {
         abstract byte getByte(byte[] target, long index);
     }
 
-    private static final class UnsafeOps extends Ops {
+    static final class UnsafeOps extends Ops {
 
-        private static final long ARRAY_BYTE_BASE_OFFSET = UnsafeAccess.arrayBaseOffset(byte[].class);
+        static final long BYTE_ARRAY_BASE_OFFSET = UnsafeAccess.arrayBaseOffset(byte[].class);
 
         @Override
         final byte getByte(byte[] target, long index) {
-            return UnsafeAccess.getByte(target, ARRAY_BYTE_BASE_OFFSET + index);
+            return UnsafeAccess.getByte(target, BYTE_ARRAY_BASE_OFFSET + index);
         }
     }
 

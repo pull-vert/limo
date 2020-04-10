@@ -21,7 +21,7 @@ public final class StringOffString extends AbstractOffString {
     }
 
     private StringOffString(String string, Strings.Result result) {
-        super(result.getBbSegment(), result.getCharset());
+        super(result.getBbMemory(), result.getCharset());
         this.isAscii = result.isAscii();
         this.isLatin1 = result.isLatin1();
         this.string = string;

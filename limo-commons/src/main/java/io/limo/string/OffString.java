@@ -4,52 +4,47 @@
 
 package io.limo.string;
 
-import io.limo.internal.string.SegmentOffstring;
+import io.limo.internal.string.OffstringImpl;
 import io.limo.internal.string.StringOffString;
-import jdk.incubator.foreign.MemorySegment;
+import io.limo.memory.OffHeap;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
- * String stored in off-heap memory as {@link MemorySegment} with a current {@link Charset}
+ * String stored in off-heap memory as {@link OffHeap} with a current {@link Charset}
  * <p>
  * OffStrings are constant (immutable), their values cannot be changed after they are created.
  */
 public interface OffString extends AutoCloseable {
 
     /**
-     * @return the current off-heap {@link MemorySegment} encoded with {@link Charset}
+     * @return the current off-heap memory encoded with {@link Charset}
      * @see #getCharset() to obtain current charset
      */
-    @NotNull MemorySegment getSegment();
-
-    /**
-     * @return a native off-heap ByteBuffer bound to the {@link MemorySegment} (if exists)
-     */
-    @NotNull Optional<ByteBuffer> getByteBuffer();
+    @NotNull OffHeap getMemory();
 
     /**
      * @return the current {@link Charset} used to encode String in off-heap memory
-     * @see #getSegment() to obtain current MemorySegment
+     * @see #getMemory() to obtain current MemorySegment
      */
     @NotNull Charset getCharset();
 
-    @NotNull MemorySegment toSegment(@NotNull Charset charset);
+    @NotNull OffHeap toMemory(@NotNull Charset charset);
 
     /**
-     * Best effort to return a String from the {@link MemorySegment} (that may be too big for one single String)
+     * Best effort to return a String from the memory (that may be too big for one single String)
      *
      * @return a String that contains all content of this OffString
+     * @throws UnsupportedOperationException if the memory's content cannot fit into a {@link String} instance,
+     * e.g. it has more than {@link Integer#MAX_VALUE} characters
      */
     @Override
     @NotNull String toString();
 
     /**
-     * Close the {@link MemorySegment}
+     * Close the memory
      */
     @Override
     void close();
@@ -58,7 +53,7 @@ public interface OffString extends AutoCloseable {
         return new StringOffString(Objects.requireNonNull(string), Objects.requireNonNull(charset));
     }
 
-    static @NotNull OffString of(@NotNull MemorySegment segment, @NotNull Charset charset) {
-        return new SegmentOffstring(Objects.requireNonNull(segment), Objects.requireNonNull(charset));
+    static @NotNull OffString of(@NotNull OffHeap memory, @NotNull Charset charset) {
+        return new OffstringImpl(Objects.requireNonNull(memory), Objects.requireNonNull(charset));
     }
 }

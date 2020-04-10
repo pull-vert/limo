@@ -5,21 +5,23 @@
 package io.limo.internal.string;
 
 import io.limo.internal.utils.Strings;
-import jdk.incubator.foreign.MemorySegment;
+import io.limo.memory.OffHeap;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public final class SegmentOffstring extends AbstractOffString {
+import static java.lang.Boolean.TRUE;
+
+public final class OffstringImpl extends AbstractOffString {
 
     /**
-     * late init string, only assigned if {@link SegmentOffstring#toString} is called
+     * late init string, only assigned if {@link OffstringImpl#toString} is called
      */
     private String string;
 
-    public SegmentOffstring(MemorySegment segment, Charset charset) {
-        super(segment, charset);
+    public OffstringImpl(OffHeap memory, Charset charset) {
+        super(memory, charset);
         if (charset == StandardCharsets.US_ASCII) {
             this.isAscii = true;
             this.isLatin1 = true;
@@ -35,9 +37,9 @@ public final class SegmentOffstring extends AbstractOffString {
         }
 
         // fast-path for Latin1 or ASCII (Latin1 is ASCII compatible)
-        if (Boolean.TRUE.equals(this.isLatin1) || Boolean.TRUE.equals(this.isAscii)) {
-            return this.string = Strings.toLatin1String(this.segment.toByteArray());
+        if (TRUE.equals(this.isLatin1) || TRUE.equals(this.isAscii)) {
+            return this.string = Strings.toLatin1String(this.memory.toByteArray());
         }
-        return this.string = new String(this.segment.toByteArray(), this.charset);
+        return this.string = new String(this.memory.toByteArray(), this.charset);
     }
 }

@@ -4,8 +4,9 @@
 
 package io.limo.utils;
 
-import io.limo.ByteBufferSegment;
 import io.limo.internal.utils.ByteBuffers;
+import io.limo.memory.ByteBufferOffHeap;
+import io.limo.memory.OffHeapFactory;
 
 public final class Latin1Ops {
 
@@ -15,12 +16,13 @@ public final class Latin1Ops {
 
     /**
      * @param bytes Latin1 bytes
-     * @return a UTF-8 encoded ByteBuffer built from Latin1 byte[] parameter
+     * @return a UTF-8 encoded ByteBufferOffHeap built from Latin1 byte[] parameter
      */
-    public static ByteBufferSegment encodeUTF8(final byte[] bytes) {
-        final var bbSegment = ByteBufferSegment.allocate(bytes.length << 1);
+    public static ByteBufferOffHeap encodeUTF8(final byte[] bytes) {
+        final var bbMemory = OffHeapFactory.allocate(bytes.length << 1);
+        final var bb = bbMemory.getByteBuffer();
         // position in this brand new ByteBuffer starts at 0
-        ByteBuffers.write(bbSegment.getByteBuffer(), byteBufferWriter -> {
+        ByteBuffers.write(bb, byteBufferWriter -> {
             for (int sourceIndex = 0; sourceIndex < bytes.length; sourceIndex++) {
                 byte c = bytes[sourceIndex];
                 if (c < 0) {
@@ -31,9 +33,9 @@ public final class Latin1Ops {
                 }
             }
         });
-        if (bbSegment.getposition() == bbSegment.getByteSize()) {
-            return bbSegment;
+        if (bb.position() == bbMemory.getByteSize()) {
+            return bbMemory;
         }
-        return bbSegment.asSlice(0, bbSegment.getposition());
+        return bbMemory.asSlice(0, bb.position());
     }
 }

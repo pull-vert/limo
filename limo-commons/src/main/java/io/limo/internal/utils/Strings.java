@@ -4,7 +4,8 @@
 
 package io.limo.internal.utils;
 
-import io.limo.ByteBufferSegment;
+import io.limo.memory.ByteBufferOffHeap;
+import io.limo.memory.OffHeapFactory;
 import io.limo.utils.AsciiOps;
 import io.limo.utils.Latin1Ops;
 
@@ -16,7 +17,7 @@ import java.nio.charset.StandardCharsets;
  */
 public final class Strings {
 
-    private static Ops OPS = (UnsafeAccess.UNSAFE_STRING_OFFSETS != null) ? new UnsafeOps() : new SafeOps();
+    private static final Ops OPS = (UnsafeAccess.UNSAFE_STRING_OFFSETS != null) ? new UnsafeOps() : new SafeOps();
 
     // uninstanciable
     private Strings() {
@@ -165,13 +166,13 @@ public final class Strings {
 
     public static class Result {
 
-        private ByteBufferSegment bbSegment;
+        private ByteBufferOffHeap bbMemory;
         private boolean isAscii;
         private boolean isLatin1;
         private Charset charset;
 
         Result withAscii(byte[] bytes) {
-            this.bbSegment = ByteBufferSegment.of(bytes);
+            this.bbMemory = OffHeapFactory.of(bytes);
             this.isAscii = true;
             this.isLatin1 = true;
             this.charset = StandardCharsets.US_ASCII;
@@ -179,15 +180,15 @@ public final class Strings {
         }
 
         Result withNotAsciiLatin1(byte[] bytes) {
-            this.bbSegment = ByteBufferSegment.of(bytes);
+            this.bbMemory = OffHeapFactory.of(bytes);
             this.isAscii = false;
             this.isLatin1 = true;
             this.charset = StandardCharsets.ISO_8859_1;
             return this;
         }
 
-        public Result withNotAsciiNotLatin1Utf8(ByteBufferSegment bbSegment) {
-            this.bbSegment = bbSegment;
+        public Result withNotAsciiNotLatin1Utf8(ByteBufferOffHeap bbMemory) {
+            this.bbMemory = bbMemory;
             this.isAscii = false;
             this.isLatin1 = false;
             this.charset = StandardCharsets.UTF_8;
@@ -195,15 +196,15 @@ public final class Strings {
         }
 
         Result withNotAsciiNotLatin1(byte[] bytes, Charset charset) {
-            this.bbSegment = ByteBufferSegment.of(bytes);
+            this.bbMemory = OffHeapFactory.of(bytes);
             this.isAscii = false;
             this.isLatin1 = false;
             this.charset = charset;
             return this;
         }
 
-        public ByteBufferSegment getBbSegment() {
-            return bbSegment;
+        public ByteBufferOffHeap getBbMemory() {
+            return bbMemory;
         }
 
         public boolean isAscii() {
