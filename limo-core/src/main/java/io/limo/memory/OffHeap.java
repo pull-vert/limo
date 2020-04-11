@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * This interface represents a off-heap memory region
  */
-public interface OffHeap extends AutoCloseable {
+public interface OffHeap extends /*IndexedReader, */AutoCloseable {
 
     long getByteSize();
 

@@ -5,8 +5,8 @@
 package io.limo.internal.transfer;
 
 import io.limo.transfer.Data;
-import io.limo.transfer.Reader;
-import io.limo.transfer.ReaderUnderflowException;
+import io.limo.Reader;
+import io.limo.ReaderUnderflowException;
 import io.limo.jdk14.utils.MemorySegmentOps;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;

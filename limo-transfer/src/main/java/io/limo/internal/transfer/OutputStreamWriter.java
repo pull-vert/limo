@@ -5,7 +5,7 @@
 package io.limo.internal.transfer;
 
 import io.limo.LimoIOException;
-import io.limo.transfer.Writer;
+import io.limo.Writer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

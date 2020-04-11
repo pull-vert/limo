@@ -113,14 +113,26 @@ public final class ByteBuffers {
 
         @Override
         void fillTargetByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length) {
+            // save previous position
+            final var position = bb.position();
+
             bb.position(index);
             bb.get(bytes, offset, length);
+
+            // re-affect previous position
+            bb.position(position);
         }
 
         @Override
         public void fillWithByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length) {
+            // save previous position
+            final var position = bb.position();
+
             bb.position(index);
             bb.put(bytes, offset, length);
+
+            // re-affect previous position
+            bb.position(position);
         }
     }
 }

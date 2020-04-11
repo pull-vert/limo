@@ -2,14 +2,14 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.transfer;
+package io.limo;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteOrder;
 
 /**
- * This interface allows to read binary data
+ * This interface allows to read in binary data
  */
 public interface Reader {
 

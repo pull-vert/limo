@@ -5,8 +5,8 @@
 package io.limo.internal.transfer;
 
 import io.limo.transfer.MutableData;
-import io.limo.transfer.Writer;
-import io.limo.transfer.WriterOverflowException;
+import io.limo.Writer;
+import io.limo.WriterOverflowException;
 import io.limo.internal.bytes.MutableBytes;
 import io.limo.utils.BytesOps;
 import org.jetbrains.annotations.NotNull;

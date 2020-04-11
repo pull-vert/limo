@@ -4,6 +4,7 @@
 
 package io.limo.transfer;
 
+import io.limo.Writer;
 import org.jetbrains.annotations.NotNull;
 
 /**

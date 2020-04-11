@@ -5,8 +5,8 @@
 package io.limo.internal.transfer;
 
 import io.limo.LimoIOException;
-import io.limo.transfer.Reader;
-import io.limo.transfer.ReaderUnderflowException;
+import io.limo.Reader;
+import io.limo.ReaderUnderflowException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

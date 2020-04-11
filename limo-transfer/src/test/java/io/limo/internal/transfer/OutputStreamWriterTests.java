@@ -4,7 +4,7 @@
 
 package io.limo.internal.transfer;
 
-import io.limo.transfer.Writer;
+import io.limo.Writer;
 
 import java.io.ByteArrayOutputStream;
 

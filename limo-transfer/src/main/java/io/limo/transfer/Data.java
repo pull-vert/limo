@@ -4,6 +4,7 @@
 
 package io.limo.transfer;
 
+import io.limo.Reader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 

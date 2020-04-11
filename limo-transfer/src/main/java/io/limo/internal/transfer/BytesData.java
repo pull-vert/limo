@@ -5,8 +5,8 @@
 package io.limo.internal.transfer;
 
 import io.limo.transfer.Data;
-import io.limo.transfer.Reader;
-import io.limo.transfer.ReaderUnderflowException;
+import io.limo.Reader;
+import io.limo.ReaderUnderflowException;
 import io.limo.internal.bytes.ByteBufferBytes;
 import io.limo.internal.bytes.Bytes;
 import org.jetbrains.annotations.NotNull;
