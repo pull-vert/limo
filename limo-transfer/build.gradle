@@ -1,0 +1,3 @@
+dependencies {
+    implementation project(':limo-core'), project(':limo-core-jdk14')
+}

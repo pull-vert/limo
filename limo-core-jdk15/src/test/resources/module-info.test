@@ -1,0 +1,6 @@
+// make module visible
+--add-modules
+  org.assertj.core
+
+--add-reads
+  limo.core.jdk15=org.assertj.core

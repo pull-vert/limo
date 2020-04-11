@@ -1,9 +1,15 @@
 # Limo
 
 * Limo is a IO library that works with one thread per IO operation, for example a multiplexed TCP server that runs with Limo will create two threads for each client Socket : one thread for read operations and one thread for write operations.
-* Limo's goal is to use [Project Loom virtual threads](https://wiki.openjdk.java.net/display/loom/Main) and [JDK14 foreign memory](http://cr.openjdk.java.net/~mcimadamore/panama/memaccess_javadoc/jdk/incubator/foreign/package-summary.html).
+* Limo is intended to be used in conjunction with [Project Loom virtual threads](https://wiki.openjdk.java.net/display/loom/Main) and [JDK14 foreign memory](http://cr.openjdk.java.net/~mcimadamore/panama/memaccess_javadoc/jdk/incubator/foreign/package-summary.html).
+
+## Requirements
+
 * Base modules of Limo require JDK11, the last Long Term Support Java version.
-* Additional modules allow to benefit from more recent features available in newer JDKs, such as virtual threads and foreign memory, transparently thanks to ServiceLoader.
+* Additional modules allow benefiting from additional features available in more recent JDKs, such as virtual threads and foreign memory, transparently thanks to ServiceLoader.
+These additional modules have a **-jdk1X** suffix, so you easily know which modules you can import as dependency, depending on the JDK your project uses.
+
+To compile all Limo project you will need a [Project Loom Early Access JDK](http://jdk.java.net/loom/).
 
 ## Limo features
 
@@ -30,12 +36,7 @@
 
 ... and more to come
 
-## Requirements
-
-Base modules of Limo require JDK11.
-To compile all Limo project you will need a [Project Loom Early Access JDK](http://jdk.java.net/loom/).
-
-## Inspirations and other nice IO libraries
+## Other inspiring libraries
 * [Quasar](https://github.com/puniverse/quasar), loom ancestor on JDK
 * [Chronicle Bytes](https://github.com/OpenHFT/Chronicle-Bytes)
 * [kotlinx-io](https://github.com/Kotlin/kotlinx-io)

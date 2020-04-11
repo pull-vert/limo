@@ -18,7 +18,7 @@ jmh {
 }
 
 dependencies {
-    implementation project(':limo-bytes')
+    implementation project(':limo-transfer')
 
     implementation "org.openjdk.jmh:jmh-core:$jmh_version"
     implementation 'org.apache.hadoop:hadoop-common:3.2.1'

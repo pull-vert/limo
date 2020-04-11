@@ -1,6 +1,0 @@
-// make module visible
---add-modules
-  org.assertj.core
-
---add-reads
-  limo.commons=org.assertj.core
