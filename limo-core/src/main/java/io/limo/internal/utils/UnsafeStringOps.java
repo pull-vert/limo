@@ -15,12 +15,12 @@ import java.nio.charset.StandardCharsets;
 /**
  * Util class providing unsafe optimised operations on String (fallback to safe if unsafe is not supported)
  */
-public final class Strings {
+public final class UnsafeStringOps {
 
     private static final Ops OPS = (UnsafeAccess.UNSAFE_STRING_OFFSETS != null) ? new UnsafeOps() : new SafeOps();
 
     // uninstanciable
-    private Strings() {
+    private UnsafeStringOps() {
     }
 
     public static Result encode(String string, Charset charset) {

@@ -4,7 +4,7 @@
 
 package io.limo.internal.string;
 
-import io.limo.internal.utils.Strings;
+import io.limo.internal.utils.UnsafeStringOps;
 import io.limo.memory.OffHeap;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +38,7 @@ public final class OffstringImpl extends AbstractOffString {
 
         // fast-path for Latin1 or ASCII (Latin1 is ASCII compatible)
         if (TRUE.equals(this.isLatin1) || TRUE.equals(this.isAscii)) {
-            return this.string = Strings.toLatin1String(this.memory.toByteArray());
+            return this.string = UnsafeStringOps.toLatin1String(this.memory.toByteArray());
         }
         return this.string = new String(this.memory.toByteArray(), this.charset);
     }

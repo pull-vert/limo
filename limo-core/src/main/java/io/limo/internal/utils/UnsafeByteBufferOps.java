@@ -10,12 +10,12 @@ import java.util.function.Consumer;
 /**
  * Util class providing unsafe optimised operations on native ByteBuffer (fallback to safe if unsafe is not supported)
  */
-public final class ByteBuffers {
+public final class UnsafeByteBufferOps {
 
     private static final Ops OPS = (UnsafeAccess.UNSAFE_BYTE_BUFFER_ADDRESS_OFFSET != null) ? new UnsafeOps() : new SafeOps();
 
     // uninstanciable
-    private ByteBuffers() {
+    private UnsafeByteBufferOps() {
     }
 
     /**
@@ -40,8 +40,8 @@ public final class ByteBuffers {
      * Copy the contents of this byte array into a ByteBuffer.
      * <p>Does no change position
      */
-    public static void fillWithByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length) {
-        OPS.fillWithByteArray(bb, index, bytes, offset, length);
+    public static ByteBuffer fillWithByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length) {
+        return OPS.fillWithByteArray(bb, index, bytes, offset, length);
     }
 
     /**
@@ -66,7 +66,7 @@ public final class ByteBuffers {
 
         abstract void fillTargetByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length);
 
-        public abstract void fillWithByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length);
+        public abstract ByteBuffer fillWithByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length);
     }
 
     private static final class UnsafeOps extends Ops {
@@ -110,14 +110,15 @@ public final class ByteBuffers {
         void fillTargetByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length) {
             final var baseAddress = UnsafeAccess.getLong(bb, BYTE_BUFFER_ADDRESS_OFFSET);
             UnsafeAccess.copyMemory(null, baseAddress + index, bytes,
-                    Arrays.UnsafeOps.BYTE_ARRAY_BASE_OFFSET + offset, length);
+                    UnsafeArrayOps.UnsafeOps.BYTE_ARRAY_BASE_OFFSET + offset, length);
         }
 
         @Override
-        public void fillWithByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length) {
+        public ByteBuffer fillWithByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length) {
             final var baseAddress = UnsafeAccess.getLong(bb, BYTE_BUFFER_ADDRESS_OFFSET);
-            UnsafeAccess.copyMemory(bytes, Arrays.UnsafeOps.BYTE_ARRAY_BASE_OFFSET + offset, null,
+            UnsafeAccess.copyMemory(bytes, UnsafeArrayOps.UnsafeOps.BYTE_ARRAY_BASE_OFFSET + offset, null,
                     baseAddress + index, length);
+            return bb;
         }
     }
 
@@ -151,7 +152,7 @@ public final class ByteBuffers {
         }
 
         @Override
-        public void fillWithByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length) {
+        public ByteBuffer fillWithByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length) {
             // save previous position
             final var position = bb.position();
 
@@ -159,7 +160,7 @@ public final class ByteBuffers {
             bb.put(bytes, offset, length);
 
             // re-affect previous position
-            bb.position(position);
+            return bb.position(position);
         }
     }
 }

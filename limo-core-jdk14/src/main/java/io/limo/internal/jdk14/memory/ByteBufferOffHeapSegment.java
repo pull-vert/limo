@@ -23,6 +23,11 @@ class ByteBufferOffHeapSegment extends AbstractByteBufferOffHeap {
         this.segment = segment;
     }
 
+    ByteBufferOffHeapSegment(MemorySegment segment, ByteBuffer bb, byte[] bytes) {
+        super(bb, bytes);
+        this.segment = segment;
+    }
+
     @Override
     public void close() {
         this.segment.close();

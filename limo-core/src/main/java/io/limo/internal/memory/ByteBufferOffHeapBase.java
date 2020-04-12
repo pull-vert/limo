@@ -4,7 +4,7 @@
 
 package io.limo.internal.memory;
 
-import io.limo.internal.utils.ByteBuffers;
+import io.limo.internal.utils.UnsafeByteBufferOps;
 import io.limo.memory.AbstractByteBufferOffHeap;
 import io.limo.memory.ByteBufferOffHeap;
 
@@ -16,10 +16,19 @@ final class ByteBufferOffHeapBase extends AbstractByteBufferOffHeap {
 
     ByteBufferOffHeapBase(final ByteBuffer bb) {
         super(bb);
-        this.clean = () -> {
+        this.clean = cleanByteBuffer(bb);
+    }
+
+    ByteBufferOffHeapBase(final ByteBuffer bb, byte[] bytes) {
+        super(bb, bytes);
+        this.clean = cleanByteBuffer(bb);
+    }
+
+    private static Runnable cleanByteBuffer(final ByteBuffer bb) {
+        return () -> {
             // do not clean if ByteBuffer is readonly (would throw an Exception)
             if (!bb.isReadOnly()) {
-                ByteBuffers.invokeCleaner(bb);
+                UnsafeByteBufferOps.invokeCleaner(bb);
             }
         };
     }

@@ -4,7 +4,7 @@
 
 package io.limo.utils;
 
-import io.limo.internal.utils.ByteBuffers;
+import io.limo.internal.utils.UnsafeByteBufferOps;
 import io.limo.memory.ByteBufferOffHeap;
 import io.limo.memory.OffHeapFactory;
 
@@ -22,7 +22,7 @@ public final class Latin1Ops {
         final var bbMemory = OffHeapFactory.allocate(bytes.length << 1);
         final var bb = bbMemory.getByteBuffer();
         // position in this brand new ByteBuffer starts at 0
-        ByteBuffers.write(bb, byteBufferWriter -> {
+        UnsafeByteBufferOps.write(bb, byteBufferWriter -> {
             for (int sourceIndex = 0; sourceIndex < bytes.length; sourceIndex++) {
                 byte c = bytes[sourceIndex];
                 if (c < 0) {

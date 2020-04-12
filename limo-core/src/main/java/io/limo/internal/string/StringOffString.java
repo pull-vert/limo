@@ -4,7 +4,7 @@
 
 package io.limo.internal.string;
 
-import io.limo.internal.utils.Strings;
+import io.limo.internal.utils.UnsafeStringOps;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
@@ -17,10 +17,10 @@ public final class StringOffString extends AbstractOffString {
     private final String string;
 
     public StringOffString(String string, Charset charset) {
-        this(string, Strings.encode(string, charset));
+        this(string, UnsafeStringOps.encode(string, charset));
     }
 
-    private StringOffString(String string, Strings.Result result) {
+    private StringOffString(String string, UnsafeStringOps.Result result) {
         super(result.getBbMemory(), result.getCharset());
         this.isAscii = result.isAscii();
         this.isLatin1 = result.isLatin1();

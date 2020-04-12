@@ -4,7 +4,7 @@
 
 package io.limo.utils;
 
-import io.limo.internal.utils.Arrays;
+import io.limo.internal.utils.UnsafeArrayOps;
 
 public final class AsciiOps {
 
@@ -34,7 +34,7 @@ public final class AsciiOps {
 
     private static boolean hasNegativesInternal(byte[] bytes, int offset, int length) {
         for (var i = offset; i < offset + length; i++) {
-            if (Arrays.getByte(bytes, i) < 0) {
+            if (UnsafeArrayOps.getByte(bytes, i) < 0) {
                 return true;
             }
         }

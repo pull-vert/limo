@@ -7,12 +7,12 @@ package io.limo.internal.utils;
 /**
  * Util class providing unsafe optimised operations on arrays (fallback to safe if unsafe is not supported)
  */
-public final class Arrays {
+public final class UnsafeArrayOps {
 
     private static final Ops OPS = UnsafeAccess.SUPPORT_UNSAFE_ARRAY_OPS ? new UnsafeOps() : new SafeOps();
 
     // uninstanciable
-    private Arrays() {
+    private UnsafeArrayOps() {
     }
 
     public static byte getByte(byte[] target, long index) {

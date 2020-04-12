@@ -4,7 +4,7 @@
 
 package io.limo.memory;
 
-import io.limo.internal.utils.ByteBuffers;
+import io.limo.internal.utils.UnsafeByteBufferOps;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
@@ -24,8 +24,8 @@ public abstract class AbstractByteBufferOffHeap extends AbstractOffHeap implemen
         this(bb, true);
     }
 
-    protected AbstractByteBufferOffHeap(@NotNull ByteBuffer bb, boolean isReadonly) {
-        super(ByteBuffers.getBaseAddress(Objects.requireNonNull(bb)));
+    AbstractByteBufferOffHeap(@NotNull ByteBuffer bb, boolean isReadonly) {
+        super(UnsafeByteBufferOps.getBaseAddress(Objects.requireNonNull(bb)));
         if (!bb.isDirect()) {
             throw new IllegalArgumentException("Provided ByteBuffer must be Direct");
         }
@@ -34,6 +34,10 @@ public abstract class AbstractByteBufferOffHeap extends AbstractOffHeap implemen
         } else {
             this.bb = bb;
         }
+    }
+
+    protected AbstractByteBufferOffHeap(ByteBuffer bb, byte[] bytes) {
+        this(UnsafeByteBufferOps.fillWithByteArray(bb, 0, bytes, 0, bytes.length));
     }
 
     @Override
@@ -54,7 +58,7 @@ public abstract class AbstractByteBufferOffHeap extends AbstractOffHeap implemen
     @Override
     protected final byte @NotNull [] toByteArrayNoIndexCheck() {
         final var bytes = new byte[this.bb.capacity()];
-        ByteBuffers.fillTargetByteArray(this.bb, 0, bytes, 0, bytes.length);
+        UnsafeByteBufferOps.fillTargetByteArray(this.bb, 0, bytes, 0, bytes.length);
         return bytes;
     }
 }
