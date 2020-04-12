@@ -35,8 +35,8 @@ public final class LimoFlow {
     }
 
     @ApiStatus.Experimental
+    @FunctionalInterface
     public interface Subscriber<T> {
         void emit(T item);
-        void cancel();
     }
 }
