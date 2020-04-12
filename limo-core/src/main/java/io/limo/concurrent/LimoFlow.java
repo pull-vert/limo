@@ -19,7 +19,7 @@ import org.jetbrains.annotations.ApiStatus;
  * void} "one-way" message style.
  *
  * <p>Loom allows an imperative style code that greatly simplify Flow API by making blocking IO operations non-blocking
- * transparently without any change when running in Loom virtual threads.
+ * transparently without any change when running in a virtual thread.
  */
 @ApiStatus.Experimental
 public final class LimoFlow {
@@ -28,15 +28,38 @@ public final class LimoFlow {
     private LimoFlow() {
     }
 
+    /**
+     * A cold value publisher. Each subscriber must {@link Publisher#subscribe(Subscriber) subscribe} to start receiving
+     * the elements from this
+     *
+     * @param <T> type of elements that are emitted to subscribers
+     */
     @ApiStatus.Experimental
     @FunctionalInterface
     public interface Publisher<T> {
+        /**
+         * The parameter {@code subscriber} starts receiving elements when this method is called
+         *
+         * @throws java.util.concurrent.CancellationException to trigger normal cancellation of this subscription,
+         *                                                    any other Exception is unexpected
+         */
         void subscribe(Subscriber<? super T> subscriber);
     }
 
+    /**
+     * A Subscriber that starts receiving elements from a Publisher as soon as it is passed as parameter to
+     * {@link Publisher#subscribe(Subscriber)}
+     *
+     * @param <T> type of elements that are received
+     */
     @ApiStatus.Experimental
     @FunctionalInterface
     public interface Subscriber<T> {
+
+        /**
+         * Collects the value emitted by the Publisher
+         * <p>This method is not thread-safe, it should not be invoked concurrently.
+         */
         void emit(T item);
     }
 }
