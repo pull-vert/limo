@@ -4,42 +4,23 @@
 
 package io.limo;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.nio.ByteOrder;
-
 /**
- * This interface allows to write in binary data
+ * This interface allows to write some binary data
  */
 public interface Writer {
 
     /**
-     * writes a byte in the data, write index increases by 1
-     * @throws WriterOverflowException if there is no room in data to write a byte
+     * Writes a byte in the data
+     *
+     * @throws IndexOutOfBoundsException if there is no room in data to write a byte
      */
     void writeByte(byte value);
 
     /**
-     * writes an int in the data, write index increases by 4
-     * @throws WriterOverflowException if there is no room in data to write an int (4 bytes)
+     * Writes a 4-byte int in the data
+     * <p>bytes are written using BIG ENDIAN byte order
+     *
+     * @throws IndexOutOfBoundsException if there is no room in data to write an int (4 bytes)
      */
     void writeInt(int value);
-
-    /**
-     * Retrieves this writer's byte order.
-     *
-     * <p>The byte order is used when writing multibyte values.
-     *
-     * @return This reader's byte order
-     */
-    @NotNull ByteOrder getByteOrder();
-
-    /**
-     * Modifies this writer's byte order.
-     *
-     * @param byteOrder The new byte order,
-     *                  either {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}
-     *                  or {@link ByteOrder#LITTLE_ENDIAN LITTLE_ENDIAN}
-     */
-    void setByteOrder(@NotNull ByteOrder byteOrder);
 }

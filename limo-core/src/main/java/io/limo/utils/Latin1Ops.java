@@ -36,6 +36,6 @@ public final class Latin1Ops {
         if (bb.position() == bbMemory.getByteSize()) {
             return bbMemory;
         }
-        return bbMemory.asSlice(0, bb.position());
+        return bbMemory.slice(0, bb.position());
     }
 }

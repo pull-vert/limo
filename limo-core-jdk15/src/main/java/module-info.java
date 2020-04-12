@@ -1,3 +1,3 @@
-module limo.limo.core.jdk15 {
+module limo.core.jdk15 {
     requires limo.core;
 }

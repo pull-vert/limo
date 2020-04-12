@@ -7,7 +7,6 @@ package io.limo.internal.jdk14.memory;
 import io.limo.memory.AbstractByteBufferOffHeap;
 import io.limo.memory.ByteBufferOffHeap;
 import jdk.incubator.foreign.MemorySegment;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
@@ -17,10 +16,10 @@ import java.nio.ByteBuffer;
  */
 class ByteBufferOffHeapSegment extends AbstractByteBufferOffHeap {
 
-    private final @NotNull MemorySegment segment;
+    private final MemorySegment segment;
 
-    ByteBufferOffHeapSegment(@NotNull MemorySegment segment) {
-        super(segment.asByteBuffer());
+    ByteBufferOffHeapSegment(MemorySegment segment, ByteBuffer bb) {
+        super(bb);
         this.segment = segment;
     }
 
@@ -30,7 +29,18 @@ class ByteBufferOffHeapSegment extends AbstractByteBufferOffHeap {
     }
 
     @Override
-    protected ByteBufferOffHeap asSliceImpl(int offset, int length) {
-        return new ByteBufferOffHeapSegment(this.segment.asSlice(offset, length));
+    protected ByteBufferOffHeap sliceNoIndexCheck(long offset, int length) {
+        final var segment = this.segment.asSlice(offset, length);
+        return new ByteBufferOffHeapSegment(segment, segment.asByteBuffer());
+    }
+
+    @Override
+    protected byte readByteAtNoIndexCheck(long index) {
+        return getByteBuffer().get((int) index);
+    }
+
+    @Override
+    protected int readIntAtNoIndexCheck(long index) {
+        return getByteBuffer().getInt((int) index);
     }
 }

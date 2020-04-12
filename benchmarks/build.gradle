@@ -2,6 +2,9 @@ plugins {
     id 'me.champeau.gradle.jmh'
 }
 
+sourceCompatibility = JavaVersion.VERSION_15
+targetCompatibility = JavaVersion.VERSION_15
+
 // It is better to use the following to run benchmarks, otherwise you may get unexpected errors:
 // ./gradlew -Dorg.gradle.java.home=/home/frederic/dev-tools/jdks/jdk-15 --no-daemon cleanJmhJar jmh
 // gradlew -Dorg.gradle.java.home=C:\\dev\\jdk\\jdk-15 --no-daemon cleanJmhJar jmh
@@ -18,7 +21,7 @@ jmh {
 }
 
 dependencies {
-    implementation project(':limo-transfer')
+    implementation project(':limo-core'), project(':limo-core-jdk14')
 
     implementation "org.openjdk.jmh:jmh-core:$jmh_version"
     implementation 'org.apache.hadoop:hadoop-common:3.2.1'

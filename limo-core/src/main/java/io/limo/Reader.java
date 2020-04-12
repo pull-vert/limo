@@ -4,42 +4,22 @@
 
 package io.limo;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.nio.ByteOrder;
-
 /**
- * This interface allows to read in binary data
+ * This interface allows to read some binary data
  */
 public interface Reader {
 
     /**
-     * @return a byte that was read from the data, read index increases by 1
-     * @throws ReaderUnderflowException if there is no byte left to read in data
+     * Read a byte in the data
+     *
+     * @throws IndexOutOfBoundsException if there is no byte left to read
      */
     byte readByte();
 
     /**
-     * @return a 4 bytes int that was read from the data, read index increases by 4
-     * @throws ReaderUnderflowException if there is less than 4 bytes left to read in data
+     * Read a 4-bytes int in the data
+     * <p>bytes are read using BIG ENDIAN byte order
+     * @throws IndexOutOfBoundsException if there is less than 4 bytes left to read
      */
     int readInt();
-
-    /**
-     * Retrieves this reader's byte order.
-     *
-     * <p>The byte order is used when reading multibyte values.
-     *
-     * @return This reader's byte order
-     */
-    @NotNull ByteOrder getByteOrder();
-
-    /**
-     * Modifies this reader's byte order.
-     *
-     * @param byteOrder The new byte order,
-     *                  either {@link ByteOrder#BIG_ENDIAN BIG_ENDIAN}
-     *                  or {@link ByteOrder#LITTLE_ENDIAN LITTLE_ENDIAN}
-     */
-    void setByteOrder(@NotNull ByteOrder byteOrder);
 }

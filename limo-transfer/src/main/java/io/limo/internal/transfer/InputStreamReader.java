@@ -6,12 +6,10 @@ package io.limo.internal.transfer;
 
 import io.limo.LimoIOException;
 import io.limo.Reader;
-import io.limo.ReaderUnderflowException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteOrder;
 
 /**
  * Implementation of the {@link Reader} interface based on a {@link InputStream}
@@ -19,8 +17,6 @@ import java.nio.ByteOrder;
 public final class InputStreamReader implements Reader {
 
     private final @NotNull InputStream in;
-
-    private boolean isBigEndian = true;
 
     public InputStreamReader(@NotNull InputStream in) {
         this.in = in;
@@ -57,15 +53,5 @@ public final class InputStreamReader implements Reader {
         } catch (IOException ioException) {
             throw new LimoIOException(ioException);
         }
-    }
-
-    @Override
-    public @NotNull ByteOrder getByteOrder() {
-        return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-    }
-
-    @Override
-    public void setByteOrder(@NotNull ByteOrder byteOrder) {
-        this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
     }
 }

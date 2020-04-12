@@ -5,7 +5,6 @@
 package io.limo.memory;
 
 import io.limo.internal.memory.OffHeapServiceLoader;
-import io.limo.internal.utils.ByteBuffers;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -16,19 +15,19 @@ public interface OffHeapFactory {
 
     @NotNull ByteBufferOffHeap newByteBufferOffHeap(int byteSize);
 
+    @NotNull ByteBufferOffHeap newByteBufferOffHeap(byte @NotNull [] bytes);
+
     int getLoadPriority();
 
-    static OffHeap allocate(long byteSize) {
+    static @NotNull OffHeap allocate(long byteSize) {
         return OffHeapServiceLoader.OFF_HEAP_FACTORY.newOffHeap(byteSize);
     }
 
-    static ByteBufferOffHeap allocate(int byteSize) {
+    static @NotNull ByteBufferOffHeap allocate(int byteSize) {
         return OffHeapServiceLoader.OFF_HEAP_FACTORY.newByteBufferOffHeap(byteSize);
     }
 
-    static ByteBufferOffHeap of(byte @NotNull [] bytes) {
-        final var bbMemory = allocate(Objects.requireNonNull(bytes).length);
-        ByteBuffers.fillWithByteArray(bbMemory.getByteBuffer(), 0, bytes, 0, bytes.length);
-        return bbMemory;
+    static @NotNull ByteBufferOffHeap of(byte @NotNull [] bytes) {
+        return OffHeapServiceLoader.OFF_HEAP_FACTORY.newByteBufferOffHeap(Objects.requireNonNull(bytes));
     }
 }

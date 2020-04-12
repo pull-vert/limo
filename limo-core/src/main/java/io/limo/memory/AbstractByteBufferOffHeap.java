@@ -10,15 +10,30 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-public abstract class AbstractByteBufferOffHeap implements ByteBufferOffHeap {
+/**
+ * Base abstract implementation of {@link ByteBufferOffHeap} memory
+ */
+public abstract class AbstractByteBufferOffHeap extends AbstractOffHeap implements ByteBufferOffHeap {
 
     private final @NotNull ByteBuffer bb;
 
+    /**
+     * Instantiate a readonly AbstractByteBufferOffHeap from a ByteBuffer
+     */
     protected AbstractByteBufferOffHeap(@NotNull ByteBuffer bb) {
-        if (!Objects.requireNonNull(bb).isDirect()) {
-            throw new IllegalArgumentException("buffer is non-direct");
+        this(bb, true);
+    }
+
+    protected AbstractByteBufferOffHeap(@NotNull ByteBuffer bb, boolean isReadonly) {
+        super(ByteBuffers.getBaseAddress(Objects.requireNonNull(bb)));
+        if (!bb.isDirect()) {
+            throw new IllegalArgumentException("Provided ByteBuffer must be Direct");
         }
-        this.bb = bb;
+        if (isReadonly && !bb.isReadOnly()) {
+            this.bb = bb.asReadOnlyBuffer();
+        } else {
+            this.bb = bb;
+        }
     }
 
     @Override
@@ -27,25 +42,19 @@ public abstract class AbstractByteBufferOffHeap implements ByteBufferOffHeap {
     }
 
     @Override
-    public final @NotNull ByteBufferOffHeap asSlice(long offset, int length) {
-        if ((offset | length) < 0 || offset > Integer.MAX_VALUE || offset + length > this.bb.limit()) {
-            throw new ArrayIndexOutOfBoundsException(
-                    String.format("Incorrect parameters to slice : offset=%d, length=%d, limit=%d", offset, length, this.bb.limit()));
-        }
-        return asSliceImpl((int) offset, length);
-    }
-
-    @Override
     public final @NotNull ByteBuffer getByteBuffer() {
         return this.bb;
     }
 
     @Override
-    public final byte @NotNull [] toByteArray() {
+    public long getWriteIndex() {
+        return bb.limit();
+    }
+
+    @Override
+    protected final byte @NotNull [] toByteArrayNoIndexCheck() {
         final var bytes = new byte[this.bb.capacity()];
         ByteBuffers.fillTargetByteArray(this.bb, 0, bytes, 0, bytes.length);
         return bytes;
     }
-
-    protected abstract ByteBufferOffHeap asSliceImpl(int offset, int length);
 }

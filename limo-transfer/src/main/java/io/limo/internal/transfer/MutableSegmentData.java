@@ -6,7 +6,6 @@ package io.limo.internal.transfer;
 
 import io.limo.transfer.MutableData;
 import io.limo.Writer;
-import io.limo.WriterOverflowException;
 import io.limo.jdk14.utils.MemorySegmentOps;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;

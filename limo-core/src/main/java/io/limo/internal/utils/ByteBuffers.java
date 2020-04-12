@@ -14,6 +14,13 @@ public final class ByteBuffers {
 
     private static final Ops OPS = (UnsafeAccess.UNSAFE_BYTE_BUFFER_ADDRESS_OFFSET != null) ? new UnsafeOps() : new SafeOps();
 
+    // uninstanciable
+    private ByteBuffers() {
+    }
+
+    /**
+     * bulk write in ByteBuffer, in Unsafe version position is only set after all write operations
+     */
     public static void write(ByteBuffer bb, Consumer<ByteBufferWriter> consumer) {
         OPS.write(bb, consumer);
     }
@@ -23,18 +30,26 @@ public final class ByteBuffers {
     }
 
     /**
-     * Copy the contents of this ByteBuffer into a byte array.
+     * Copy the contents of this ByteBuffer into a byte array
      */
     public static void fillTargetByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length) {
         OPS.fillTargetByteArray(bb, index, bytes, offset, length);
     }
 
+    /**
+     * Copy the contents of this byte array into a ByteBuffer.
+     * <p>Does no change position
+     */
     public static void fillWithByteArray(ByteBuffer bb, int index, byte[] bytes, int offset, int length) {
         OPS.fillWithByteArray(bb, index, bytes, offset, length);
     }
 
-    // uninstanciable
-    private ByteBuffers() {
+    /**
+     * Returns the base memory address of this ByteBuffer. Only Unsafe can provide this.
+     * <p>safe implementation always returns 0
+     */
+    public static long getBaseAddress(ByteBuffer bb) {
+        return OPS.getBaseAddress(bb);
     }
 
     public interface ByteBufferWriter {
@@ -42,6 +57,8 @@ public final class ByteBuffers {
     }
 
     private static abstract class Ops {
+
+        abstract long getBaseAddress(ByteBuffer bb);
 
         abstract void write(ByteBuffer bb, Consumer<ByteBufferWriter> consumer);
 
@@ -56,10 +73,15 @@ public final class ByteBuffers {
 
         private static final long BYTE_BUFFER_ADDRESS_OFFSET = UnsafeAccess.UNSAFE_BYTE_BUFFER_ADDRESS_OFFSET;
 
+        @Override
+        long getBaseAddress(ByteBuffer bb) {
+            return UnsafeAccess.getLong(bb, BYTE_BUFFER_ADDRESS_OFFSET);
+        }
+
         // this allows to write directly in off-heap Memory of a native ByteBuffer
         @Override
         final void write(ByteBuffer bb, Consumer<ByteBufferWriter> consumer) {
-            final var baseAddress = UnsafeAccess.getLong(bb, BYTE_BUFFER_ADDRESS_OFFSET);
+            final var baseAddress = getBaseAddress(bb);
             final var bbWriter = new UnsafeByteBufferWriter(baseAddress + bb.position());
             consumer.accept(bbWriter);
             bb.position((int) (bbWriter.position - baseAddress));
@@ -100,6 +122,11 @@ public final class ByteBuffers {
     }
 
     private static final class SafeOps extends Ops {
+
+        @Override
+        long getBaseAddress(ByteBuffer bb) {
+            return 0;
+        }
 
         @Override
         final void write(ByteBuffer bb, Consumer<ByteBufferWriter> consumer) {

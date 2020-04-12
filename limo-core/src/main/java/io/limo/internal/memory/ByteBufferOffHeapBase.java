@@ -7,39 +7,53 @@ package io.limo.internal.memory;
 import io.limo.internal.utils.ByteBuffers;
 import io.limo.memory.AbstractByteBufferOffHeap;
 import io.limo.memory.ByteBufferOffHeap;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
 final class ByteBufferOffHeapBase extends AbstractByteBufferOffHeap {
 
-    private final @NotNull ByteBuffer bb;
+    private final Runnable clean;
 
-    ByteBufferOffHeapBase(@NotNull ByteBuffer bb) {
+    ByteBufferOffHeapBase(final ByteBuffer bb) {
         super(bb);
-        this.bb = bb;
+        this.clean = () -> {
+            // do not clean if ByteBuffer is readonly (would throw an Exception)
+            if (!bb.isReadOnly()) {
+                ByteBuffers.invokeCleaner(bb);
+            }
+        };
     }
 
     @Override
     public void close() {
-        ByteBuffers.invokeCleaner(this.bb);
+        clean.run();
     }
 
     @Override
-    protected ByteBufferOffHeap asSliceImpl(int offset, int length) {
+    protected ByteBufferOffHeap sliceNoIndexCheck(long offset, int length) {
         // save previous values
-        final var limit = this.bb.limit();
-        final var position = this.bb.position();
+        final var limit = getByteBuffer().limit();
+        final var position = getByteBuffer().position();
 
         // change values so slice respect required offset and length
-        this.bb.limit(offset + length);
-        this.bb.position(offset);
-        final var slice = new ByteBufferOffHeapBase(this.bb.slice());
+        getByteBuffer().limit((int) (offset + length));
+        getByteBuffer().position((int) offset);
+        final var slice = new ByteBufferOffHeapBase(getByteBuffer().slice());
 
         // re-affect previous values
-        this.bb.limit(limit);
-        this.bb.position(position);
+        getByteBuffer().limit(limit);
+        getByteBuffer().position(position);
 
         return slice;
+    }
+
+    @Override
+    protected byte readByteAtNoIndexCheck(long index) {
+        return getByteBuffer().get((int) index);
+    }
+
+    @Override
+    protected int readIntAtNoIndexCheck(long index) {
+        return getByteBuffer().getInt((int) index);
     }
 }

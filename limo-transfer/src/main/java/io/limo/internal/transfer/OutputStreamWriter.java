@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteOrder;
 
 /**
  * Implementation of the {@link Writer} interface based on a {@link OutputStream}
@@ -18,8 +17,6 @@ import java.nio.ByteOrder;
 public final class OutputStreamWriter implements Writer {
 
     private final @NotNull OutputStream out;
-
-    private boolean isBigEndian = true;
 
     public OutputStreamWriter(@NotNull OutputStream out) {
         this.out = out;
@@ -51,15 +48,5 @@ public final class OutputStreamWriter implements Writer {
         } catch (IOException ioException) {
             throw new LimoIOException(ioException);
         }
-    }
-
-    @Override
-    public @NotNull ByteOrder getByteOrder() {
-        return this.isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-    }
-
-    @Override
-    public void setByteOrder(@NotNull ByteOrder byteOrder) {
-        this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
     }
 }

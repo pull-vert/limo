@@ -7,6 +7,7 @@ package io.limo.internal.jdk14.memory;
 import io.limo.memory.ByteBufferOffHeap;
 import io.limo.memory.OffHeap;
 import io.limo.memory.OffHeapFactory;
+import io.limo.utils.ByteBufferOps;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,14 +23,24 @@ public final class OffHeapFactorySegment implements OffHeapFactory {
 
     @Override
     public final @NotNull ByteBufferOffHeap newByteBufferOffHeap(int byteSize) {
-        return new ByteBufferOffHeapSegment(MemorySegment.allocateNative(byteSize));
+        final var segment = MemorySegment.allocateNative(byteSize);
+        return new ByteBufferOffHeapSegment(segment, segment.asByteBuffer());
     }
 
-    /**
-     * @return Integer.MIN_VALUE because this is the default implementation
-     */
+    @Override
+    public @NotNull ByteBufferOffHeap newByteBufferOffHeap(byte @NotNull [] bytes) {
+        // create a new native MemorySegment with capacity equals to bytes length,
+        // then extract its ByteBuffer and fill it with all bytes
+        final var segment = MemorySegment.allocateNative(bytes.length);
+        final var bb = segment.asByteBuffer();
+        ByteBufferOps.fillWithByteArray(bb, 0, bytes, 0, bytes.length);
+        // set limit (position is still at 0)
+        bb.limit(bytes.length);
+        return new ByteBufferOffHeapSegment(segment, bb);
+    }
+
     @Override
     public final int getLoadPriority() {
-        return 1;
+        return 14;
     }
 }
