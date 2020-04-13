@@ -8,6 +8,7 @@ pluginManagement {
 
 rootProject.name = 'limo'
 
+include 'limo-concurrent'
 include 'limo-core'
 include 'limo-core-jdk14'
 include 'limo-core-jdk15'

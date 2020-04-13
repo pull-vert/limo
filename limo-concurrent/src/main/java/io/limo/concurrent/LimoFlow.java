@@ -40,9 +40,6 @@ public final class LimoFlow {
 
         /**
          * The parameter {@code subscriber} starts receiving elements when this method is called
-         *
-         * @throws java.util.concurrent.CancellationException expected to trigger normal cancellation of this subscription,
-         *                                                    any other Exception is unexpected
          */
         void subscribe(Subscriber<? super T> subscriber);
     }
@@ -61,6 +58,6 @@ public final class LimoFlow {
          * Receive one value emitted by the Publisher
          * <p>This method is not thread-safe, it should not be invoked concurrently.
          */
-        void emit(T item);
+        void receive(T item);
     }
 }

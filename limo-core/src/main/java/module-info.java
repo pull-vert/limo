@@ -12,7 +12,6 @@ module limo.core {
     uses OffHeapFactory;
 
     exports io.limo;
-    exports io.limo.concurrent;
     exports io.limo.memory;
     exports io.limo.string;
     exports io.limo.utils;
