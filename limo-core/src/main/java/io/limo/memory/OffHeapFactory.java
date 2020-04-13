@@ -13,9 +13,9 @@ public interface OffHeapFactory {
 
     @NotNull OffHeap newOffHeap(long byteSize);
 
-    @NotNull ByteBufferOffHeap newByteBufferOffHeap(int byteSize);
+    @NotNull ByBuOffHeap newByteBufferOffHeap(int byteSize);
 
-    @NotNull ByteBufferOffHeap newByteBufferOffHeap(byte @NotNull [] bytes);
+    @NotNull ByBuOffHeap newByteBufferOffHeap(byte @NotNull [] bytes);
 
     int getLoadPriority();
 
@@ -23,11 +23,11 @@ public interface OffHeapFactory {
         return OffHeapServiceLoader.OFF_HEAP_FACTORY.newOffHeap(byteSize);
     }
 
-    static @NotNull ByteBufferOffHeap allocate(int byteSize) {
+    static @NotNull ByBuOffHeap allocate(int byteSize) {
         return OffHeapServiceLoader.OFF_HEAP_FACTORY.newByteBufferOffHeap(byteSize);
     }
 
-    static @NotNull ByteBufferOffHeap of(byte @NotNull [] bytes) {
+    static @NotNull ByBuOffHeap of(byte @NotNull [] bytes) {
         return OffHeapServiceLoader.OFF_HEAP_FACTORY.newByteBufferOffHeap(Objects.requireNonNull(bytes));
     }
 }

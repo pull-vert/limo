@@ -4,7 +4,7 @@
 
 package io.limo.internal.jdk14.memory;
 
-import io.limo.memory.ByteBufferOffHeap;
+import io.limo.memory.ByBuOffHeap;
 import io.limo.memory.OffHeap;
 import io.limo.memory.OffHeapFactory;
 import jdk.incubator.foreign.MemorySegment;
@@ -21,17 +21,17 @@ public final class MemorySegmentOffHeapFactory implements OffHeapFactory {
     }
 
     @Override
-    public final @NotNull ByteBufferOffHeap newByteBufferOffHeap(int byteSize) {
+    public final @NotNull ByBuOffHeap newByteBufferOffHeap(int byteSize) {
         final var segment = MemorySegment.allocateNative(byteSize);
-        return new MemorySegmentByteBufferOffHeap(segment, segment.asByteBuffer());
+        return new MemorySegmentByBuOffHeap(segment, segment.asByteBuffer());
     }
 
     @Override
-    public @NotNull ByteBufferOffHeap newByteBufferOffHeap(byte @NotNull [] bytes) {
+    public @NotNull ByBuOffHeap newByteBufferOffHeap(byte @NotNull [] bytes) {
         // create a new native MemorySegment with capacity equals to bytes length,
         // then extract its ByteBuffer and fill it with all bytes
         final var segment = MemorySegment.allocateNative(bytes.length);
-        return new MemorySegmentByteBufferOffHeap(segment, segment.asByteBuffer(), bytes);
+        return new MemorySegmentByBuOffHeap(segment, segment.asByteBuffer(), bytes);
     }
 
     @Override

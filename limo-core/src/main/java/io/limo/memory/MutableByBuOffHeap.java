@@ -6,11 +6,11 @@ package io.limo.memory;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface MutableByteBufferOffHeap extends ByteBufferOffHeap, MutableOffHeap {
+public interface MutableByBuOffHeap extends ByBuOffHeap, MutableOffHeap {
 
     /**
      * @return a new immutable ByteBufferOffHeap view of this MutableByteBufferOffHeap.
      */
     @Override
-    @NotNull ByteBufferOffHeap asReadOnly();
+    @NotNull ByBuOffHeap asReadOnly();
 }

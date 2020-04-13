@@ -10,14 +10,14 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-public abstract class AbstractMutableByteBufferOffHeap extends AbstractMutableOffHeap implements MutableByteBufferOffHeap {
+public abstract class AbstractMutableByBuOffHeap extends AbstractMutableOffHeap implements MutableByBuOffHeap {
 
     private final @NotNull ByteBuffer bb;
 
     /**
      * Instantiate a readonly AbstractByteBufferOffHeap from a ByteBuffer
      */
-    protected AbstractMutableByteBufferOffHeap(@NotNull ByteBuffer bb) {
+    protected AbstractMutableByBuOffHeap(@NotNull ByteBuffer bb) {
         super(UnsafeByteBufferOps.getBaseAddress(Objects.requireNonNull(bb)));
         if (!bb.isDirect()) {
             throw new IllegalArgumentException("Provided ByteBuffer must be direct");

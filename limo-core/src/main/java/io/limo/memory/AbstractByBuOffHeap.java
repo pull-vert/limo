@@ -11,16 +11,16 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 
 /**
- * Base abstract implementation of {@link ByteBufferOffHeap} memory
+ * Base abstract implementation of {@link ByBuOffHeap} memory
  */
-public abstract class AbstractByteBufferOffHeap extends AbstractOffHeap implements ByteBufferOffHeap {
+public abstract class AbstractByBuOffHeap extends AbstractOffHeap implements ByBuOffHeap {
 
     private final @NotNull ByteBuffer bb;
 
     /**
      * Instantiate a readonly AbstractByteBufferOffHeap from a ByteBuffer
      */
-    protected AbstractByteBufferOffHeap(@NotNull ByteBuffer bb) {
+    protected AbstractByBuOffHeap(@NotNull ByteBuffer bb) {
         super(UnsafeByteBufferOps.getBaseAddress(Objects.requireNonNull(bb)));
         if (!bb.isDirect()) {
             throw new IllegalArgumentException("Provided ByteBuffer must be Direct");
@@ -32,7 +32,7 @@ public abstract class AbstractByteBufferOffHeap extends AbstractOffHeap implemen
         }
     }
 
-    protected AbstractByteBufferOffHeap(ByteBuffer bb, byte[] bytes) {
+    protected AbstractByBuOffHeap(ByteBuffer bb, byte[] bytes) {
         this(UnsafeByteBufferOps.fillWithByteArray(bb, 0, bytes, 0, bytes.length));
     }
 

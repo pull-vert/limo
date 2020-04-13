@@ -4,14 +4,14 @@
 
 package io.limo.internal.memory;
 
-import io.limo.memory.ByteBufferOffHeap;
+import io.limo.memory.ByBuOffHeap;
 import io.limo.memory.OffHeap;
 import io.limo.memory.OffHeapFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
-import static io.limo.internal.memory.BaseByteBufferOffHeap.cleanByteBuffer;
+import static io.limo.internal.memory.BaseByBuOffHeap.cleanByteBuffer;
 
 final class BaseByteBufferOffHeapFactory implements OffHeapFactory {
 
@@ -24,14 +24,14 @@ final class BaseByteBufferOffHeapFactory implements OffHeapFactory {
     }
 
     @Override
-    public final @NotNull ByteBufferOffHeap newByteBufferOffHeap(int byteSize) {
+    public final @NotNull ByBuOffHeap newByteBufferOffHeap(int byteSize) {
         final var bb = ByteBuffer.allocateDirect(byteSize);
-        return new BaseByteBufferOffHeap(bb, cleanByteBuffer(bb));
+        return new BaseByBuOffHeap(bb, cleanByteBuffer(bb));
     }
 
     @Override
-    public @NotNull ByteBufferOffHeap newByteBufferOffHeap(byte @NotNull [] bytes) {
-        return new BaseByteBufferOffHeap(ByteBuffer.allocateDirect(bytes.length), bytes);
+    public @NotNull ByBuOffHeap newByteBufferOffHeap(byte @NotNull [] bytes) {
+        return new BaseByBuOffHeap(ByteBuffer.allocateDirect(bytes.length), bytes);
     }
 
     /**

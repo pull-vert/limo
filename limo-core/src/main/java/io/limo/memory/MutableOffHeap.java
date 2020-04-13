@@ -18,7 +18,7 @@ public interface MutableOffHeap extends OffHeap, IndexedWriter {
      * @return a new MutableByteBufferOffHeap (off-heap memory represented by a direct ByteBuffer) view with updated base position and limit addresses.
      */
     @Override
-    @NotNull MutableByteBufferOffHeap slice(long offset, int length);
+    @NotNull MutableByBuOffHeap slice(long offset, int length);
 
     /**
      * {@inheritDoc}

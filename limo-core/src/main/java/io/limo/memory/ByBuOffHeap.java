@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 /**
  * This interface contains a direct {@link ByteBuffer} that point to a off-heap memory region
  */
-public interface ByteBufferOffHeap extends OffHeap {
+public interface ByBuOffHeap extends OffHeap {
 
     @NotNull ByteBuffer getByteBuffer();
 }

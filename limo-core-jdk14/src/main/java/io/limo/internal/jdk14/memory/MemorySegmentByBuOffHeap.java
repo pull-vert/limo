@@ -4,8 +4,8 @@
 
 package io.limo.internal.jdk14.memory;
 
-import io.limo.memory.AbstractByteBufferOffHeap;
-import io.limo.memory.ByteBufferOffHeap;
+import io.limo.memory.AbstractByBuOffHeap;
+import io.limo.memory.ByBuOffHeap;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,26 +15,26 @@ import java.nio.ByteBuffer;
  * This class contains a native {@link MemorySegment} and the direct {@link ByteBuffer} linked to it
  * that both point to the same off-heap memory region.
  */
-class MemorySegmentByteBufferOffHeap extends AbstractByteBufferOffHeap {
+class MemorySegmentByBuOffHeap extends AbstractByBuOffHeap {
 
     private final MemorySegment segment;
 
-    MemorySegmentByteBufferOffHeap(MemorySegment segment, ByteBuffer bb) {
+    MemorySegmentByBuOffHeap(MemorySegment segment, ByteBuffer bb) {
         super(bb);
         this.segment = segment;
     }
 
-    MemorySegmentByteBufferOffHeap(MemorySegment segment, ByteBuffer bb, byte[] bytes) {
+    MemorySegmentByBuOffHeap(MemorySegment segment, ByteBuffer bb, byte[] bytes) {
         super(bb, bytes);
         this.segment = segment;
     }
 
     @Override
-    public @NotNull ByteBufferOffHeap slice(long offset, int length) {
+    public @NotNull ByBuOffHeap slice(long offset, int length) {
         sliceIndexCheck(offset, length, getByteSize());
 
         final var segment = this.segment.asSlice(offset, length);
-        return new MemorySegmentByteBufferOffHeap(segment, segment.asByteBuffer());
+        return new MemorySegmentByBuOffHeap(segment, segment.asByteBuffer());
     }
 
     @Override

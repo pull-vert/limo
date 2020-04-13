@@ -5,17 +5,17 @@
 package io.limo.internal.memory;
 
 import io.limo.internal.utils.UnsafeByteBufferOps;
-import io.limo.memory.AbstractByteBufferOffHeap;
-import io.limo.memory.ByteBufferOffHeap;
+import io.limo.memory.AbstractByBuOffHeap;
+import io.limo.memory.ByBuOffHeap;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
-final class BaseByteBufferOffHeap extends AbstractByteBufferOffHeap {
+final class BaseByBuOffHeap extends AbstractByBuOffHeap {
 
     private final Runnable doOnClose;
 
-    BaseByteBufferOffHeap(final ByteBuffer bb, Runnable doOnClose) {
+    BaseByBuOffHeap(final ByteBuffer bb, Runnable doOnClose) {
         super(bb);
         this.doOnClose = doOnClose;
     }
@@ -23,7 +23,7 @@ final class BaseByteBufferOffHeap extends AbstractByteBufferOffHeap {
     /**
      * The ByteBuffer passed as parameter will be cleaned when close method will be invoked
      */
-    BaseByteBufferOffHeap(final ByteBuffer bb, byte[] bytes) {
+    BaseByBuOffHeap(final ByteBuffer bb, byte[] bytes) {
         super(bb, bytes);
         this.doOnClose = cleanByteBuffer(bb);
     }
@@ -38,7 +38,7 @@ final class BaseByteBufferOffHeap extends AbstractByteBufferOffHeap {
     }
 
     @Override
-    public @NotNull ByteBufferOffHeap slice(long offset, int length) {
+    public @NotNull ByBuOffHeap slice(long offset, int length) {
         sliceIndexCheck(offset, length, getByteSize());
 
         // save previous values
@@ -49,7 +49,7 @@ final class BaseByteBufferOffHeap extends AbstractByteBufferOffHeap {
         getByteBuffer().limit((int) (offset + length));
         getByteBuffer().position((int) offset);
         // call constructor to do nothing on close, because invoke cleaner on a sliced ByteBuffer throws an Exception
-        final var slice = new BaseByteBufferOffHeap(getByteBuffer().slice(), () -> {});
+        final var slice = new BaseByBuOffHeap(getByteBuffer().slice(), () -> {});
 
         // re-affect previous values
         getByteBuffer().limit(limit);

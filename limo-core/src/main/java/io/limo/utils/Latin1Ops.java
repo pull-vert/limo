@@ -5,7 +5,7 @@
 package io.limo.utils;
 
 import io.limo.internal.utils.UnsafeByteBufferOps;
-import io.limo.memory.ByteBufferOffHeap;
+import io.limo.memory.ByBuOffHeap;
 import io.limo.memory.OffHeapFactory;
 
 public final class Latin1Ops {
@@ -18,7 +18,7 @@ public final class Latin1Ops {
      * @param bytes Latin1 bytes
      * @return a UTF-8 encoded ByteBufferOffHeap built from Latin1 byte[] parameter
      */
-    public static ByteBufferOffHeap encodeUTF8(final byte[] bytes) {
+    public static ByBuOffHeap encodeUTF8(final byte[] bytes) {
         final var bbMemory = OffHeapFactory.allocate(bytes.length << 1);
         final var bb = bbMemory.getByteBuffer();
         // position in this brand new ByteBuffer starts at 0

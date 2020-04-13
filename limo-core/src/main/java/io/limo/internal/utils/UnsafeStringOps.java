@@ -4,7 +4,7 @@
 
 package io.limo.internal.utils;
 
-import io.limo.memory.ByteBufferOffHeap;
+import io.limo.memory.ByBuOffHeap;
 import io.limo.memory.OffHeapFactory;
 import io.limo.utils.AsciiOps;
 import io.limo.utils.Latin1Ops;
@@ -252,7 +252,7 @@ public final class UnsafeStringOps {
 
     public static class Result {
 
-        private ByteBufferOffHeap bbMemory;
+        private ByBuOffHeap bbMemory;
         private boolean isAscii;
         private boolean isLatin1;
         private Charset charset;
@@ -273,7 +273,7 @@ public final class UnsafeStringOps {
             return this;
         }
 
-        public Result withNotAsciiNotLatin1Utf8(ByteBufferOffHeap bbMemory) {
+        public Result withNotAsciiNotLatin1Utf8(ByBuOffHeap bbMemory) {
             this.bbMemory = bbMemory;
             this.isAscii = false;
             this.isLatin1 = false;
@@ -289,7 +289,7 @@ public final class UnsafeStringOps {
             return this;
         }
 
-        public ByteBufferOffHeap getBbMemory() {
+        public ByBuOffHeap getBbMemory() {
             return bbMemory;
         }
 
