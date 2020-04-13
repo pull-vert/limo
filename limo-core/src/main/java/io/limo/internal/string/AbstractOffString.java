@@ -43,7 +43,7 @@ abstract class AbstractOffString implements OffString {
 
     @Override
     public final @NotNull OffHeap toMemory(@NotNull Charset charset) {
-        // fast-path 1) if destination charset is the same, or is fully compatible with current
+        // 1) fastest-path : directly return memory : if destination charset is the same, or is fully compatible with current
         if (Objects.requireNonNull(charset).contains(this.charset)) {
             return this.memory;
         }

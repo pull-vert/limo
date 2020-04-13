@@ -20,14 +20,14 @@ import java.util.Objects;
 public interface OffString extends AutoCloseable {
 
     /**
-     * @return the current off-heap memory encoded with {@link Charset}
-     * @see #getCharset() to obtain current charset
+     * @return the off-heap memory region that store binary String content encoded with {@link Charset}
+     * @see #getCharset() to obtain the charset
      */
     @NotNull OffHeap getMemory();
 
     /**
-     * @return the current {@link Charset} used to encode String in off-heap memory
-     * @see #getMemory() to obtain current MemorySegment
+     * @return the {@link Charset} used to encode String in off-heap memory
+     * @see #getMemory() to obtain the off-heap memory region
      */
     @NotNull Charset getCharset();
 
@@ -44,7 +44,7 @@ public interface OffString extends AutoCloseable {
     @NotNull String toString();
 
     /**
-     * Close the memory
+     * Closes the memory
      */
     @Override
     void close();

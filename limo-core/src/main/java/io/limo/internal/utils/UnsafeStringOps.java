@@ -31,18 +31,28 @@ public final class UnsafeStringOps {
         return OPS.toLatin1String(bytes);
     }
 
+    public static String toUtf16String(byte[] bytes) {
+        return OPS.toUtf16String(bytes);
+    }
+
     private static abstract class Ops {
         /**
-         * Never change the returned bytes in Result
+         * Never change the returned byte array in Result
          * <p>would break String parameter's immutability when bytes were obtained via Unsafe call !
          */
         abstract Result encode(String string, Charset charset);
 
         /**
-         * Never change the parameter bytes used as parameter
-         * <p>would break String parameter's immutability when using unsafe instantiation !
+         * Never change the parameter byte array
+         * <p>would break String's immutability when using unsafe instantiation !
          */
         abstract String toLatin1String(byte[] bytes);
+
+        /**
+         * Never change the parameter byte array
+         * <p>would break String's immutability when using unsafe instantiation !
+         */
+        abstract String toUtf16String(byte[] bytes);
     }
 
     static final class UnsafeOps extends Ops {
@@ -51,42 +61,112 @@ public final class UnsafeStringOps {
         private static final byte UTF16 = 1;
         private static final UnsafeAccess.StringOffsets STRING_OFFSETS = UnsafeAccess.UNSAFE_STRING_OFFSETS;
 
-        static boolean isLatin1(String str) {
-            return UnsafeAccess.getByte(str, STRING_OFFSETS.coderFieldOffset) == LATIN1;
+        static boolean isLatin1(String string) {
+            return UnsafeAccess.getByte(string, STRING_OFFSETS.coderFieldOffset) == LATIN1;
+        }
+
+        static byte[] getBytes(String string) {
+            return (byte[]) UnsafeAccess.getObject(string, STRING_OFFSETS.bytesFieldOffset);
         }
 
         @Override
         final Result encode(String string, Charset charset) {
+            // fast-path 1) UTF-8 is the most widely used charset, it must be top priority !
+            if (charset == StandardCharsets.UTF_8) {
+                return encodeUtf8(string);
+            }
+
+            // fast-path 2) ISO_8859_1 is vastly used too
+            if (charset == StandardCharsets.ISO_8859_1) {
+                return encodeLatin1(string);
+            }
+
+            // fast-path 3) ASCII
+            if (charset == StandardCharsets.US_ASCII) {
+                return encodeAscii(string);
+            }
+
             // ASCII compatible target charset require special path
             if (charset.contains(StandardCharsets.US_ASCII)) {
                 // Check for Latin1 (ISO_8859_1) compact String via Unsafe call
                 if (isLatin1(string)) {
-                    // get Latin1 bytes directly from String via Unsafe call
-                    final var bytes = (byte[]) UnsafeAccess.getObject(string, STRING_OFFSETS.bytesFieldOffset);
+                    // get Latin1 byte array directly from String via Unsafe call
+                    final var bytes = getBytes(string);
 
                     // 1) all bytes are Ascii
                     if (!AsciiOps.hasNegatives(bytes)) {
                         return new Result().withAscii(bytes);
                     }
 
-                    // 2) non ASCII ISO_8859_1 bytes, ISO_8859_1 compatible target charset
-                    if (charset.contains(StandardCharsets.ISO_8859_1)) {
-                        return new Result().withNotAsciiLatin1(bytes);
-                    }
-
-                    // 3) UTF-8 is ASCII compatible but is NOT ISO_8859_1 compatible,
-                    // must encode this non Ascii Latin1 bytes to UTF-8
+                    // 2) UTF-8 is ASCII compatible but is NOT ISO_8859_1 compatible,
+                    // must encode this non Ascii Latin1 byte array to UTF-8
                     if (charset.contains(StandardCharsets.UTF_8)) {
                         return new Result().withNotAsciiNotLatin1Utf8(Latin1Ops.encodeUTF8(bytes));
                     }
 
-                    // 4) Required charset is ASCII compatible but is NOT ISO_8859_1 nor UTF-8 compatible,
+                    // 3) Required charset is ASCII compatible but is not UTF-8 compatible,
                     // must encode this non Ascii String to target charset
-                    return new Result().withNotAsciiNotLatin1(string.getBytes(charset), charset);
                 }
             }
-            // classic encode for non Ascii compatible charset
+
+            // encode String to target charset
             return new Result().withNotAsciiNotLatin1(string.getBytes(charset), charset);
+        }
+
+        private static Result encodeUtf8(String string) {
+            // Check for Latin1 (ISO_8859_1) compact String via Unsafe call
+            if (isLatin1(string)) {
+                // get Latin1 byte array directly from String via Unsafe call
+                final var bytes = getBytes(string);
+
+                // 1) all bytes are Ascii
+                if (!AsciiOps.hasNegatives(bytes)) {
+                    return new Result().withAscii(bytes);
+                }
+
+                // 2) UTF-8 is ASCII compatible but is NOT ISO_8859_1 compatible,
+                // must encode this non Ascii Latin1 bytes to UTF-8
+                return new Result().withNotAsciiNotLatin1Utf8(Latin1Ops.encodeUTF8(bytes));
+            }
+            // encode this not Latin1 String to target charset
+            return new Result().withNotAsciiNotLatin1(string.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+        }
+
+        private static Result encodeLatin1(String string) {
+            // Check for Latin1 (ISO_8859_1) compact String via Unsafe call
+            if (isLatin1(string)) {
+                // get Latin1 byte array directly from String via Unsafe call
+                final var bytes = getBytes(string);
+
+                // 1) all bytes are Ascii
+                if (!AsciiOps.hasNegatives(bytes)) {
+                    return new Result().withAscii(bytes);
+                }
+
+                // 2) this byte array is Latin1 (ISO_8859_1) but not Ascii
+                return new Result().withNotAsciiLatin1(bytes);
+            }
+
+            // We know this String is not fully compatible with Latin1 (ISO_8859_1), use best-effort String method
+            // String.getBytes(StandardCharsets.ISO_8859_1) to encode it anyway
+            return new Result().withNotAsciiLatin1(string.getBytes(StandardCharsets.ISO_8859_1));
+        }
+
+        private static Result encodeAscii(String string) {
+            // Check for Latin1 (ISO_8859_1) compact String via Unsafe call
+            if (isLatin1(string)) {
+                // get Latin1 bytes directly from String via Unsafe call
+                final var bytes = getBytes(string);
+
+                // 1) all bytes are Ascii
+                if (!AsciiOps.hasNegatives(bytes)) {
+                    return new Result().withAscii(bytes);
+                }
+            }
+
+            // We know this String is not fully compatible with ASCII, use best-effort String method
+            // String.getBytes(StandardCharsets.US_ASCII) to encode it anyway
+            return new Result().withAscii(string.getBytes(StandardCharsets.US_ASCII));
         }
 
         /**
@@ -114,7 +194,8 @@ public final class UnsafeStringOps {
         /**
          * This is a unsafe UTF-16 String builder
          */
-        private static String toUtf16String(byte[] bytes) {
+        @Override
+        final String toUtf16String(byte[] bytes) {
             // create String instance via allocateInstance (do not call any constructor) -> this is risky !
             final String string;
             try {
@@ -161,6 +242,11 @@ public final class UnsafeStringOps {
         @Override
         final String toLatin1String(byte[] bytes) {
             return new String(bytes, StandardCharsets.ISO_8859_1);
+        }
+
+        @Override
+        String toUtf16String(byte[] bytes) {
+            return new String(bytes, StandardCharsets.UTF_16);
         }
     }
 
