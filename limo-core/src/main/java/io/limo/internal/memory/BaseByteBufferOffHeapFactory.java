@@ -11,6 +11,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
+import static io.limo.internal.memory.BaseByteBufferOffHeap.cleanByteBuffer;
+
 final class BaseByteBufferOffHeapFactory implements OffHeapFactory {
 
     @Override
@@ -23,7 +25,8 @@ final class BaseByteBufferOffHeapFactory implements OffHeapFactory {
 
     @Override
     public final @NotNull ByteBufferOffHeap newByteBufferOffHeap(int byteSize) {
-        return new BaseByteBufferOffHeap(ByteBuffer.allocateDirect(byteSize));
+        final var bb = ByteBuffer.allocateDirect(byteSize);
+        return new BaseByteBufferOffHeap(bb, cleanByteBuffer(bb));
     }
 
     @Override

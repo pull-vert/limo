@@ -13,19 +13,22 @@ import java.nio.ByteBuffer;
 
 final class BaseByteBufferOffHeap extends AbstractByteBufferOffHeap {
 
-    private final Runnable clean;
+    private final Runnable doOnClose;
 
-    BaseByteBufferOffHeap(final ByteBuffer bb) {
+    BaseByteBufferOffHeap(final ByteBuffer bb, Runnable doOnClose) {
         super(bb);
-        this.clean = cleanByteBuffer(bb);
+        this.doOnClose = doOnClose;
     }
 
+    /**
+     * The ByteBuffer passed as parameter will be cleaned when close method will be invoked
+     */
     BaseByteBufferOffHeap(final ByteBuffer bb, byte[] bytes) {
         super(bb, bytes);
-        this.clean = cleanByteBuffer(bb);
+        this.doOnClose = cleanByteBuffer(bb);
     }
 
-    private static Runnable cleanByteBuffer(final ByteBuffer bb) {
+    static Runnable cleanByteBuffer(final ByteBuffer bb) {
         return () -> {
             // do not clean if ByteBuffer is readonly (would throw an Exception)
             if (!bb.isReadOnly()) {
@@ -45,7 +48,8 @@ final class BaseByteBufferOffHeap extends AbstractByteBufferOffHeap {
         // change values so slice respect required offset and length
         getByteBuffer().limit((int) (offset + length));
         getByteBuffer().position((int) offset);
-        final var slice = new BaseByteBufferOffHeap(getByteBuffer().slice());
+        // call constructor to do nothing on close, because invoke cleaner on a sliced ByteBuffer throws an Exception
+        final var slice = new BaseByteBufferOffHeap(getByteBuffer().slice(), () -> {});
 
         // re-affect previous values
         getByteBuffer().limit(limit);
@@ -56,7 +60,7 @@ final class BaseByteBufferOffHeap extends AbstractByteBufferOffHeap {
 
     @Override
     public void close() {
-        clean.run();
+        doOnClose.run();
     }
 
     @Override
