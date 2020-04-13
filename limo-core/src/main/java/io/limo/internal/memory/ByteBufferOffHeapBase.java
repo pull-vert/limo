@@ -7,6 +7,7 @@ package io.limo.internal.memory;
 import io.limo.internal.utils.UnsafeByteBufferOps;
 import io.limo.memory.AbstractByteBufferOffHeap;
 import io.limo.memory.ByteBufferOffHeap;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
@@ -34,12 +35,9 @@ final class ByteBufferOffHeapBase extends AbstractByteBufferOffHeap {
     }
 
     @Override
-    public void close() {
-        clean.run();
-    }
+    public @NotNull ByteBufferOffHeap slice(long offset, int length) {
+        sliceIndexCheck(offset, length, getByteSize());
 
-    @Override
-    protected ByteBufferOffHeap sliceNoIndexCheck(long offset, int length) {
         // save previous values
         final var limit = getByteBuffer().limit();
         final var position = getByteBuffer().position();
@@ -54,6 +52,11 @@ final class ByteBufferOffHeapBase extends AbstractByteBufferOffHeap {
         getByteBuffer().position(position);
 
         return slice;
+    }
+
+    @Override
+    public void close() {
+        clean.run();
     }
 
     @Override

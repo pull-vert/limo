@@ -22,17 +22,7 @@ public abstract class AbstractOffHeap implements OffHeap {
     }
 
     @Override
-    public @NotNull ByteBufferOffHeap slice(long offset, int length) {
-        if ((offset | length) < 0 || offset > getByteSize() || length > (getByteSize() - offset)) {
-            throw new IndexOutOfBoundsException(
-                    String.format("Incorrect parameters to slice : offset=%d, length=%d, byteSize=%d",
-                            offset, length, getByteSize()));
-        }
-        return sliceNoIndexCheck(offset, length);
-    }
-
-    @Override
-    public byte @NotNull [] toByteArray() {
+    public final byte @NotNull [] toByteArray() {
         if (getByteSize() > Integer.MAX_VALUE) {
             throw new UnsupportedOperationException(
                     String.format("This off-heap memory's size is too big to export to a byte array : byteSize=%d", getByteSize()));
@@ -41,15 +31,19 @@ public abstract class AbstractOffHeap implements OffHeap {
     }
 
     @Override
-    public long getReadIndex() {
+    public final long getReadIndex() {
         return this.readIndex;
     }
 
+    /**
+     * {@inheritDoc}
+     * @implSpec {@inheritDoc}
+     */
     @Override
-    public byte readByte() {
-        if (this.readIndex > getWriteIndex()) {
+    public final byte readByte() {
+        if (this.readIndex >= getWriteIndex()) {
             throw new IndexOutOfBoundsException(
-                    String.format("readIndex=%d is greater than writeIndex=%d, there is no byte left to read",
+                    String.format("readIndex=%d is greater or equal than writeIndex=%d, there is no byte left to read",
                             this.readIndex, getWriteIndex()));
         }
         final var index = this.readIndex;
@@ -58,11 +52,15 @@ public abstract class AbstractOffHeap implements OffHeap {
         return val;
     }
 
+    /**
+     * {@inheritDoc}
+     * @implSpec {@inheritDoc}
+     */
     @Override
-    public int readInt() {
-        if (this.readIndex > getWriteIndex() - 3) {
+    public final int readInt() {
+        if (this.readIndex > (getWriteIndex() - 4)) {
             throw new IndexOutOfBoundsException(
-                    String.format("readIndex=%d is greater to (writeIndex=%d - 3), " +
+                    String.format("readIndex=%d is greater than (writeIndex=%d - 4), " +
                                     "there are not enough bytes left to read a 4-bytes int",
                             this.readIndex, getWriteIndex()));
         }
@@ -72,33 +70,47 @@ public abstract class AbstractOffHeap implements OffHeap {
         return val;
     }
 
+    /**
+     * {@inheritDoc}
+     * @implSpec {@inheritDoc}
+     */
     @Override
-    public byte readByteAt(long index) {
-        if (index < 0 || index > getWriteIndex()) {
+    public final byte readByteAt(long index) {
+        if (index < 0 || index >= getWriteIndex()) {
             throw new IndexOutOfBoundsException(
-                    String.format("requested index=%d is less than 0 or greater than writeIndex=%d, " +
+                    String.format("requested index=%d is less than 0 or greater or equal than writeIndex=%d, " +
                                     "it is out of the readable bounds",
                             index, getWriteIndex()));
         }
         return readByteAtNoIndexCheck(index);
     }
 
+    /**
+     * {@inheritDoc}
+     * @implSpec {@inheritDoc}
+     */
     @Override
-    public int readIntAt(long index) {
-        if (index < 0 || index > getWriteIndex()) {
+    public final int readIntAt(long index) {
+        if (index < 0 || index > (getWriteIndex() - 4)) {
             throw new IndexOutOfBoundsException(
-                    String.format("requested index=%d is less than 0 or greater than writeIndex=%d, " +
+                    String.format("requested index=%d is less than 0 or greater than (writeIndex=%d - 4), " +
                                     "it is out of the readable bounds",
                             index, getWriteIndex()));
         }
         return readIntAtNoIndexCheck(index);
     }
 
-    protected abstract ByteBufferOffHeap sliceNoIndexCheck(long offset, int length);
-
     protected abstract byte[] toByteArrayNoIndexCheck();
 
     protected abstract byte readByteAtNoIndexCheck(long index);
 
     protected abstract int readIntAtNoIndexCheck(long index);
+
+    protected static void sliceIndexCheck(long offset, int length, long byteSize) {
+        if ((offset | length) < 0 || offset > byteSize || length > (byteSize - offset)) {
+            throw new IndexOutOfBoundsException(
+                    String.format("Incorrect parameters to slice : offset=%d, length=%d, byteSize=%d",
+                            offset, length, byteSize));
+        }
+    }
 }

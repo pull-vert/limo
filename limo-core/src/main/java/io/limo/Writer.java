@@ -12,15 +12,17 @@ public interface Writer {
     /**
      * Writes a byte in the data
      *
+     * @return this instance
      * @throws IndexOutOfBoundsException if there is no room in data to write a byte
      */
-    void writeByte(byte value);
+    Writer writeByte(byte value);
 
     /**
      * Writes a 4-byte int in the data
      * <p>bytes are written using BIG ENDIAN byte order
      *
+     * @return this instance
      * @throws IndexOutOfBoundsException if there is no room in data to write an int (4 bytes)
      */
-    void writeInt(int value);
+    Writer writeInt(int value);
 }

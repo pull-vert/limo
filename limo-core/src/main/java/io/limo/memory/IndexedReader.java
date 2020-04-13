@@ -18,8 +18,8 @@ public interface IndexedReader extends Reader {
     /**
      * Read a byte at the current {@code readIndex}
      *
-     * @throws IndexOutOfBoundsException if {@code readIndex} is greater than {@code writeIndex} there is no byte
-     * left to read
+     * @throws IndexOutOfBoundsException if {@code readIndex} is greater or equal than {@code writeIndex} there is no
+     * byte left to read
      * @implSpec increase {@code readIndex} by {@code 1} after read
      */
     @Override
@@ -29,7 +29,7 @@ public interface IndexedReader extends Reader {
      * Read a 4-bytes int at the current {@code readIndex}
      * <p>bytes are read using BIG ENDIAN byte order
      *
-     * @throws IndexOutOfBoundsException if {@code readIndex} is greater than {@code (writeIndex - 3)} there are not
+     * @throws IndexOutOfBoundsException if {@code readIndex} is greater than {@code (writeIndex - 4)} there are not
      * enough bytes left to read a 4-bytes int
      * @implSpec increase {@code readIndex} by {@code 4} after read
      */
@@ -39,8 +39,8 @@ public interface IndexedReader extends Reader {
     /**
      * Read a byte at the specified absolute {@code index}
      *
-     * @throws IndexOutOfBoundsException if {@code index} is less than {@code 0} or is greater than {@code writeIndex},
-     * then {@code index} is out of the readable bounds
+     * @throws IndexOutOfBoundsException if {@code index} is less than {@code 0} or is greater or equal than
+     * {@code writeIndex}, then {@code index} is out of the readable bounds
      * @implSpec do not modify {@code readIndex}
      */
     byte readByteAt(long index);
@@ -49,8 +49,8 @@ public interface IndexedReader extends Reader {
      * Read a 4-bytes int at the specified absolute {@code index}
      * <p>bytes are read using BIG ENDIAN byte order
      *
-     * @throws IndexOutOfBoundsException if {@code index} is less than {@code 0} or is greater than {@code (writeIndex - 3)},
-     * then {@code index} is out of the readable bounds
+     * @throws IndexOutOfBoundsException if {@code index} is less than {@code 0} or is greater than
+     * {@code (writeIndex - 4)}, then {@code index} is out of the readable bounds
      * @implSpec do not modify {@code readIndex}
      */
     int readIntAt(long index);

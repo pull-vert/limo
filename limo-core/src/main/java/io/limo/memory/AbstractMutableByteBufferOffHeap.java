@@ -10,45 +10,27 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-/**
- * Base abstract implementation of {@link ByteBufferOffHeap} memory
- */
-public abstract class AbstractByteBufferOffHeap extends AbstractOffHeap implements ByteBufferOffHeap {
+public abstract class AbstractMutableByteBufferOffHeap extends AbstractMutableOffHeap implements MutableByteBufferOffHeap {
 
     private final @NotNull ByteBuffer bb;
 
     /**
      * Instantiate a readonly AbstractByteBufferOffHeap from a ByteBuffer
      */
-    protected AbstractByteBufferOffHeap(@NotNull ByteBuffer bb) {
+    protected AbstractMutableByteBufferOffHeap(@NotNull ByteBuffer bb) {
         super(UnsafeByteBufferOps.getBaseAddress(Objects.requireNonNull(bb)));
         if (!bb.isDirect()) {
-            throw new IllegalArgumentException("Provided ByteBuffer must be Direct");
+            throw new IllegalArgumentException("Provided ByteBuffer must be direct");
         }
-        if (!bb.isReadOnly()) {
-            this.bb = bb.asReadOnlyBuffer();
-        } else {
-            this.bb = bb;
+        if (bb.isReadOnly()) {
+            throw new IllegalArgumentException("Provided ByteBuffer must not be readOnly");
         }
-    }
-
-    protected AbstractByteBufferOffHeap(ByteBuffer bb, byte[] bytes) {
-        this(UnsafeByteBufferOps.fillWithByteArray(bb, 0, bytes, 0, bytes.length));
+        this.bb = bb;
     }
 
     @Override
-    public final long getByteSize() {
-        return bb.capacity();
-    }
-
-    @Override
-    public final @NotNull ByteBuffer getByteBuffer() {
+    public @NotNull ByteBuffer getByteBuffer() {
         return this.bb;
-    }
-
-    @Override
-    public long getWriteIndex() {
-        return bb.limit();
     }
 
     @Override
