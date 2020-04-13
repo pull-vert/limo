@@ -2,7 +2,7 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-import io.limo.internal.jdk14.memory.OffHeapFactorySegment;
+import io.limo.internal.jdk14.memory.MemorySegmentOffHeapFactory;
 import io.limo.memory.OffHeapFactory;
 
 module limo.core.jdk14 {
@@ -13,5 +13,5 @@ module limo.core.jdk14 {
 
     exports io.limo.jdk14.utils;
 
-    provides OffHeapFactory with OffHeapFactorySegment;
+    provides OffHeapFactory with MemorySegmentOffHeapFactory;
 }

@@ -2,16 +2,15 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.internal.memory;
+package io.limo.internal.jdk14.memory;
 
 import io.limo.memory.ByteBufferOffHeap;
 import io.limo.memory.OffHeap;
 import io.limo.memory.OffHeapFactory;
+import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.ByteBuffer;
-
-final class OffHeapFactoryBase implements OffHeapFactory {
+public final class MemorySegmentOffHeapFactory implements OffHeapFactory {
 
     @Override
     public final @NotNull OffHeap newOffHeap(long byteSize) {
@@ -23,19 +22,20 @@ final class OffHeapFactoryBase implements OffHeapFactory {
 
     @Override
     public final @NotNull ByteBufferOffHeap newByteBufferOffHeap(int byteSize) {
-        return new ByteBufferOffHeapBase(ByteBuffer.allocateDirect(byteSize));
+        final var segment = MemorySegment.allocateNative(byteSize);
+        return new MemorySegmentByteBufferOffHeap(segment, segment.asByteBuffer());
     }
 
     @Override
     public @NotNull ByteBufferOffHeap newByteBufferOffHeap(byte @NotNull [] bytes) {
-        return new ByteBufferOffHeapBase(ByteBuffer.allocateDirect(bytes.length), bytes);
+        // create a new native MemorySegment with capacity equals to bytes length,
+        // then extract its ByteBuffer and fill it with all bytes
+        final var segment = MemorySegment.allocateNative(bytes.length);
+        return new MemorySegmentByteBufferOffHeap(segment, segment.asByteBuffer(), bytes);
     }
 
-    /**
-     * @return Integer.MIN_VALUE because this is the default implementation
-     */
     @Override
     public final int getLoadPriority() {
-        return Integer.MIN_VALUE;
+        return 14;
     }
 }

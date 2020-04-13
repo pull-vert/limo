@@ -31,7 +31,7 @@ public final class OffHeapServiceLoader {
         final var offHeapFactory = StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED),false)
                 .max(Comparator.comparingInt(OffHeapFactory::getLoadPriority))
                 // If no module in classpath implements this Service, fallback to base OffHeapFactoryImpl
-                .orElse(new OffHeapFactoryBase());
+                .orElse(new BaseByteBufferOffHeapFactory());
         logger.info("ServiceLoader<OffHeapFactory> loaded : {}", offHeapFactory.getClass().getTypeName());
         return offHeapFactory;
     }

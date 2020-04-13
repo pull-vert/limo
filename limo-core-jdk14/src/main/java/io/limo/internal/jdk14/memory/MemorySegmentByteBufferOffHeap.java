@@ -15,16 +15,16 @@ import java.nio.ByteBuffer;
  * This class contains a native {@link MemorySegment} and the direct {@link ByteBuffer} linked to it
  * that both point to the same off-heap memory region.
  */
-class ByteBufferOffHeapSegment extends AbstractByteBufferOffHeap {
+class MemorySegmentByteBufferOffHeap extends AbstractByteBufferOffHeap {
 
     private final MemorySegment segment;
 
-    ByteBufferOffHeapSegment(MemorySegment segment, ByteBuffer bb) {
+    MemorySegmentByteBufferOffHeap(MemorySegment segment, ByteBuffer bb) {
         super(bb);
         this.segment = segment;
     }
 
-    ByteBufferOffHeapSegment(MemorySegment segment, ByteBuffer bb, byte[] bytes) {
+    MemorySegmentByteBufferOffHeap(MemorySegment segment, ByteBuffer bb, byte[] bytes) {
         super(bb, bytes);
         this.segment = segment;
     }
@@ -34,7 +34,7 @@ class ByteBufferOffHeapSegment extends AbstractByteBufferOffHeap {
         sliceIndexCheck(offset, length, getByteSize());
 
         final var segment = this.segment.asSlice(offset, length);
-        return new ByteBufferOffHeapSegment(segment, segment.asByteBuffer());
+        return new MemorySegmentByteBufferOffHeap(segment, segment.asByteBuffer());
     }
 
     @Override

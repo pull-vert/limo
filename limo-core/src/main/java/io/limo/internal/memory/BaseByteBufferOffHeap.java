@@ -11,16 +11,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
-final class ByteBufferOffHeapBase extends AbstractByteBufferOffHeap {
+final class BaseByteBufferOffHeap extends AbstractByteBufferOffHeap {
 
     private final Runnable clean;
 
-    ByteBufferOffHeapBase(final ByteBuffer bb) {
+    BaseByteBufferOffHeap(final ByteBuffer bb) {
         super(bb);
         this.clean = cleanByteBuffer(bb);
     }
 
-    ByteBufferOffHeapBase(final ByteBuffer bb, byte[] bytes) {
+    BaseByteBufferOffHeap(final ByteBuffer bb, byte[] bytes) {
         super(bb, bytes);
         this.clean = cleanByteBuffer(bb);
     }
@@ -45,7 +45,7 @@ final class ByteBufferOffHeapBase extends AbstractByteBufferOffHeap {
         // change values so slice respect required offset and length
         getByteBuffer().limit((int) (offset + length));
         getByteBuffer().position((int) offset);
-        final var slice = new ByteBufferOffHeapBase(getByteBuffer().slice());
+        final var slice = new BaseByteBufferOffHeap(getByteBuffer().slice());
 
         // re-affect previous values
         getByteBuffer().limit(limit);
