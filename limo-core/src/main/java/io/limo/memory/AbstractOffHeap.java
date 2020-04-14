@@ -106,7 +106,7 @@ public abstract class AbstractOffHeap implements OffHeap {
 
     protected abstract int readIntAtNoIndexCheck(long index);
 
-    protected static void sliceIndexCheck(long offset, int length, long byteSize) {
+    protected static void sliceIndexCheck(long offset, long length, long byteSize) {
         if ((offset | length) < 0 || offset > byteSize || length > (byteSize - offset)) {
             throw new IndexOutOfBoundsException(
                     String.format("Incorrect parameters to slice : offset=%d, length=%d, byteSize=%d",

@@ -13,4 +13,13 @@ public interface MutableByBuOffHeap extends ByBuOffHeap, MutableOffHeap {
      */
     @Override
     @NotNull ByBuOffHeap asReadOnly();
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return a new MutableByBuOffHeap (off-heap memory represented by a direct ByteBuffer) view with updated base
+     * position and limit addresses.
+     */
+    @Override
+    @NotNull MutableByBuOffHeap slice(long offset, long length);
 }

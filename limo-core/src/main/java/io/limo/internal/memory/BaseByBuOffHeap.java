@@ -38,7 +38,7 @@ final class BaseByBuOffHeap extends AbstractByBuOffHeap {
     }
 
     @Override
-    public @NotNull ByBuOffHeap slice(long offset, int length) {
+    public @NotNull ByBuOffHeap slice(long offset, long length) {
         sliceIndexCheck(offset, length, getByteSize());
 
         // save previous values

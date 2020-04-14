@@ -12,8 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.ByteBuffer;
 
 /**
- * This class contains a native {@link MemorySegment} and the direct {@link ByteBuffer} linked to it
- * that both point to the same off-heap memory region.
+ * This class contains a native {@link MemorySegment} of size < Integer.MAX_VALUE and the direct {@link ByteBuffer}
+ * linked to it. They both point to the same off-heap memory region.
  */
 class MemorySegmentByBuOffHeap extends AbstractByBuOffHeap {
 
@@ -30,7 +30,7 @@ class MemorySegmentByBuOffHeap extends AbstractByBuOffHeap {
     }
 
     @Override
-    public @NotNull ByBuOffHeap slice(long offset, int length) {
+    public @NotNull ByBuOffHeap slice(long offset, long length) {
         sliceIndexCheck(offset, length, getByteSize());
 
         final var segment = this.segment.asSlice(offset, length);

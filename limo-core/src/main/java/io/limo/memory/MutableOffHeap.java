@@ -15,13 +15,23 @@ public interface MutableOffHeap extends OffHeap, IndexedWriter {
 
     /**
      * {@inheritDoc}
-     * @return a new MutableByteBufferOffHeap (off-heap memory represented by a direct ByteBuffer) view with updated base position and limit addresses.
+     *
+     * @return a new MutableOffHeap view with updated base position and limit addresses.
      */
     @Override
-    @NotNull MutableByBuOffHeap slice(long offset, int length);
+    @NotNull MutableOffHeap slice(long offset, long length);
 
     /**
      * {@inheritDoc}
+     *
+     * @return a MutableByBuOffHeap (off-heap memory represented by a direct ByteBuffer) bound to the same memory
+     * region as this OffHeap
+     */
+    @NotNull MutableByBuOffHeap asBybuOffHeap();
+
+    /**
+     * {@inheritDoc}
+     *
      * @implSpec {@inheritDoc}
      */
     @Override
@@ -29,6 +39,7 @@ public interface MutableOffHeap extends OffHeap, IndexedWriter {
 
     /**
      * {@inheritDoc}
+     *
      * @implSpec {@inheritDoc}
      */
     @Override
@@ -36,6 +47,7 @@ public interface MutableOffHeap extends OffHeap, IndexedWriter {
 
     /**
      * {@inheritDoc}
+     *
      * @implSpec {@inheritDoc}
      */
     @Override
@@ -43,6 +55,7 @@ public interface MutableOffHeap extends OffHeap, IndexedWriter {
 
     /**
      * {@inheritDoc}
+     *
      * @implSpec {@inheritDoc}
      */
     @Override

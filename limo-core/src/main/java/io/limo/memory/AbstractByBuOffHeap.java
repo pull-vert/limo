@@ -21,7 +21,7 @@ public abstract class AbstractByBuOffHeap extends AbstractOffHeap implements ByB
      * Instantiate a readonly AbstractByteBufferOffHeap from a ByteBuffer
      */
     protected AbstractByBuOffHeap(@NotNull ByteBuffer bb) {
-        super(UnsafeByteBufferOps.getBaseAddress(Objects.requireNonNull(bb)));
+        super(-1);
         if (!bb.isDirect()) {
             throw new IllegalArgumentException("Provided ByteBuffer must be Direct");
         }
@@ -39,6 +39,11 @@ public abstract class AbstractByBuOffHeap extends AbstractOffHeap implements ByB
     @Override
     public final long getByteSize() {
         return bb.capacity();
+    }
+
+    @Override
+    public final @NotNull ByBuOffHeap asBybuOffHeap() {
+        return this;
     }
 
     @Override

@@ -29,7 +29,12 @@ public abstract class AbstractMutableByBuOffHeap extends AbstractMutableOffHeap 
     }
 
     @Override
-    public @NotNull ByteBuffer getByteBuffer() {
+    public final @NotNull MutableByBuOffHeap asBybuOffHeap() {
+        return this;
+    }
+
+    @Override
+    public final @NotNull ByteBuffer getByteBuffer() {
         return this.bb;
     }
 
