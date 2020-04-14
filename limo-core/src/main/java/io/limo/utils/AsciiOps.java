@@ -27,7 +27,8 @@ public final class AsciiOps {
     public static boolean hasNegatives(byte[] bytes, int offset, int length) {
         if ((offset | length | bytes.length - offset - length) < 0) {
             throw new ArrayIndexOutOfBoundsException(
-                    String.format("Incorrect parameters to parse byte[] : bytes.length=%d, offset=%d, length=%d", bytes.length, offset, length));
+                    String.format("Incorrect parameters to parse byte[] : bytes.length=%d, offset=%d, length=%d",
+                            bytes.length, offset, length));
         }
         return hasNegativesInternal(bytes, offset, length);
     }

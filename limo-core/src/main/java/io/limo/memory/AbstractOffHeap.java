@@ -4,7 +4,11 @@
 
 package io.limo.memory;
 
+import io.limo.internal.utils.UnsafeByteBufferOps;
 import org.jetbrains.annotations.NotNull;
+
+import java.nio.ByteBuffer;
+import java.util.Objects;
 
 /**
  * Base abstract implementation of {@link OffHeap} memory
@@ -17,8 +21,36 @@ public abstract class AbstractOffHeap implements OffHeap {
     @SuppressWarnings("unused")
     private final long baseAddress;
 
-    protected AbstractOffHeap(long baseAddress) {
-        this.baseAddress = baseAddress;
+    /**
+     * Depending on byteSize :
+     * <ul>
+     *     <li>if byteSize < Integer.MAX_VALUE this ByteBuffer covers this full memory region</li>
+     *     <li>if byteSize > Integer.MAX_VALUE this ByteBuffer covers first Integer.MAX_VALUE bytes of memory
+     *     region</li>
+     * </ul>
+     */
+    final @NotNull ByteBuffer baseByBu;
+
+    /**
+     * Instantiate a AbstractOffHeap from a ByteBuffer, can be readonly
+     */
+    protected AbstractOffHeap(@NotNull ByteBuffer baseByBu, boolean isReadonly) {
+        this.baseAddress = UnsafeByteBufferOps.getBaseAddress(Objects.requireNonNull(baseByBu));
+        if (!baseByBu.isDirect()) {
+            throw new IllegalArgumentException("Provided ByteBuffer must be Direct");
+        }
+        if (isReadonly) {
+            if (!baseByBu.isReadOnly()) {
+                this.baseByBu = baseByBu.asReadOnlyBuffer();
+            } else {
+                this.baseByBu = baseByBu;
+            }
+        } else {
+            if (baseByBu.isReadOnly()) {
+                throw new IllegalArgumentException("Provided ByteBuffer must not be readOnly");
+            }
+            this.baseByBu = baseByBu;
+        }
     }
 
     @Override
@@ -37,6 +69,7 @@ public abstract class AbstractOffHeap implements OffHeap {
 
     /**
      * {@inheritDoc}
+     *
      * @implSpec {@inheritDoc}
      */
     @Override
@@ -54,6 +87,7 @@ public abstract class AbstractOffHeap implements OffHeap {
 
     /**
      * {@inheritDoc}
+     *
      * @implSpec {@inheritDoc}
      */
     @Override
@@ -72,6 +106,7 @@ public abstract class AbstractOffHeap implements OffHeap {
 
     /**
      * {@inheritDoc}
+     *
      * @implSpec {@inheritDoc}
      */
     @Override
@@ -87,6 +122,7 @@ public abstract class AbstractOffHeap implements OffHeap {
 
     /**
      * {@inheritDoc}
+     *
      * @implSpec {@inheritDoc}
      */
     @Override

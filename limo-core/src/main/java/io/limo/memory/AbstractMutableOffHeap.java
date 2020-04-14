@@ -4,12 +4,16 @@
 
 package io.limo.memory;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.nio.ByteBuffer;
+
 public abstract class AbstractMutableOffHeap extends AbstractOffHeap implements MutableOffHeap {
 
     private long writeIndex;
 
-    protected AbstractMutableOffHeap(long baseAddress) {
-        super(baseAddress);
+    protected AbstractMutableOffHeap(@NotNull ByteBuffer baseByBu) {
+        super(baseByBu, false);
     }
 
     @Override

@@ -15,9 +15,13 @@ import java.nio.ByteBuffer;
  * This class contains a native {@link MemorySegment} of size < Integer.MAX_VALUE and the direct {@link ByteBuffer}
  * linked to it. They both point to the same off-heap memory region.
  */
-class MemorySegmentByBuOffHeap extends AbstractByBuOffHeap {
+final class MemorySegmentByBuOffHeap extends AbstractByBuOffHeap {
 
     private final MemorySegment segment;
+
+    MemorySegmentByBuOffHeap(MemorySegment segment) {
+        this(segment, segment.asByteBuffer());
+    }
 
     MemorySegmentByBuOffHeap(MemorySegment segment, ByteBuffer bb) {
         super(bb);
@@ -32,9 +36,7 @@ class MemorySegmentByBuOffHeap extends AbstractByBuOffHeap {
     @Override
     public @NotNull ByBuOffHeap slice(long offset, long length) {
         sliceIndexCheck(offset, length, getByteSize());
-
-        final var segment = this.segment.asSlice(offset, length);
-        return new MemorySegmentByBuOffHeap(segment, segment.asByteBuffer());
+        return new MemorySegmentByBuOffHeap(this.segment.asSlice(offset, length));
     }
 
     @Override

@@ -9,6 +9,7 @@ import jdk.incubator.foreign.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.VarHandle;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
 
@@ -23,7 +24,8 @@ public final class MemorySegmentOps {
             .varHandle(byte.class, MemoryLayout.PathElement.sequenceElement());
 
     // uninstanciable
-    private MemorySegmentOps() { }
+    private MemorySegmentOps() {
+    }
 
 
     public static byte readByte(@NotNull MemoryAddress address) {
@@ -34,27 +36,50 @@ public final class MemorySegmentOps {
         BYTE_HANDLE.set(Objects.requireNonNull(address), value);
     }
 
-    public static int readInt(@NotNull MemoryAddress address, final boolean isBigEndian) {
+    public static int readInt(@NotNull MemoryAddress address) {
         return BytesOps.bytesToInt(
                 (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 0L),
                 (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 1L),
                 (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 2L),
-                (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 3L),
-                isBigEndian
+                (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 3L)
         );
     }
 
-    public static void writeInt(@NotNull MemoryAddress address, final int value, final boolean isBigEndian) {
-        if (isBigEndian) {
-            INT_AS_BYTE_SEQ_HANDLE.set(address, 0L, (byte) ((value >> 24) & 0xff));
-            INT_AS_BYTE_SEQ_HANDLE.set(address, 1L, (byte) ((value >> 16) & 0xff));
-            INT_AS_BYTE_SEQ_HANDLE.set(address, 2L, (byte) ((value >> 8) & 0xff));
-            INT_AS_BYTE_SEQ_HANDLE.set(address, 3L, (byte) (value & 0xff));
-            return;
-        }
+    public static int readIntLE(@NotNull MemoryAddress address) {
+        return BytesOps.bytesToIntLE(
+                (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 0L),
+                (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 1L),
+                (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 2L),
+                (byte) INT_AS_BYTE_SEQ_HANDLE.get(address, 3L)
+        );
+    }
+
+    public static void writeInt(@NotNull MemoryAddress address, final int value) {
+        INT_AS_BYTE_SEQ_HANDLE.set(address, 0L, (byte) ((value >> 24) & 0xff));
+        INT_AS_BYTE_SEQ_HANDLE.set(address, 1L, (byte) ((value >> 16) & 0xff));
+        INT_AS_BYTE_SEQ_HANDLE.set(address, 2L, (byte) ((value >> 8) & 0xff));
+        INT_AS_BYTE_SEQ_HANDLE.set(address, 3L, (byte) (value & 0xff));
+    }
+
+    public static void writeIntLE(@NotNull MemoryAddress address, final int value) {
         INT_AS_BYTE_SEQ_HANDLE.set(address, 0L, (byte) (value & 0xff));
         INT_AS_BYTE_SEQ_HANDLE.set(address, 1L, (byte) ((value >> 8) & 0xff));
         INT_AS_BYTE_SEQ_HANDLE.set(address, 2L, (byte) ((value >> 16) & 0xff));
         INT_AS_BYTE_SEQ_HANDLE.set(address, 3L, (byte) ((value >> 24) & 0xff));
+    }
+
+    /**
+     * Depending on segment's byteSize, returns :
+     * <ul>
+     *     <li>if byteSize < Integer.MAX_VALUE returned ByteBuffer covers this full memory region</li>
+     *     <li>if byteSize > Integer.MAX_VALUE returned ByteBuffer covers first Integer.MAX_VALUE bytes of memory
+     *     region</li>
+     * </ul>
+     */
+    public static ByteBuffer getBaseByteBuffer(@NotNull MemorySegment segment) {
+        if (segment.byteSize() > Integer.MAX_VALUE) {
+            return segment.asSlice(0, Integer.MAX_VALUE).asByteBuffer();
+        }
+        return segment.asByteBuffer();
     }
 }

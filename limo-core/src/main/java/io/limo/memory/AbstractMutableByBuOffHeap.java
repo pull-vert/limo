@@ -12,36 +12,28 @@ import java.util.Objects;
 
 public abstract class AbstractMutableByBuOffHeap extends AbstractMutableOffHeap implements MutableByBuOffHeap {
 
-    private final @NotNull ByteBuffer bb;
-
     /**
      * Instantiate a readonly AbstractByteBufferOffHeap from a ByteBuffer
      */
     protected AbstractMutableByBuOffHeap(@NotNull ByteBuffer bb) {
-        super(UnsafeByteBufferOps.getBaseAddress(Objects.requireNonNull(bb)));
-        if (!bb.isDirect()) {
-            throw new IllegalArgumentException("Provided ByteBuffer must be direct");
-        }
-        if (bb.isReadOnly()) {
-            throw new IllegalArgumentException("Provided ByteBuffer must not be readOnly");
-        }
-        this.bb = bb;
+        super(bb);
     }
 
     @Override
-    public final @NotNull MutableByBuOffHeap asBybuOffHeap() {
+    public final @NotNull MutableByBuOffHeap asByBuOffHeap() {
         return this;
     }
 
     @Override
     public final @NotNull ByteBuffer getByteBuffer() {
-        return this.bb;
+        return this.baseByBu;
     }
 
     @Override
     protected final byte @NotNull [] toByteArrayNoIndexCheck() {
-        final var bytes = new byte[this.bb.capacity()];
-        UnsafeByteBufferOps.fillTargetByteArray(this.bb, 0, bytes, 0, bytes.length);
+        final var bytes = new byte[this.baseByBu.capacity()];
+        // todo change this when UnsafeOffHeapOps is available
+        UnsafeByteBufferOps.fillTargetByteArray(this.baseByBu, 0, bytes, 0, bytes.length);
         return bytes;
     }
 }

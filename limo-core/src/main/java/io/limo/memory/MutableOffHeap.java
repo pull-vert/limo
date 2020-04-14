@@ -27,7 +27,7 @@ public interface MutableOffHeap extends OffHeap, IndexedWriter {
      * @return a MutableByBuOffHeap (off-heap memory represented by a direct ByteBuffer) bound to the same memory
      * region as this OffHeap
      */
-    @NotNull MutableByBuOffHeap asBybuOffHeap();
+    @NotNull MutableByBuOffHeap asByBuOffHeap();
 
     /**
      * {@inheritDoc}

@@ -14,16 +14,12 @@ public final class MemorySegmentOffHeapFactory implements OffHeapFactory {
 
     @Override
     public final @NotNull OffHeap newOffHeap(long byteSize) {
-        if (byteSize > Integer.MAX_VALUE) {
-            throw new IndexOutOfBoundsException("byteSize must be a positive Integer");
-        }
-        return newByteBufferOffHeap((int) byteSize);
+        return new MemorySegmentOffHeap(MemorySegment.allocateNative(byteSize));
     }
 
     @Override
     public final @NotNull ByBuOffHeap newByteBufferOffHeap(int byteSize) {
-        final var segment = MemorySegment.allocateNative(byteSize);
-        return new MemorySegmentByBuOffHeap(segment, segment.asByteBuffer());
+        return new MemorySegmentByBuOffHeap(MemorySegment.allocateNative(byteSize));
     }
 
     @Override

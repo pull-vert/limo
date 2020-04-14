@@ -49,7 +49,7 @@ public interface OffHeap extends IndexedReader, AutoCloseable {
      * @throws IllegalStateException         if this memory has been closed, or if access occurs from a thread other
      *                                       than the thread owning this memory.
      */
-    @NotNull ByBuOffHeap asBybuOffHeap();
+    @NotNull ByBuOffHeap asByBuOffHeap();
 
     /**
      * Copy the contents of this off-heap memory into a fresh byte array.
