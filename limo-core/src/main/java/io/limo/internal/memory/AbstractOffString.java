@@ -2,11 +2,11 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.internal.string;
+package io.limo.internal.memory;
 
 import io.limo.memory.OffHeap;
 import io.limo.memory.OffHeapFactory;
-import io.limo.string.OffString;
+import io.limo.memory.OffString;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;

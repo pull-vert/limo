@@ -2,7 +2,7 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.internal.string;
+package io.limo.internal.memory;
 
 import io.limo.internal.utils.UnsafeStringOps;
 import io.limo.memory.OffHeap;

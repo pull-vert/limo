@@ -2,20 +2,21 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.string;
+package io.limo.memory;
 
-import io.limo.internal.string.OffstringImpl;
-import io.limo.internal.string.StringOffString;
-import io.limo.memory.OffHeap;
+import io.limo.internal.memory.OffstringImpl;
+import io.limo.internal.memory.StringOffString;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
 import java.util.Objects;
 
 /**
- * String stored in off-heap memory as {@link OffHeap} with a current {@link Charset}
+ * This interface represents off-heap memory region (a {@link OffHeap}) that store a a binary String content encoded
+ * with a given {@link Charset}.
  * <p>
  * OffStrings are constant (immutable), their values cannot be changed after they are created.
+ * <p>OffStrings must be explicitly (see {@link OffString#close()}) to release associated resources
  */
 public interface OffString extends AutoCloseable {
 
@@ -44,7 +45,8 @@ public interface OffString extends AutoCloseable {
     @NotNull String toString();
 
     /**
-     * Closes the memory
+     * Releases associated resources
+     * @implSpec Invoke {@link OffHeap#close()}
      */
     @Override
     void close();

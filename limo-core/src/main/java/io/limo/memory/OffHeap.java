@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
  *     <li>All operations make sure that we only access the content of this memory region</li>
  *     <li>No operation will succeed after a off-heap memory has been closed (see {@link OffHeap#close()}</li>
  * </ul>
- * <p>off-heap memory is closed explicitly (see {@link OffHeap#close()}).
+ * <p>off-heap memory must be closed explicitly (see {@link OffHeap#close()}).
  * When a off-heap memory is closed, all off-heap resources associated with it are released; this has different meanings
  * depending on the kind of memory being considered:
  * <ul>
