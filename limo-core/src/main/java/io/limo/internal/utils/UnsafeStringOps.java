@@ -6,8 +6,6 @@ package io.limo.internal.utils;
 
 import io.limo.memory.ByBuOffHeap;
 import io.limo.memory.OffHeapFactory;
-import io.limo.utils.AsciiOps;
-import io.limo.utils.Latin1Ops;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -101,7 +99,7 @@ public final class UnsafeStringOps {
                     // 2) UTF-8 is ASCII compatible but is NOT ISO_8859_1 compatible,
                     // must encode this non Ascii Latin1 byte array to UTF-8
                     if (charset.contains(StandardCharsets.UTF_8)) {
-                        return new Result().withNotAsciiNotLatin1Utf8(Latin1Ops.encodeUTF8(bytes));
+                        return new Result().withNotAsciiNotLatin1Utf8(Latin1Ops.encodelatinBytesToUTF8(bytes));
                     }
 
                     // 3) Required charset is ASCII compatible but is not UTF-8 compatible,
@@ -126,7 +124,7 @@ public final class UnsafeStringOps {
 
                 // 2) UTF-8 is ASCII compatible but is NOT ISO_8859_1 compatible,
                 // must encode this non Ascii Latin1 bytes to UTF-8
-                return new Result().withNotAsciiNotLatin1Utf8(Latin1Ops.encodeUTF8(bytes));
+                return new Result().withNotAsciiNotLatin1Utf8(Latin1Ops.encodelatinBytesToUTF8(bytes));
             }
             // encode this not Latin1 String to target charset
             return new Result().withNotAsciiNotLatin1(string.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);

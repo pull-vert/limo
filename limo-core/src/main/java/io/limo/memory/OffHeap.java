@@ -4,6 +4,7 @@
 
 package io.limo.memory;
 
+import io.limo.IndexedReader;
 import org.jetbrains.annotations.NotNull;
 
 /**

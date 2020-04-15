@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 /**
  * Base abstract implementation of {@link ByBuOffHeap} memory
  */
-public abstract class AbstractByBuOffHeap extends AbstractOffHeap implements ByBuOffHeap {
+public abstract class AbstractByBuOffHeap extends AbstractOffHeap<AbstractByBuOffHeap> implements ByBuOffHeap {
 
     protected AbstractByBuOffHeap(ByteBuffer bb, byte[] bytes) {
         this(UnsafeByteBufferOps.fillWithByteArray(bb, 0, bytes, 0, bytes.length));
@@ -47,7 +47,6 @@ public abstract class AbstractByBuOffHeap extends AbstractOffHeap implements ByB
 
     @Override
     protected final byte @NotNull [] toByteArrayNoIndexCheck() {
-        // todo change this when UnsafeOffHeapOps is available
         final var bytes = new byte[this.baseByBu.capacity()];
         UnsafeByteBufferOps.fillTargetByteArray(this.baseByBu, 0, bytes, 0, bytes.length);
         return bytes;

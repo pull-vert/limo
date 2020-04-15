@@ -2,7 +2,7 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.memory;
+package io.limo;
 
 import io.limo.Reader;
 

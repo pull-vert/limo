@@ -4,6 +4,7 @@
 
 package io.limo.memory;
 
+import io.limo.IndexedWriter;
 import org.jetbrains.annotations.NotNull;
 
 public interface MutableOffHeap extends OffHeap, IndexedWriter {

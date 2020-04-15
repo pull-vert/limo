@@ -192,6 +192,10 @@ public final class UnsafeAccess {
         UNSAFE.putByte(address, value);
     }
 
+    static void putInt(long address, int value) {
+        UNSAFE.putInt(address, value);
+    }
+
     static byte getByte(Object target, long offset) {
         return UNSAFE.getByte(target, offset);
     }

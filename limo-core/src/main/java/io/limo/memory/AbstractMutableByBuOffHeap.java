@@ -10,13 +10,13 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-public abstract class AbstractMutableByBuOffHeap extends AbstractMutableOffHeap implements MutableByBuOffHeap {
+public abstract class AbstractMutableByBuOffHeap extends AbstractMutableOffHeap<AbstractMutableByBuOffHeap> implements MutableByBuOffHeap {
 
     /**
      * Instantiate a readonly AbstractByteBufferOffHeap from a ByteBuffer
      */
     protected AbstractMutableByBuOffHeap(@NotNull ByteBuffer bb) {
-        super(bb);
+        super(Objects.requireNonNull(bb));
     }
 
     @Override
@@ -31,7 +31,6 @@ public abstract class AbstractMutableByBuOffHeap extends AbstractMutableOffHeap 
 
     @Override
     protected final byte @NotNull [] toByteArrayNoIndexCheck() {
-        // todo change this when UnsafeOffHeapOps is available
         final var bytes = new byte[this.baseByBu.capacity()];
         UnsafeByteBufferOps.fillTargetByteArray(this.baseByBu, 0, bytes, 0, bytes.length);
         return bytes;

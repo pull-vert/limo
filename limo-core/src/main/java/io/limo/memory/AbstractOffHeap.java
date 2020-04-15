@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * Base abstract implementation of {@link OffHeap} memory
  */
-public abstract class AbstractOffHeap implements OffHeap {
+public abstract class AbstractOffHeap<T extends AbstractOffHeap<T>> implements OffHeap {
 
     private long readIndex;
 

@@ -2,9 +2,7 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo.utils;
-
-import io.limo.internal.utils.UnsafeArrayOps;
+package io.limo.internal.utils;
 
 public final class AsciiOps {
 
