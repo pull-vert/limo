@@ -47,6 +47,7 @@ public abstract class AbstractByBuOffHeap extends AbstractOffHeap implements ByB
 
     @Override
     protected final byte @NotNull [] toByteArrayNoIndexCheck() {
+        // todo change this when UnsafeOffHeapOps is available
         final var bytes = new byte[this.baseByBu.capacity()];
         UnsafeByteBufferOps.fillTargetByteArray(this.baseByBu, 0, bytes, 0, bytes.length);
         return bytes;

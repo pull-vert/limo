@@ -22,9 +22,20 @@ import org.jetbrains.annotations.NotNull;
  *      <li>closing an view of a off-heap memory (obtained via slice, acquire) <b>does not</b> result in the release of
  *      resources</li>
  * </ul>
+ *
+ * <h2>Thread confinement</h2>
+ *
+ *  Off-heap memory support strong thread-confinement guarantees. Upon creation, they are assigned an
+ *  <em>owner thread</em>, typically the thread which initiated the creation operation. After creation, only the owner
+ *  thread will be allowed to directly manipulate the memory (e.g. close it) or access (e.g. read or write in it) the
+ *  memory region. Any attempt to perform such operations from a thread other than the owner thread will result in
+ *  throwing a {@link IllegalStateException}.
  */
 public interface OffHeap extends IndexedReader, AutoCloseable {
 
+    /**
+     * @return the byte size of this off-heap memory region
+     */
     long getByteSize();
 
     /**

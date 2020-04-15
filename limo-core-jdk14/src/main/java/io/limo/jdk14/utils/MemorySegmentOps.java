@@ -82,4 +82,13 @@ public final class MemorySegmentOps {
         }
         return segment.asByteBuffer();
     }
+
+    public static void checkStateForSegment(@NotNull MemorySegment segment) {
+        if (segment.ownerThread() != Thread.currentThread()) {
+            throw new IllegalStateException("Attempt to access segment outside owning thread");
+        }
+        if (!segment.isAlive()) {
+            throw new IllegalStateException("Segment is not alive");
+        }
+    }
 }

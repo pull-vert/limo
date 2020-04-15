@@ -64,6 +64,11 @@ final class BaseByBuOffHeap extends AbstractByBuOffHeap {
     }
 
     @Override
+    protected void checkState() {
+        // todo
+    }
+
+    @Override
     protected byte readByteAtNoIndexCheck(long index) {
         return getByteBuffer().get((int) index);
     }

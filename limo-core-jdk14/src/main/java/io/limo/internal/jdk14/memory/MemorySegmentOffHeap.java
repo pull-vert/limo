@@ -80,4 +80,9 @@ final class MemorySegmentOffHeap extends AbstractOffHeap {
     public long getWriteIndex() {
         return this.segment.byteSize();
     }
+
+    @Override
+    protected void checkState() {
+        checkStateForSegment(this.segment);
+    }
 }

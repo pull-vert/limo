@@ -4,7 +4,6 @@
 
 package io.limo.memory;
 
-import io.limo.internal.utils.UnsafeByteBufferOps;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
@@ -16,10 +15,6 @@ import java.util.Objects;
 public abstract class AbstractOffHeap implements OffHeap {
 
     private long readIndex;
-
-    // this field is present for unsafe operations
-    @SuppressWarnings("unused")
-    private final long baseAddress;
 
     /**
      * Depending on byteSize :
@@ -35,8 +30,7 @@ public abstract class AbstractOffHeap implements OffHeap {
      * Instantiate a AbstractOffHeap from a ByteBuffer, can be readonly
      */
     protected AbstractOffHeap(@NotNull ByteBuffer baseByBu, boolean isReadonly) {
-        this.baseAddress = UnsafeByteBufferOps.getBaseAddress(Objects.requireNonNull(baseByBu));
-        if (!baseByBu.isDirect()) {
+        if (!Objects.requireNonNull(baseByBu).isDirect()) {
             throw new IllegalArgumentException("Provided ByteBuffer must be Direct");
         }
         if (isReadonly) {
@@ -59,6 +53,7 @@ public abstract class AbstractOffHeap implements OffHeap {
             throw new UnsupportedOperationException(
                     String.format("This off-heap memory's size is too big to export to a byte array : byteSize=%d", getByteSize()));
         }
+        checkState();
         return toByteArrayNoIndexCheck();
     }
 
@@ -135,6 +130,14 @@ public abstract class AbstractOffHeap implements OffHeap {
         }
         return readIntAtNoIndexCheck(index);
     }
+
+    /**
+     * Check it is ok to do an operation on this off-heap memory
+     *
+     * @throws IllegalStateException if this memory has been closed, or if access occurs from a thread other
+     *                               than the thread owning this memory.
+     */
+    protected abstract void checkState();
 
     protected abstract byte[] toByteArrayNoIndexCheck();
 
