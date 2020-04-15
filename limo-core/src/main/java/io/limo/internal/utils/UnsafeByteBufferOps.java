@@ -21,10 +21,10 @@ public final class UnsafeByteBufferOps {
     }
 
     /**
-     * bulk write in ByteBuffer, in Unsafe version position is only set after all write operations
+     * Write operations in ByteBuffer without any index bound check (very dangerous !!)
      */
-    public static void write(ByteBuffer bybu, Consumer<Writer> consumer) {
-        OPS.write(bybu, consumer);
+    public static int write(ByteBuffer bybu, int index, Consumer<Writer> consumer) {
+        return OPS.write(bybu, index, consumer);
     }
 
     public static void invokeCleaner(ByteBuffer bybu) {
@@ -58,7 +58,7 @@ public final class UnsafeByteBufferOps {
 
         abstract long getBaseAddress(ByteBuffer bybu);
 
-        abstract void write(ByteBuffer bybu, Consumer<Writer> consumer);
+        abstract int write(ByteBuffer bybu, int index, Consumer<Writer> consumer);
 
         abstract void invokeCleaner(ByteBuffer bybu);
 
@@ -78,34 +78,34 @@ public final class UnsafeByteBufferOps {
 
         // this allows to write directly in off-heap Memory of a native ByteBuffer
         @Override
-        final void write(ByteBuffer bybu, Consumer<Writer> consumer) {
+        final int write(ByteBuffer bybu, int index, Consumer<Writer> consumer) {
             final var baseAddress = getBaseAddress(bybu);
-            final var bybuWriter = new UnsafeByteBufferWriter(baseAddress + bybu.position());
+            final var bybuWriter = new UnsafeByBuWriter(baseAddress + index);
             consumer.accept(bybuWriter);
-            bybu.position((int) (bybuWriter.position - baseAddress));
+            return (int) (bybuWriter.address - baseAddress);
         }
 
-        private static final class UnsafeByteBufferWriter implements Writer {
+        private static final class UnsafeByBuWriter implements Writer {
 
-            private long position;
+            private long address;
 
-            private UnsafeByteBufferWriter(long startIndex) {
-                this.position = startIndex;
+            private UnsafeByBuWriter(long startAddress) {
+                this.address = startAddress;
             }
 
             @Override
             public Writer writeByte(byte value) {
-                final var pos = this.position;
-                UnsafeAccess.putByte(pos, value);
-                this.position = pos + 1;
+                final var currentAddress = this.address;
+                UnsafeAccess.putByte(currentAddress, value);
+                this.address = currentAddress + 1;
                 return this;
             }
 
             @Override
             public Writer writeInt(int value) {
-                final var pos = this.position;
-                UnsafeAccess.putInt(this.position++, value);
-                this.position = pos + 4;
+                final var currentAddress = this.address;
+                UnsafeAccess.putInt(currentAddress, value);
+                this.address = currentAddress + 4;
                 return this;
             }
         }
@@ -139,40 +139,40 @@ public final class UnsafeByteBufferOps {
         }
 
         @Override
-        final void write(ByteBuffer bybu, Consumer<Writer> consumer) {
-            final var bybuWriter = new SafeByteBufferWriter(bybu);
+        final int write(ByteBuffer bybu, int index, Consumer<Writer> consumer) {
+            final var bybuWriter = new SafeByteBufferWriter(bybu, index);
             consumer.accept(bybuWriter);
-            bybu.position(bybuWriter.position);
+            return bybuWriter.writeIndex;
         }
 
         private static final class SafeByteBufferWriter implements Writer {
             
             private final ByteBuffer bybu;
-            private int position;
+            private int writeIndex;
 
-            private SafeByteBufferWriter(ByteBuffer bybu) {
+            private SafeByteBufferWriter(ByteBuffer bybu, int startIndex) {
                 this.bybu = bybu;
-                this.position = bybu.position();
+                this.writeIndex = startIndex;
             }
 
             @Override
             public Writer writeByte(byte value) {
-                final var pos = this.position;
-                bybu.put(pos, value);
-                this.position = pos + 1;
+                final var index = this.writeIndex;
+                bybu.put(index, value);
+                this.writeIndex = index + 1;
                 return this;
             }
 
             @Override
             public Writer writeInt(int value) {
-                final var pos = this.position;
-                bybu.putInt(pos, value);
-                this.position = pos + 4;
+                final var index = this.writeIndex;
+                bybu.putInt(index, value);
+                this.writeIndex = index + 4;
                 return this;
             }
         }
 
-        // NOP without unsafe
+        // NOP without unsafe, just wait for garbage collection :)
         @Override
         void invokeCleaner(ByteBuffer bybu) {
         }

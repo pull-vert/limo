@@ -19,9 +19,9 @@ public final class Latin1Ops {
      */
     public static ByBuOffHeap encodelatinBytesToUTF8(final byte[] bytes) {
         final var bbMemory = OffHeapFactory.allocate(bytes.length << 1);
-        final var bb = bbMemory.getByteBuffer();
-        // position in this brand new ByteBuffer starts at 0
-        UnsafeByteBufferOps.write(bb, writer -> {
+        final var bybu = bbMemory.getByteBuffer();
+        // position in new ByteBuffer starts at 0
+        final var writtenBytes = UnsafeByteBufferOps.write(bybu, 0, writer -> {
             for (int sourceIndex = 0; sourceIndex < bytes.length; sourceIndex++) {
                 byte c = bytes[sourceIndex];
                 if (c < 0) {
@@ -33,9 +33,11 @@ public final class Latin1Ops {
                 }
             }
         });
-        if (bb.position() == bbMemory.getByteSize()) {
+        // position = number of written bytes
+        bybu.position(writtenBytes);
+        if (writtenBytes == bbMemory.getByteSize()) {
             return bbMemory;
         }
-        return bbMemory.slice(0, bb.position());
+        return bbMemory.slice(0, writtenBytes);
     }
 }
