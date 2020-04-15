@@ -12,11 +12,12 @@ subprojects {
     }
 
     dependencies {
-        // import BOM
-        testImplementation platform("org.junit:junit-bom:$junit_bom_version")
-
         implementation "org.slf4j:slf4j-api:$slf4j_version"
         implementation "org.jetbrains:annotations:$jetbrains_annotations_version"
+
+
+        // import BOM
+        testImplementation platform("org.junit:junit-bom:$junit_bom_version")
 
         testImplementation 'org.junit.jupiter:junit-jupiter-api'
         testImplementation "org.assertj:assertj-core:$assertj_version"
