@@ -10,17 +10,10 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractMutableOffHeap<T extends AbstractMutableOffHeap<T>> extends AbstractOffHeap<T> implements MutableOffHeap {
-
-    private long writeIndex;
+public abstract class AbstractMutableOffHeap<T extends MutableOffHeap> extends AbstractOffHeap<T> implements MutableOffHeap {
 
     protected AbstractMutableOffHeap(@NotNull ByteBuffer baseByBu) {
-        super(Objects.requireNonNull(baseByBu), false);
-    }
-
-    @Override
-    public long getWriteIndex() {
-        return this.writeIndex;
+        super(Objects.requireNonNull(baseByBu), 0, false);
     }
 
     /**
@@ -29,11 +22,7 @@ public abstract class AbstractMutableOffHeap<T extends AbstractMutableOffHeap<T>
      */
     @Override
     public T writeByte(byte value) {
-        if (this.writeIndex >= getByteSize()) {
-            throw new IndexOutOfBoundsException(
-                    String.format("writeIndex=%d is greater or equal than byteSize=%d, there is no room left to " +
-                                    "write a byte", this.writeIndex, getByteSize()));
-        }
+        existingIndexCheck(this.writeIndex, getByteSize(), 1);
         final var index = this.writeIndex;
         writeByteAtNoIndexCheck(index, value);
         this.writeIndex = index + 1;
@@ -46,11 +35,7 @@ public abstract class AbstractMutableOffHeap<T extends AbstractMutableOffHeap<T>
      */
     @Override
     public T writeInt(int value) {
-        if (this.writeIndex > getByteSize() - 4) {
-            throw new IndexOutOfBoundsException(
-                    String.format("writeIndex=%d is greater than (byteSize=%d - 4), there is no room left to write a " +
-                            "4-byte int", this.writeIndex, getByteSize()));
-        }
+        existingIndexCheck(this.writeIndex, getByteSize(), 4);
         final var index = this.writeIndex;
         writeIntAtNoIndexCheck(index, value);
         this.writeIndex = index + 4;
@@ -63,12 +48,7 @@ public abstract class AbstractMutableOffHeap<T extends AbstractMutableOffHeap<T>
      */
     @Override
     public T writeByteAt(long index, byte value) {
-        if (index < 0 || index > getWriteIndex() || index >= getByteSize()) {
-            throw new IndexOutOfBoundsException(
-                    String.format("requested index=%d is less than 0 or greater than writeIndex=%d or greater or equals " +
-                                    "than byteSize=%d, it is out of the writable bounds",
-                            index, getWriteIndex(), getByteSize()));
-        }
+        indexCheck(index, getByteSize(), 1);
         writeByteAtNoIndexCheck(index, value);
         return (T) this;
     }
@@ -79,12 +59,7 @@ public abstract class AbstractMutableOffHeap<T extends AbstractMutableOffHeap<T>
      */
     @Override
     public T writeIntAt(long index, int value) {
-        if (index < 0 || index > getWriteIndex() || index > getByteSize() - 4) {
-            throw new IndexOutOfBoundsException(
-                    String.format("requested index=%d is less than 0 or greater than writeIndex=%d or greater than " +
-                                    "(byteSize=%d - 4), it is out of the writable bounds",
-                            index, getWriteIndex(), getByteSize()));
-        }
+        indexCheck(index, getByteSize(), 4);
         writeIntAtNoIndexCheck(index, value);
         return (T) this;
     }

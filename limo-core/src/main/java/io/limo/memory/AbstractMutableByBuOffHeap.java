@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-public abstract class AbstractMutableByBuOffHeap extends AbstractMutableOffHeap<AbstractMutableByBuOffHeap> implements MutableByBuOffHeap {
+public abstract class AbstractMutableByBuOffHeap extends AbstractMutableOffHeap<MutableByBuOffHeap> implements MutableByBuOffHeap {
 
     /**
      * Instantiate a readonly AbstractByteBufferOffHeap from a ByteBuffer

@@ -19,7 +19,7 @@ import static io.limo.jdk14.utils.MemorySegmentOps.*;
 /**
  * This class contains a native {@link MemorySegment}.
  */
-final class MemorySegmentOffHeap extends AbstractOffHeap {
+final class MemorySegmentOffHeap extends AbstractOffHeap<OffHeap> {
 
     private final MemorySegment segment;
     private final MemoryAddress baseAddress;
@@ -30,7 +30,7 @@ final class MemorySegmentOffHeap extends AbstractOffHeap {
     }
 
     private MemorySegmentOffHeap(MemorySegment segment, ByteBuffer baseByBu) {
-        super(baseByBu, true);
+        super(baseByBu, segment.byteSize(), true);
         this.segment = segment;
         this.baseAddress = segment.baseAddress();
         this.baseByBu = baseByBu;
@@ -74,11 +74,6 @@ final class MemorySegmentOffHeap extends AbstractOffHeap {
     @Override
     public void close() {
         this.segment.close();
-    }
-
-    @Override
-    public long getWriteIndex() {
-        return this.segment.byteSize();
     }
 
     @Override

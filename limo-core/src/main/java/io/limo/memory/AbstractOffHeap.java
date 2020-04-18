@@ -12,9 +12,10 @@ import java.util.Objects;
 /**
  * Base abstract implementation of {@link OffHeap} memory
  */
-public abstract class AbstractOffHeap<T extends AbstractOffHeap<T>> implements OffHeap {
+public abstract class AbstractOffHeap<T extends OffHeap> implements OffHeap {
 
     private long readIndex;
+    long writeIndex;
 
     /**
      * Depending on byteSize :
@@ -29,7 +30,7 @@ public abstract class AbstractOffHeap<T extends AbstractOffHeap<T>> implements O
     /**
      * Instantiate a AbstractOffHeap from a ByteBuffer, can be readonly
      */
-    protected AbstractOffHeap(@NotNull ByteBuffer baseByBu, boolean isReadonly) {
+    protected AbstractOffHeap(@NotNull ByteBuffer baseByBu, long limit, boolean isReadonly) {
         if (!Objects.requireNonNull(baseByBu).isDirect()) {
             throw new IllegalArgumentException("Provided ByteBuffer must be Direct");
         }
@@ -45,6 +46,7 @@ public abstract class AbstractOffHeap<T extends AbstractOffHeap<T>> implements O
             }
             this.baseByBu = baseByBu;
         }
+        this.writeIndex = limit;
     }
 
     @Override
@@ -62,6 +64,11 @@ public abstract class AbstractOffHeap<T extends AbstractOffHeap<T>> implements O
         return this.readIndex;
     }
 
+    @Override
+    public final long getWriteIndex() {
+        return this.writeIndex;
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -69,11 +76,7 @@ public abstract class AbstractOffHeap<T extends AbstractOffHeap<T>> implements O
      */
     @Override
     public final byte readByte() {
-        if (this.readIndex >= getWriteIndex()) {
-            throw new IndexOutOfBoundsException(
-                    String.format("readIndex=%d is greater or equal than writeIndex=%d, there is no byte left to read",
-                            this.readIndex, getWriteIndex()));
-        }
+        existingIndexCheck(this.readIndex, this.writeIndex, 1);
         final var index = this.readIndex;
         final var val = readByteAtNoIndexCheck(index);
         this.readIndex = index + 1;
@@ -87,12 +90,7 @@ public abstract class AbstractOffHeap<T extends AbstractOffHeap<T>> implements O
      */
     @Override
     public final int readInt() {
-        if (this.readIndex > (getWriteIndex() - 4)) {
-            throw new IndexOutOfBoundsException(
-                    String.format("readIndex=%d is greater than (writeIndex=%d - 4), " +
-                                    "there are not enough bytes left to read a 4-bytes int",
-                            this.readIndex, getWriteIndex()));
-        }
+        existingIndexCheck(this.readIndex, this.writeIndex, 4);
         final var index = this.readIndex;
         final var val = readIntAtNoIndexCheck(index);
         this.readIndex = index + 4;
@@ -106,12 +104,7 @@ public abstract class AbstractOffHeap<T extends AbstractOffHeap<T>> implements O
      */
     @Override
     public final byte readByteAt(long index) {
-        if (index < 0 || index >= getWriteIndex()) {
-            throw new IndexOutOfBoundsException(
-                    String.format("requested index=%d is less than 0 or greater or equal than writeIndex=%d, " +
-                                    "it is out of the readable bounds",
-                            index, getWriteIndex()));
-        }
+        indexCheck(index, this.writeIndex, 1);
         return readByteAtNoIndexCheck(index);
     }
 
@@ -122,12 +115,7 @@ public abstract class AbstractOffHeap<T extends AbstractOffHeap<T>> implements O
      */
     @Override
     public final int readIntAt(long index) {
-        if (index < 0 || index > (getWriteIndex() - 4)) {
-            throw new IndexOutOfBoundsException(
-                    String.format("requested index=%d is less than 0 or greater than (writeIndex=%d - 4), " +
-                                    "it is out of the readable bounds",
-                            index, getWriteIndex()));
-        }
+        indexCheck(index, this.writeIndex, 4);
         return readIntAtNoIndexCheck(index);
     }
 
@@ -150,6 +138,28 @@ public abstract class AbstractOffHeap<T extends AbstractOffHeap<T>> implements O
             throw new IndexOutOfBoundsException(
                     String.format("Incorrect parameters to slice : offset=%d, length=%d, byteSize=%d",
                             offset, length, byteSize));
+        }
+    }
+
+    /**
+     * Checks that there is at least 'requestedLength' bytes available
+     */
+    protected static void indexCheck(long index, long limit, int requestedLength) {
+        if ((index | limit - index - requestedLength) < 0) {
+            throw new IndexOutOfBoundsException(
+                    String.format("requested index=%d is less than 0 or greater than (limit=%d - %d)",
+                            index, limit, requestedLength));
+        }
+    }
+
+    /**
+     * Checks that there is at least 'requestedLength' bytes available
+     */
+    protected static void existingIndexCheck(long index, long limit, int requestedLength) {
+        if (index > limit - requestedLength) {
+            throw new IndexOutOfBoundsException(
+                    String.format("requested index=%d is greater than (limit=%d - %d)",
+                            index, limit, requestedLength));
         }
     }
 }

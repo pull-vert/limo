@@ -8,11 +8,12 @@ import io.limo.internal.utils.UnsafeByteBufferOps;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 /**
  * Base abstract implementation of {@link ByBuOffHeap} memory
  */
-public abstract class AbstractByBuOffHeap extends AbstractOffHeap<AbstractByBuOffHeap> implements ByBuOffHeap {
+public abstract class AbstractByBuOffHeap extends AbstractOffHeap<ByBuOffHeap> implements ByBuOffHeap {
 
     protected AbstractByBuOffHeap(ByteBuffer bb, byte[] bytes) {
         this(UnsafeByteBufferOps.fillWithByteArray(bb, 0, bytes, 0, bytes.length));
@@ -22,7 +23,7 @@ public abstract class AbstractByBuOffHeap extends AbstractOffHeap<AbstractByBuOf
      * Instantiate a readonly AbstractByBuOffHeap from a ByteBuffer
      */
     protected AbstractByBuOffHeap(@NotNull ByteBuffer bb) {
-        super(bb, true);
+        super(Objects.requireNonNull(bb), bb.limit(), true);
     }
 
     @Override
@@ -38,11 +39,6 @@ public abstract class AbstractByBuOffHeap extends AbstractOffHeap<AbstractByBuOf
     @Override
     public final @NotNull ByteBuffer getByteBuffer() {
         return this.baseByBu;
-    }
-
-    @Override
-    public long getWriteIndex() {
-        return baseByBu.limit();
     }
 
     @Override

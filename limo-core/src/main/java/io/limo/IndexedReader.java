@@ -4,8 +4,6 @@
 
 package io.limo;
 
-import io.limo.Reader;
-
 /**
  * This interface allows to read in a memory region using a {@code readIndex}
  */
