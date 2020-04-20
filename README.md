@@ -11,8 +11,6 @@
 * Additional modules allow benefiting from additional features available in more recent JDKs, such as virtual threads and foreign memory, transparently thanks to ServiceLoader.
 These additional modules have a **-jdk1X** suffix, so you easily know which modules you can import as dependency, depending on the JDK your project uses.
 
-To compile all Limo project you will need a [Project Loom Early Access JDK](http://jdk.java.net/loom/).
-
 ## Limo features
 
 ### Virtual threads
@@ -37,6 +35,10 @@ To compile all Limo project you will need a [Project Loom Early Access JDK](http
 * JDK1X (release version is not known yet) Project Loom virtual threads (in progress)
 
 ... and more to come
+
+## Compile
+
+To compile Limo project you will need a [Project Loom Early Access JDK](http://jdk.java.net/loom/).
 
 ## Other inspiring libraries
 * [Quasar](https://github.com/puniverse/quasar), loom ancestor on JDK
