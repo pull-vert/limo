@@ -1,5 +1,7 @@
 # Limo
 
+[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
+
 * Limo is a IO library that works with one thread per IO operation, for example a multiplexed TCP server that runs with Limo will create two threads for each client Socket : one thread for read operations and one thread for write operations.
 * Limo is intended to be used in conjunction with [Project Loom virtual threads](https://wiki.openjdk.java.net/display/loom/Main) and [JDK14 foreign memory](http://cr.openjdk.java.net/~mcimadamore/panama/memaccess_javadoc/jdk/incubator/foreign/package-summary.html).
 
