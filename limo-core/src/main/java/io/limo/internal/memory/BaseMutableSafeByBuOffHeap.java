@@ -5,27 +5,20 @@
 package io.limo.internal.memory;
 
 import io.limo.internal.utils.UnsafeByteBufferOps;
-import io.limo.memory.AbstractByBuOffHeap;
 import io.limo.memory.ByBuOffHeap;
+import io.limo.memory.MutableByBuOffHeap;
+import io.limo.memory.MutableSafeByBuOffHeap;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
-final class BaseByBuOffHeap extends AbstractByBuOffHeap {
+final class BaseMutableSafeByBuOffHeap extends MutableSafeByBuOffHeap {
 
     private final Runnable doOnClose;
 
-    BaseByBuOffHeap(final ByteBuffer bb, Runnable doOnClose) {
+    BaseMutableSafeByBuOffHeap(final ByteBuffer bb, Runnable doOnClose) {
         super(bb);
         this.doOnClose = doOnClose;
-    }
-
-    /**
-     * The ByteBuffer passed as parameter will be cleaned when close method will be invoked
-     */
-    BaseByBuOffHeap(final ByteBuffer bb, byte[] bytes) {
-        super(bb, bytes);
-        this.doOnClose = cleanByteBuffer(bb);
     }
 
     static Runnable cleanByteBuffer(final ByteBuffer bb) {
@@ -38,7 +31,12 @@ final class BaseByBuOffHeap extends AbstractByBuOffHeap {
     }
 
     @Override
-    public @NotNull ByBuOffHeap slice(long offset, long length) {
+    public @NotNull ByBuOffHeap asReadOnly() {
+        return null; // todo
+    }
+
+    @Override
+    public @NotNull MutableByBuOffHeap slice(long offset, long length) {
         sliceIndexCheck(offset, length, getByteSize());
 
         // save previous values
@@ -49,7 +47,7 @@ final class BaseByBuOffHeap extends AbstractByBuOffHeap {
         getByteBuffer().limit((int) (offset + length));
         getByteBuffer().position((int) offset);
         // call constructor to do nothing on close, because invoke cleaner on a sliced ByteBuffer throws an Exception
-        final var slice = new BaseByBuOffHeap(getByteBuffer().slice(), () -> {});
+        final var slice = new BaseMutableSafeByBuOffHeap(getByteBuffer().slice(), () -> {});
 
         // re-affect previous values
         getByteBuffer().limit(limit);
@@ -66,15 +64,5 @@ final class BaseByBuOffHeap extends AbstractByBuOffHeap {
     @Override
     protected void checkState() {
         // todo
-    }
-
-    @Override
-    protected byte readByteAtNoIndexCheck(long index) {
-        return getByteBuffer().get((int) index);
-    }
-
-    @Override
-    protected int readIntAtNoIndexCheck(long index) {
-        return getByteBuffer().getInt((int) index);
     }
 }

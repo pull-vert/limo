@@ -4,14 +4,12 @@
 
 package io.limo.internal.memory;
 
-import io.limo.memory.ByBuOffHeap;
-import io.limo.memory.OffHeap;
-import io.limo.memory.OffHeapFactory;
+import io.limo.memory.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
-import static io.limo.internal.memory.BaseByBuOffHeap.cleanByteBuffer;
+import static io.limo.internal.memory.BaseMutableSafeByBuOffHeap.cleanByteBuffer;
 
 final class BaseByteBufferOffHeapFactory implements OffHeapFactory {
 
@@ -20,18 +18,25 @@ final class BaseByteBufferOffHeapFactory implements OffHeapFactory {
         if (byteSize > Integer.MAX_VALUE) {
             throw new IndexOutOfBoundsException("byteSize must be a positive Integer");
         }
-        return newByteBufferOffHeap((int) byteSize);
+        return newMutableSafeByBuOffHeap((int) byteSize);
     }
 
     @Override
-    public final @NotNull ByBuOffHeap newByteBufferOffHeap(int byteSize) {
+    public @NotNull MutableSafeByBuOffHeap newMutableSafeByBuOffHeap(int byteSize) {
         final var bb = ByteBuffer.allocateDirect(byteSize);
-        return new BaseByBuOffHeap(bb, cleanByteBuffer(bb));
+        return new BaseMutableSafeByBuOffHeap(bb, cleanByteBuffer(bb));
+    }
+
+    @Override
+    public @NotNull MutableUnsafeByBuOffHeap newMutableUnsafeByBuOffHeap(int byteSize) {
+        final var bb = ByteBuffer.allocateDirect(byteSize);
+        return new BaseMutableUnsafeByBuOffHeap(bb, cleanByteBuffer(bb));
     }
 
     @Override
     public @NotNull ByBuOffHeap newByteBufferOffHeap(byte @NotNull [] bytes) {
-        return new BaseByBuOffHeap(ByteBuffer.allocateDirect(bytes.length), bytes);
+        return null;
+        //return new BaseMutableSafeByBuOffHeap(ByteBuffer.allocateDirect(bytes.length), bytes);
     }
 
     /**

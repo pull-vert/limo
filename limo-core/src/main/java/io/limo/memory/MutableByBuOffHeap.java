@@ -22,36 +22,4 @@ public interface MutableByBuOffHeap extends ByBuOffHeap, MutableOffHeap {
      */
     @Override
     @NotNull MutableByBuOffHeap slice(long offset, long length);
-
-    /**
-     * {@inheritDoc}
-     *
-     * @implSpec {@inheritDoc}
-     */
-    @Override
-    MutableByBuOffHeap writeByte(byte value);
-
-    /**
-     * {@inheritDoc}
-     *
-     * @implSpec {@inheritDoc}
-     */
-    @Override
-    MutableByBuOffHeap writeInt(int value);
-
-    /**
-     * {@inheritDoc}
-     *
-     * @implSpec {@inheritDoc}
-     */
-    @Override
-    MutableByBuOffHeap writeByteAt(long index, byte value);
-
-    /**
-     * {@inheritDoc}
-     *
-     * @implSpec {@inheritDoc}
-     */
-    @Override
-    MutableByBuOffHeap writeIntAt(long index, int value);
 }

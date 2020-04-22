@@ -13,17 +13,17 @@ import java.util.Objects;
 /**
  * Base abstract implementation of {@link ByBuOffHeap} memory
  */
-public abstract class AbstractByBuOffHeap extends AbstractOffHeap<ByBuOffHeap> implements ByBuOffHeap {
+public abstract class SafeByBuOffHeap extends AbstractByteBufferOffHeap implements ByBuOffHeap {
 
-    protected AbstractByBuOffHeap(ByteBuffer bb, byte[] bytes) {
-        this(UnsafeByteBufferOps.fillWithByteArray(bb, 0, bytes, 0, bytes.length));
+    protected SafeByBuOffHeap(ByteBuffer bb, byte[] bytes) {
+        this(UnsafeByteBufferOps.safeFillWithByteArray(bb, 0, bytes, 0, bytes.length));
     }
 
     /**
      * Instantiate a readonly AbstractByBuOffHeap from a ByteBuffer
      */
-    protected AbstractByBuOffHeap(@NotNull ByteBuffer bb) {
-        super(Objects.requireNonNull(bb), bb.limit(), true);
+    protected SafeByBuOffHeap(@NotNull ByteBuffer bb) {
+        super(Objects.requireNonNull(bb), true, UnsafeByteBufferOps.safeReaderWriter());
     }
 
     @Override
@@ -39,12 +39,5 @@ public abstract class AbstractByBuOffHeap extends AbstractOffHeap<ByBuOffHeap> i
     @Override
     public final @NotNull ByteBuffer getByteBuffer() {
         return this.baseByBu;
-    }
-
-    @Override
-    protected final byte @NotNull [] toByteArrayNoIndexCheck() {
-        final var bytes = new byte[this.baseByBu.capacity()];
-        UnsafeByteBufferOps.fillTargetByteArray(this.baseByBu, 0, bytes, 0, bytes.length);
-        return bytes;
     }
 }

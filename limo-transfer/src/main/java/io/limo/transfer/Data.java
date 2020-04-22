@@ -4,29 +4,18 @@
 
 package io.limo.transfer;
 
-import io.limo.Reader;
-import org.jetbrains.annotations.NotNull;
+import io.limo.IndexedReader;
 import org.jetbrains.annotations.Range;
 
 /**
  * A complete read-only (immutable) binary data
  */
-public interface Data extends AutoCloseable {
+public interface Data extends IndexedReader, AutoCloseable {
 
     /**
      * @return The size (in bytes) of this binary data
      */
     @Range(from = 1, to = Long.MAX_VALUE) long getByteSize();
-
-    /**
-     * @return The data reader
-     */
-    @NotNull Reader getReader();
-
-    /**
-     * @return  The limit of this binary data
-     */
-    @Range(from = 0, to = Long.MAX_VALUE - 1) long getLimit();
 
     /**
      * Closes all resources that store binary data

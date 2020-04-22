@@ -25,9 +25,8 @@ public final class Latin1Ops {
             for (int sourceIndex = 0; sourceIndex < bytes.length; sourceIndex++) {
                 byte c = bytes[sourceIndex];
                 if (c < 0) {
-                    writer
-                            .writeByte((byte) (0xc0 | ((c & 0xff) >> 6)))
-                            .writeByte((byte) (0x80 | (c & 0x3f)));
+                    writer.writeByte((byte) (0xc0 | ((c & 0xff) >> 6)));
+                    writer.writeByte((byte) (0x80 | (c & 0x3f)));
                 } else {
                     writer.writeByte(c);
                 }

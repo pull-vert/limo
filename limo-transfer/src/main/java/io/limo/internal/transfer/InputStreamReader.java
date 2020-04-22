@@ -28,7 +28,7 @@ public final class InputStreamReader implements Reader {
         try {
             final var ch = in.read();
             if (ch < 0) {
-                throw new ReaderUnderflowException();
+                throw new IndexOutOfBoundsException("There is no byte left to read");
             }
             return (byte) ch;
         } catch (IOException ioException) {
@@ -44,14 +44,27 @@ public final class InputStreamReader implements Reader {
             final var i2 = this.in.read();
             final var i3 = this.in.read();
             if ((i0 | i1 | i2 | i3) < 0) {
-                throw new ReaderUnderflowException();
+                throw new IndexOutOfBoundsException("There is less than 4 bytes left to read");
             }
-            if (isBigEndian) {
-                return ((i0 << 24) + (i1 << 16) + (i2 << 8) + i3);
+            return ((i0 << 24) + (i1 << 16) + (i2 << 8) + i3);
+        } catch (IOException ioException) {
+            throw new LimoIOException(ioException);
+        }
+    }
+
+    /*@Override
+    public int readIntLE() {
+        try {
+            final var i0 = this.in.read();
+            final var i1 = this.in.read();
+            final var i2 = this.in.read();
+            final var i3 = this.in.read();
+            if ((i0 | i1 | i2 | i3) < 0) {
+                throw new IndexOutOfBoundsException("There is less than 4 bytes left to read");
             }
             return ((i3 << 24) + (i2 << 16) + (i1 << 8) + i0);
         } catch (IOException ioException) {
             throw new LimoIOException(ioException);
         }
-    }
+    }*/
 }

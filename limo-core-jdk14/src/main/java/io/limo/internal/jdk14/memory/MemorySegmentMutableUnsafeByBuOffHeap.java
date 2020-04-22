@@ -4,8 +4,9 @@
 
 package io.limo.internal.jdk14.memory;
 
-import io.limo.memory.AbstractByBuOffHeap;
 import io.limo.memory.ByBuOffHeap;
+import io.limo.memory.MutableByBuOffHeap;
+import io.limo.memory.MutableUnsafeByBuOffHeap;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,43 +18,38 @@ import static io.limo.jdk14.utils.MemorySegmentOps.checkStateForSegment;
  * This class contains a native {@link MemorySegment} of size < Integer.MAX_VALUE and the direct {@link ByteBuffer}
  * linked to it. They both point to the same off-heap memory region.
  */
-final class MemorySegmentByBuOffHeap extends AbstractByBuOffHeap {
+final class MemorySegmentMutableUnsafeByBuOffHeap extends MutableUnsafeByBuOffHeap {
 
     private final MemorySegment segment;
 
-    MemorySegmentByBuOffHeap(MemorySegment segment) {
+    MemorySegmentMutableUnsafeByBuOffHeap(MemorySegment segment) {
         this(segment, segment.asByteBuffer());
     }
 
-    MemorySegmentByBuOffHeap(MemorySegment segment, ByteBuffer bb) {
+    MemorySegmentMutableUnsafeByBuOffHeap(MemorySegment segment, ByteBuffer bb) {
         super(bb);
         this.segment = segment;
     }
 
-    MemorySegmentByBuOffHeap(MemorySegment segment, ByteBuffer bb, byte[] bytes) {
+    /*MemorySegmentMutableUnsafeByBuOffHeap(MemorySegment segment, ByteBuffer bb, byte[] bytes) {
         super(bb, bytes);
         this.segment = segment;
+    }*/
+
+    @Override
+    public @NotNull ByBuOffHeap asReadOnly() {
+        return null; // todo
     }
 
     @Override
-    public @NotNull ByBuOffHeap slice(long offset, long length) {
+    public @NotNull MutableByBuOffHeap slice(long offset, long length) {
         sliceIndexCheck(offset, length, getByteSize());
-        return new MemorySegmentByBuOffHeap(this.segment.asSlice(offset, length));
+        return new MemorySegmentMutableUnsafeByBuOffHeap(this.segment.asSlice(offset, length));
     }
 
     @Override
     public void close() {
         this.segment.close();
-    }
-
-    @Override
-    protected byte readByteAtNoIndexCheck(long index) {
-        return getByteBuffer().get((int) index);
-    }
-
-    @Override
-    protected int readIntAtNoIndexCheck(long index) {
-        return getByteBuffer().getInt((int) index);
     }
 
     @Override

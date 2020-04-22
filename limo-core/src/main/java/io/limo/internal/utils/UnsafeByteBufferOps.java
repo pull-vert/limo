@@ -4,17 +4,22 @@
 
 package io.limo.internal.utils;
 
-import io.limo.Writer;
-
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Util class providing unsafe optimised operations on native ByteBuffer (fallback to safe if unsafe is not supported)
  */
 public final class UnsafeByteBufferOps {
 
-    private static final Ops OPS = (UnsafeAccess.UNSAFE_BYTE_BUFFER_ADDRESS_OFFSET != null) ? new UnsafeOps() : new SafeOps();
+    public static final boolean SUPPORT_UNSAFE = UnsafeAccess.UNSAFE_BYTE_BUFFER_ADDRESS_OFFSET != null;
+
+    private static final Ops SAFE_OPS = new SafeOps();
+
+    private static final Ops UNSAFE_OPS = new SafeOps();
+
+    private static final Ops OPS = SUPPORT_UNSAFE ? UNSAFE_OPS : SAFE_OPS;
 
     // uninstanciable
     private UnsafeByteBufferOps() {
@@ -23,8 +28,23 @@ public final class UnsafeByteBufferOps {
     /**
      * Write operations in ByteBuffer without any index bound check (very dangerous !!)
      */
-    public static int write(ByteBuffer bybu, int index, Consumer<Writer> consumer) {
+    public static int write(ByteBuffer bybu, int index, Consumer<ByBuWriter> consumer) {
         return OPS.write(bybu, index, consumer);
+    }
+
+    /**
+     * Write operations in ByteBuffer without any index bound check (very dangerous !!)
+     */
+    public interface ByBuWriter {
+        void writeByte(byte value);
+    }
+
+    public static Function<ByteBuffer, IndexedByBuReaderWriter> safeReaderWriter() {
+        return SAFE_OPS::readerWriter;
+    }
+
+    public static Function<ByteBuffer, IndexedByBuReaderWriter> unsafeReaderWriter() {
+        return UNSAFE_OPS::readerWriter;
     }
 
     public static void invokeCleaner(ByteBuffer bybu) {
@@ -40,10 +60,18 @@ public final class UnsafeByteBufferOps {
 
     /**
      * Copy the contents of this byte array into a ByteBuffer.
-     * <p>Does no change position
+     * <p>Does not change position
      */
-    public static ByteBuffer fillWithByteArray(ByteBuffer bybu, int index, byte[] bytes, int offset, int length) {
-        return OPS.fillWithByteArray(bybu, index, bytes, offset, length);
+    public static ByteBuffer safeFillWithByteArray(ByteBuffer bybu, int index, byte[] bytes, int offset, int length) {
+        return SAFE_OPS.fillWithByteArray(bybu, index, bytes, offset, length);
+    }
+
+    /**
+     * Copy the contents of this byte array into a ByteBuffer.
+     * <p>Does not change position
+     */
+    public static ByteBuffer unsafeFillWithByteArray(ByteBuffer bybu, int index, byte[] bytes, int offset, int length) {
+        return UNSAFE_OPS.fillWithByteArray(bybu, index, bytes, offset, length);
     }
 
     /**
@@ -58,7 +86,9 @@ public final class UnsafeByteBufferOps {
 
         abstract long getBaseAddress(ByteBuffer bybu);
 
-        abstract int write(ByteBuffer bybu, int index, Consumer<Writer> consumer);
+        abstract int write(ByteBuffer bybu, int index, Consumer<ByBuWriter> consumer);
+
+        abstract IndexedByBuReaderWriter readerWriter(ByteBuffer bybu);
 
         abstract void invokeCleaner(ByteBuffer bybu);
 
@@ -78,35 +108,69 @@ public final class UnsafeByteBufferOps {
 
         // this allows to write directly in off-heap Memory of a native ByteBuffer
         @Override
-        final int write(ByteBuffer bybu, int index, Consumer<Writer> consumer) {
+        final int write(ByteBuffer bybu, int index, Consumer<ByBuWriter> consumer) {
             final var baseAddress = getBaseAddress(bybu);
             final var bybuWriter = new UnsafeByBuWriter(baseAddress + index);
             consumer.accept(bybuWriter);
             return (int) (bybuWriter.address - baseAddress);
         }
 
-        private static final class UnsafeByBuWriter implements Writer {
+        private static final class UnsafeByBuWriter implements ByBuWriter {
 
             private long address;
 
-            private UnsafeByBuWriter(long startAddress) {
-                this.address = startAddress;
+            private UnsafeByBuWriter(long baseAddress) {
+                this.address = baseAddress;
             }
 
             @Override
-            public Writer writeByte(byte value) {
-                final var currentAddress = this.address;
-                UnsafeAccess.putByte(currentAddress, value);
-                this.address = currentAddress + 1;
-                return this;
+            public void writeByte(byte value) {
+                UnsafeAccess.putByte(this.address++, value);
+            }
+        }
+
+        @Override
+        IndexedByBuReaderWriter readerWriter(ByteBuffer bybu) {
+            final var baseAddress = getBaseAddress(bybu);
+            return new UnsafeIndexedByBuReaderWriter(baseAddress, bybu.capacity());
+        }
+
+        private static final class UnsafeIndexedByBuReaderWriter implements IndexedByBuReaderWriter {
+
+            private final long baseAddress;
+            private final int byteSize;
+
+            private UnsafeIndexedByBuReaderWriter(long baseAddress, int byteSize) {
+                this.baseAddress = baseAddress;
+                this.byteSize = byteSize;
             }
 
             @Override
-            public Writer writeInt(int value) {
-                final var currentAddress = this.address;
-                UnsafeAccess.putInt(currentAddress, value);
-                this.address = currentAddress + 4;
-                return this;
+            public byte readByteAt(long index) {
+                return UnsafeAccess.getByte(this.baseAddress + index);
+            }
+
+            @Override
+            public int readIntAt(long index) {
+                return UnsafeAccess.getInt(this.baseAddress + index);
+            }
+
+            @Override
+            public void writeByteAt(long index, byte value) {
+                UnsafeAccess.putByte(this.baseAddress + index, value);
+            }
+
+            @Override
+            public void writeIntAt(long index, int value) {
+                UnsafeAccess.putInt(this.baseAddress + index, value);
+            }
+
+            @Override
+            public byte[] toByteArray() {
+                final var bytes = new byte[this.byteSize];
+                UnsafeAccess.copyMemory(null, this.baseAddress, bytes,
+                        UnsafeArrayOps.UnsafeOps.BYTE_ARRAY_BASE_OFFSET, this.byteSize);
+                return bytes;
             }
         }
 
@@ -139,13 +203,13 @@ public final class UnsafeByteBufferOps {
         }
 
         @Override
-        final int write(ByteBuffer bybu, int index, Consumer<Writer> consumer) {
+        final int write(ByteBuffer bybu, int index, Consumer<ByBuWriter> consumer) {
             final var bybuWriter = new SafeByteBufferWriter(bybu, index);
             consumer.accept(bybuWriter);
             return bybuWriter.writeIndex;
         }
 
-        private static final class SafeByteBufferWriter implements Writer {
+        private static final class SafeByteBufferWriter implements ByBuWriter {
             
             private final ByteBuffer bybu;
             private int writeIndex;
@@ -156,19 +220,57 @@ public final class UnsafeByteBufferOps {
             }
 
             @Override
-            public Writer writeByte(byte value) {
-                final var index = this.writeIndex;
-                bybu.put(index, value);
-                this.writeIndex = index + 1;
-                return this;
+            public void writeByte(byte value) {
+                bybu.put(this.writeIndex++, value);
+            }
+        }
+
+        @Override
+        IndexedByBuReaderWriter readerWriter(ByteBuffer bybu) {
+            return new SafeIndexedByBuReaderWriter(bybu);
+        }
+
+        private static final class SafeIndexedByBuReaderWriter implements IndexedByBuReaderWriter {
+
+            private final ByteBuffer bybu;
+
+            private SafeIndexedByBuReaderWriter(ByteBuffer bybu) {
+                this.bybu = bybu;
             }
 
             @Override
-            public Writer writeInt(int value) {
-                final var index = this.writeIndex;
-                bybu.putInt(index, value);
-                this.writeIndex = index + 4;
-                return this;
+            public byte readByteAt(long index) {
+                return bybu.get((int) index);
+            }
+
+            @Override
+            public int readIntAt(long index) {
+                return bybu.getInt((int) index);
+            }
+
+            @Override
+            public void writeByteAt(long index, byte value) {
+                bybu.put((int) index, value);
+            }
+
+            @Override
+            public void writeIntAt(long index, int value) {
+                bybu.putInt((int) index, value);
+            }
+
+            @Override
+            public byte[] toByteArray() {
+                final var bytes = new byte[this.bybu.capacity()];
+                // save previous position
+                final var position = bybu.position();
+
+                bybu.position(0);
+                bybu.get(bytes);
+
+                // re-affect previous position
+                bybu.position(position);
+
+                return bytes;
             }
         }
 

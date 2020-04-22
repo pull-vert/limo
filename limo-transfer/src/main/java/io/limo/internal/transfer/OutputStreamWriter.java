@@ -23,30 +23,37 @@ public final class OutputStreamWriter implements Writer {
     }
 
     @Override
-    public void writeByte(byte value) {
+    public OutputStreamWriter writeByte(byte value) {
         try {
             out.write(value);
         } catch (IOException ioException) {
             throw new LimoIOException(ioException);
         }
+        return this;
     }
 
     @Override
-    public void writeInt(int value) {
+    public OutputStreamWriter writeInt(int value) {
         try {
-            if (isBigEndian) {
-                out.write((value >>> 24) & 0xFF);
-                out.write((value >>> 16) & 0xFF);
-                out.write((value >>> 8) & 0xFF);
-                out.write((value) & 0xFF);
-            } else {
-                out.write((value) & 0xFF);
-                out.write((value >>> 8) & 0xFF);
-                out.write((value >>> 16) & 0xFF);
-                out.write((value >>> 24) & 0xFF);
-            }
+            out.write((value >>> 24) & 0xFF);
+            out.write((value >>> 16) & 0xFF);
+            out.write((value >>> 8) & 0xFF);
+            out.write((value) & 0xFF);
         } catch (IOException ioException) {
             throw new LimoIOException(ioException);
         }
+        return this;
     }
+
+    /*public OutputStreamWriter writeIntLE(int value) {
+        try {
+            out.write((value) & 0xFF);
+            out.write((value >>> 8) & 0xFF);
+            out.write((value >>> 16) & 0xFF);
+            out.write((value >>> 24) & 0xFF);
+        } catch (IOException ioException) {
+            throw new LimoIOException(ioException);
+        }
+        return this;
+    }*/
 }

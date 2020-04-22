@@ -4,9 +4,7 @@
 
 package io.limo.internal.jdk14.memory;
 
-import io.limo.memory.ByBuOffHeap;
-import io.limo.memory.OffHeap;
-import io.limo.memory.OffHeapFactory;
+import io.limo.memory.*;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,20 +12,26 @@ public final class MemorySegmentOffHeapFactory implements OffHeapFactory {
 
     @Override
     public final @NotNull OffHeap newOffHeap(long byteSize) {
-        return new MemorySegmentOffHeap(MemorySegment.allocateNative(byteSize));
+        return new MemorySegmentUnsafeOffHeap(MemorySegment.allocateNative(byteSize));
     }
 
     @Override
-    public final @NotNull ByBuOffHeap newByteBufferOffHeap(int byteSize) {
-        return new MemorySegmentByBuOffHeap(MemorySegment.allocateNative(byteSize));
+    public @NotNull MutableSafeByBuOffHeap newMutableSafeByBuOffHeap(int byteSize) {
+        return new MemorySegmentMutableSafeByBuOffHeap(MemorySegment.allocateNative(byteSize));
+    }
+
+    @Override
+    public @NotNull MutableUnsafeByBuOffHeap newMutableUnsafeByBuOffHeap(int byteSize) {
+        return new MemorySegmentMutableUnsafeByBuOffHeap(MemorySegment.allocateNative(byteSize));
     }
 
     @Override
     public @NotNull ByBuOffHeap newByteBufferOffHeap(byte @NotNull [] bytes) {
         // create a new native MemorySegment with capacity equals to bytes length,
         // then extract its ByteBuffer and fill it with all bytes
-        final var segment = MemorySegment.allocateNative(bytes.length);
-        return new MemorySegmentByBuOffHeap(segment, segment.asByteBuffer(), bytes);
+        /*final var segment = MemorySegment.allocateNative(bytes.length);
+        return new MemorySegmentMutableUnsafeByBuOffHeap(segment, segment.asByteBuffer(), bytes);*/
+        return null;
     }
 
     @Override

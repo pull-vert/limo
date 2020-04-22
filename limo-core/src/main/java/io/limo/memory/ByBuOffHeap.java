@@ -20,6 +20,7 @@ public interface ByBuOffHeap extends OffHeap {
 
     /**
      * {@inheritDoc}
+     *
      * @return a new ByBuOffHeap (off-heap memory represented by a direct ByteBuffer) view with updated base position
      * and limit addresses.
      */

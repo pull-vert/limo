@@ -5,6 +5,7 @@
 package io.limo.memory;
 
 import io.limo.internal.memory.OffHeapServiceLoader;
+import io.limo.internal.utils.UnsafeByteBufferOps;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -13,7 +14,9 @@ public interface OffHeapFactory {
 
     @NotNull OffHeap newOffHeap(long byteSize);
 
-    @NotNull ByBuOffHeap newByteBufferOffHeap(int byteSize);
+    @NotNull MutableSafeByBuOffHeap newMutableSafeByBuOffHeap(int byteSize);
+
+    @NotNull MutableUnsafeByBuOffHeap newMutableUnsafeByBuOffHeap(int byteSize);
 
     @NotNull ByBuOffHeap newByteBufferOffHeap(byte @NotNull [] bytes);
 
@@ -23,8 +26,11 @@ public interface OffHeapFactory {
         return OffHeapServiceLoader.OFF_HEAP_FACTORY.newOffHeap(byteSize);
     }
 
-    static @NotNull ByBuOffHeap allocate(int byteSize) {
-        return OffHeapServiceLoader.OFF_HEAP_FACTORY.newByteBufferOffHeap(byteSize);
+    static @NotNull MutableByBuOffHeap allocate(int byteSize) {
+        if (UnsafeByteBufferOps.SUPPORT_UNSAFE) {
+            return OffHeapServiceLoader.OFF_HEAP_FACTORY.newMutableUnsafeByBuOffHeap(byteSize);
+        }
+        return OffHeapServiceLoader.OFF_HEAP_FACTORY.newMutableSafeByBuOffHeap(byteSize);
     }
 
     static @NotNull ByBuOffHeap of(byte @NotNull [] bytes) {

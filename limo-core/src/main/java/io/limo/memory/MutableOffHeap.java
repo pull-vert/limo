@@ -4,10 +4,9 @@
 
 package io.limo.memory;
 
-import io.limo.IndexedWriter;
 import org.jetbrains.annotations.NotNull;
 
-public interface MutableOffHeap extends OffHeap, IndexedWriter {
+public interface MutableOffHeap extends OffHeap {
 
     /**
      * @return a new immutable OffHeap view of this MutableOffHeap.
@@ -31,34 +30,16 @@ public interface MutableOffHeap extends OffHeap, IndexedWriter {
     @NotNull MutableByBuOffHeap asByBuOffHeap();
 
     /**
-     * {@inheritDoc}
+     * Write a byte at the specified absolute {@code index}
      *
-     * @implSpec {@inheritDoc}
+     * @implNote No index check !
      */
-    @Override
-    MutableOffHeap writeByte(byte value);
+    void writeByteAt(long index, byte value);
 
     /**
-     * {@inheritDoc}
+     * Write a 4-byte int at the specified absolute {@code index}
      *
-     * @implSpec {@inheritDoc}
+     * @implNote No index check !
      */
-    @Override
-    MutableOffHeap writeInt(int value);
-
-    /**
-     * {@inheritDoc}
-     *
-     * @implSpec {@inheritDoc}
-     */
-    @Override
-    MutableOffHeap writeByteAt(long index, byte value);
-
-    /**
-     * {@inheritDoc}
-     *
-     * @implSpec {@inheritDoc}
-     */
-    @Override
-    MutableOffHeap writeIntAt(long index, int value);
+    void writeIntAt(long index, int value);
 }

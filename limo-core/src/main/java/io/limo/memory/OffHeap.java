@@ -4,7 +4,6 @@
 
 package io.limo.memory;
 
-import io.limo.IndexedReader;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -32,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
  *  memory region. Any attempt to perform such operations from a thread other than the owner thread will result in
  *  throwing a {@link IllegalStateException}.
  */
-public interface OffHeap extends IndexedReader, AutoCloseable {
+public interface OffHeap extends AutoCloseable {
 
     /**
      * @return the byte size of this off-heap memory region
@@ -84,4 +83,19 @@ public interface OffHeap extends IndexedReader, AutoCloseable {
      */
     @Override
     void close();
+
+    /**
+     * Read a byte at the specified absolute {@code index}
+     *
+     * @implNote No index check !
+     */
+    byte readByteAt(long index);
+
+    /**
+     * Read a 4-bytes int at the specified absolute {@code index}
+     * <p>bytes are read using BIG ENDIAN byte order
+     *
+     * @implNote No index check !
+     */
+    int readIntAt(long index);
 }

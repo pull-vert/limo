@@ -188,8 +188,16 @@ public final class UnsafeAccess {
         return (T) UNSAFE.allocateInstance(clazz);
     }
 
+    static byte getByte(long address) {
+        return UNSAFE.getByte(address);
+    }
+
     static void putByte(long address, byte value) {
         UNSAFE.putByte(address, value);
+    }
+
+    static int getInt(long address) {
+        return UNSAFE.getInt(address);
     }
 
     static void putInt(long address, int value) {

@@ -4,16 +4,10 @@
 
 package io.limo.transfer;
 
-import io.limo.Writer;
-import org.jetbrains.annotations.NotNull;
+import io.limo.IndexedWriter;
 
 /**
  * A complete read-write (mutable) binary data
  */
-public interface MutableData extends Data {
-
-    /**
-     * @return the data writer
-     */
-    @NotNull Writer getWriter();
+public interface MutableData extends Data, IndexedWriter {
 }

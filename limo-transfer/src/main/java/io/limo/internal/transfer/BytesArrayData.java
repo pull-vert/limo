@@ -5,7 +5,6 @@
 package io.limo.internal.transfer;
 
 import io.limo.transfer.Data;
-import io.limo.internal.bytes.Bytes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -28,7 +27,7 @@ public final class BytesArrayData extends AbstractBytesArrayData<Bytes> {
         for (final var data : rest) {
             if (data instanceof BytesArrayData) {
                 totalCapacity += ((BytesArrayData) data).writeIndex + 1;
-            } else if (data instanceof BytesData) {
+            } else if (data instanceof ByBuData) {
                 totalCapacity++;
             } else {
                 throw new IllegalArgumentException("data type " + data.getClass().getTypeName() + " is not supported");
@@ -47,15 +46,15 @@ public final class BytesArrayData extends AbstractBytesArrayData<Bytes> {
             }
             this.bytesArray = Arrays.copyOf(arrayData.bytesArray, totalCapacity);
             this.limits = Arrays.copyOf(arrayData.limits, totalCapacity);
-        } else if (first instanceof BytesData) {
-            final var bytesData = (BytesData) first;
+        } else if (first instanceof ByBuData) {
+            final var bytesData = (ByBuData) first;
             offset = 1;
             totalCapacity++;
             if (totalCapacity < DEFAULT_CAPACITY) {
                 totalCapacity = DEFAULT_CAPACITY;
             }
             this.bytesArray = new Bytes[totalCapacity];
-            this.bytesArray[0] = bytesData.bytes;
+            this.bytesArray[0] = bytesData.bybu;
             this.limits = new int[totalCapacity];
             this.limits[0] = bytesData.limit;
         } else {
@@ -72,9 +71,9 @@ public final class BytesArrayData extends AbstractBytesArrayData<Bytes> {
                 System.arraycopy(arrayData.bytesArray, 0, this.bytesArray, offset, dataLength);
                 System.arraycopy(arrayData.limits, 0, this.limits, offset, dataLength);
                 offset += dataLength;
-            } else if (first instanceof BytesData) {
-                final var bytesData = (BytesData) data;
-                this.bytesArray[offset] = bytesData.bytes;
+            } else if (first instanceof ByBuData) {
+                final var bytesData = (ByBuData) data;
+                this.bytesArray[offset] = bytesData.bybu;
                 this.limits[offset] = bytesData.limit;
                 offset++;
             }
