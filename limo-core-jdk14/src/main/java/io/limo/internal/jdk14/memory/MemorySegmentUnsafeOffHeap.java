@@ -4,6 +4,7 @@
 
 package io.limo.internal.jdk14.memory;
 
+import io.limo.jdk14.utils.MemorySegmentOps;
 import io.limo.memory.ByBuOffHeap;
 import io.limo.memory.OffHeap;
 import io.limo.memory.UnsafeOffHeap;
@@ -11,9 +12,6 @@ import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
-
-import static io.limo.jdk14.utils.MemorySegmentOps.checkStateForSegment;
-import static io.limo.jdk14.utils.MemorySegmentOps.getBaseByteBuffer;
 
 /**
  * This class contains a native {@link MemorySegment}.
@@ -24,7 +22,7 @@ final class MemorySegmentUnsafeOffHeap extends UnsafeOffHeap {
     private final ByteBuffer baseByBu;
 
     MemorySegmentUnsafeOffHeap(MemorySegment segment) {
-        this(segment, getBaseByteBuffer(segment));
+        this(segment, MemorySegmentOps.getBaseByteBuffer(segment));
     }
 
     private MemorySegmentUnsafeOffHeap(MemorySegment segment, ByteBuffer baseByBu) {
@@ -34,18 +32,18 @@ final class MemorySegmentUnsafeOffHeap extends UnsafeOffHeap {
     }
 
     @Override
-    public long getByteSize() {
+    public final long getByteSize() {
         return this.segment.byteSize();
     }
 
     @Override
-    public @NotNull OffHeap slice(long offset, long length) {
+    public final @NotNull OffHeap slice(long offset, long length) {
         sliceIndexCheck(offset, length, getByteSize());
         return new MemorySegmentUnsafeOffHeap(this.segment.asSlice(offset, length));
     }
 
     @Override
-    public @NotNull ByBuOffHeap asByBuOffHeap() {
+    public final @NotNull ByBuOffHeap asByBuOffHeap() {
         if (getByteSize() > Integer.MAX_VALUE) {
             throw new UnsupportedOperationException(
                     String.format("ByteSize=%d of this memory is too big to export as a ByBuOffHeap", getByteSize()));
@@ -54,12 +52,12 @@ final class MemorySegmentUnsafeOffHeap extends UnsafeOffHeap {
     }
 
     @Override
-    public void close() {
+    public final void close() {
         this.segment.close();
     }
 
     @Override
-    protected void checkState() {
-        checkStateForSegment(this.segment);
+    protected final void checkState() {
+        MemorySegmentOps.checkStateForSegment(this.segment);
     }
 }

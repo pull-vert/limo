@@ -4,30 +4,32 @@
 
 package io.limo.internal.memory;
 
+import io.limo.internal.utils.BaseOffHeapOps;
 import io.limo.memory.ByBuOffHeap;
-import io.limo.memory.MutableByBuOffHeap;
-import io.limo.memory.MutableSafeByBuOffHeap;
+import io.limo.memory.UnsafeByBuOffHeap;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
-final class BaseMutableSafeByBuOffHeap extends MutableSafeByBuOffHeap {
+final class BaseUnsafeByBuOffHeap extends UnsafeByBuOffHeap {
 
     private final Runnable doOnClose;
 
-    BaseMutableSafeByBuOffHeap(final ByteBuffer bb, Runnable doOnClose) {
+    BaseUnsafeByBuOffHeap(final ByteBuffer bb, Runnable doOnClose) {
         super(bb);
         this.doOnClose = doOnClose;
     }
 
-    @Override
-    public final @NotNull ByBuOffHeap asReadOnly() {
-        // call constructor to do nothing on close, because cleaner is already associated to this ByteBuffer
-        return new BaseSafeByBuOffHeap(getByteBuffer(), () -> {});
+    /**
+     * The ByteBuffer passed as parameter will be cleaned when close method will be invoked
+     */
+    BaseUnsafeByBuOffHeap(final ByteBuffer bb, byte[] bytes) {
+        super(bb, bytes);
+        this.doOnClose = BaseOffHeapOps.cleanByteBuffer(bb);
     }
 
     @Override
-    public final @NotNull MutableByBuOffHeap slice(long offset, long length) {
+    public final @NotNull ByBuOffHeap slice(long offset, long length) {
         sliceIndexCheck(offset, length, getByteSize());
 
         // save previous values
@@ -38,7 +40,7 @@ final class BaseMutableSafeByBuOffHeap extends MutableSafeByBuOffHeap {
         getByteBuffer().limit((int) (offset + length));
         getByteBuffer().position((int) offset);
         // call constructor to do nothing on close, because invoke cleaner on a sliced ByteBuffer throws an Exception
-        final var slice = new BaseMutableSafeByBuOffHeap(getByteBuffer().slice(), () -> {});
+        final var slice = new BaseUnsafeByBuOffHeap(getByteBuffer().slice(), () -> {});
 
         // re-affect previous values
         getByteBuffer().limit(limit);

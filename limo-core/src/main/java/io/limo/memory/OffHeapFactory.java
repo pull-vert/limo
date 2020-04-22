@@ -18,7 +18,9 @@ public interface OffHeapFactory {
 
     @NotNull MutableUnsafeByBuOffHeap newMutableUnsafeByBuOffHeap(int byteSize);
 
-    @NotNull ByBuOffHeap newByteBufferOffHeap(byte @NotNull [] bytes);
+    @NotNull SafeByBuOffHeap newSafeByteBufferOffHeap(byte @NotNull [] bytes);
+
+    @NotNull UnsafeByBuOffHeap newUnsafeByteBufferOffHeap(byte @NotNull [] bytes);
 
     int getLoadPriority();
 
@@ -34,6 +36,9 @@ public interface OffHeapFactory {
     }
 
     static @NotNull ByBuOffHeap of(byte @NotNull [] bytes) {
-        return OffHeapServiceLoader.OFF_HEAP_FACTORY.newByteBufferOffHeap(Objects.requireNonNull(bytes));
+        if (UnsafeByteBufferOps.SUPPORT_UNSAFE) {
+            return OffHeapServiceLoader.OFF_HEAP_FACTORY.newUnsafeByteBufferOffHeap(Objects.requireNonNull(bytes));
+        }
+        return OffHeapServiceLoader.OFF_HEAP_FACTORY.newSafeByteBufferOffHeap(Objects.requireNonNull(bytes));
     }
 }

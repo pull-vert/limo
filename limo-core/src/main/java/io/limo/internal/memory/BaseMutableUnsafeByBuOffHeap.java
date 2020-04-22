@@ -4,7 +4,6 @@
 
 package io.limo.internal.memory;
 
-import io.limo.internal.utils.UnsafeByteBufferOps;
 import io.limo.memory.ByBuOffHeap;
 import io.limo.memory.MutableByBuOffHeap;
 import io.limo.memory.MutableUnsafeByBuOffHeap;
@@ -21,22 +20,14 @@ final class BaseMutableUnsafeByBuOffHeap extends MutableUnsafeByBuOffHeap {
         this.doOnClose = doOnClose;
     }
 
-    static Runnable cleanByteBuffer(final ByteBuffer bb) {
-        return () -> {
-            // do not clean if ByteBuffer is readonly (would throw an Exception)
-            if (!bb.isReadOnly()) {
-                UnsafeByteBufferOps.invokeCleaner(bb);
-            }
-        };
+    @Override
+    public final @NotNull ByBuOffHeap asReadOnly() {
+        // call constructor to do nothing on close, because cleaner is already associated to this ByteBuffer
+        return new BaseUnsafeByBuOffHeap(getByteBuffer(), () -> {});
     }
 
     @Override
-    public @NotNull ByBuOffHeap asReadOnly() {
-        return null; // todo
-    }
-
-    @Override
-    public @NotNull MutableByBuOffHeap slice(long offset, long length) {
+    public final @NotNull MutableByBuOffHeap slice(long offset, long length) {
         sliceIndexCheck(offset, length, getByteSize());
 
         // save previous values
@@ -57,12 +48,12 @@ final class BaseMutableUnsafeByBuOffHeap extends MutableUnsafeByBuOffHeap {
     }
 
     @Override
-    public void close() {
+    public final void close() {
         doOnClose.run();
     }
 
     @Override
-    protected void checkState() {
+    protected final void checkState() {
         // todo
     }
 }
