@@ -12,7 +12,9 @@ import java.util.Objects;
 
 public interface OffHeapFactory {
 
-    @NotNull OffHeap newOffHeap(long byteSize);
+    @NotNull MutableOffHeap newSafeMutableOffHeap(long byteSize);
+
+    @NotNull MutableUnsafeOffHeap newUnsafeMutableOffHeap(long byteSize);
 
     @NotNull MutableSafeByBuOffHeap newMutableSafeByBuOffHeap(int byteSize);
 
@@ -24,8 +26,11 @@ public interface OffHeapFactory {
 
     int getLoadPriority();
 
-    static @NotNull OffHeap allocate(long byteSize) {
-        return OffHeapServiceLoader.OFF_HEAP_FACTORY.newOffHeap(byteSize);
+    static @NotNull MutableOffHeap allocate(long byteSize) {
+        if (UnsafeByteBufferOps.SUPPORT_UNSAFE) {
+            return OffHeapServiceLoader.OFF_HEAP_FACTORY.newUnsafeMutableOffHeap(byteSize);
+        }
+        return OffHeapServiceLoader.OFF_HEAP_FACTORY.newSafeMutableOffHeap(byteSize);
     }
 
     static @NotNull MutableByBuOffHeap allocate(int byteSize) {

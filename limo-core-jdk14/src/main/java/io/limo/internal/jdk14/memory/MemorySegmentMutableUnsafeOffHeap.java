@@ -5,9 +5,7 @@
 package io.limo.internal.jdk14.memory;
 
 import io.limo.jdk14.utils.MemorySegmentOps;
-import io.limo.memory.ByBuOffHeap;
-import io.limo.memory.OffHeap;
-import io.limo.memory.UnsafeOffHeap;
+import io.limo.memory.*;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,16 +14,16 @@ import java.nio.ByteBuffer;
 /**
  * This class contains a native {@link MemorySegment}.
  */
-final class MemorySegmentUnsafeOffHeap extends UnsafeOffHeap {
+final class MemorySegmentMutableUnsafeOffHeap extends MutableUnsafeOffHeap {
 
     private final MemorySegment segment;
     private final ByteBuffer baseByBu;
 
-    MemorySegmentUnsafeOffHeap(MemorySegment segment) {
+    MemorySegmentMutableUnsafeOffHeap(MemorySegment segment) {
         this(segment, MemorySegmentOps.getBaseByteBuffer(segment));
     }
 
-    private MemorySegmentUnsafeOffHeap(MemorySegment segment, ByteBuffer baseByBu) {
+    private MemorySegmentMutableUnsafeOffHeap(MemorySegment segment, ByteBuffer baseByBu) {
         super(baseByBu);
         this.segment = segment;
         this.baseByBu = baseByBu;
@@ -37,13 +35,18 @@ final class MemorySegmentUnsafeOffHeap extends UnsafeOffHeap {
     }
 
     @Override
-    public final @NotNull OffHeap slice(long offset, long length) {
-        sliceIndexCheck(offset, length, getByteSize());
-        return new MemorySegmentUnsafeOffHeap(this.segment.asSlice(offset, length));
+    public @NotNull OffHeap asReadOnly() {
+        return null; // todo
     }
 
     @Override
-    public final @NotNull ByBuOffHeap asByBuOffHeap() {
+    public final @NotNull MutableOffHeap slice(long offset, long length) {
+        sliceIndexCheck(offset, length, getByteSize());
+        return new MemorySegmentMutableUnsafeOffHeap(this.segment.asSlice(offset, length));
+    }
+
+    @Override
+    public final @NotNull MutableByBuOffHeap asByBuOffHeap() {
         if (getByteSize() > Integer.MAX_VALUE) {
             throw new UnsupportedOperationException(
                     String.format("ByteSize=%d of this memory is too big to export as a ByBuOffHeap", getByteSize()));

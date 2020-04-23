@@ -4,19 +4,18 @@
 
 package io.limo.memory;
 
-import io.limo.internal.utils.UnsafeByteBufferOps;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-public abstract class MutableUnsafeByBuOffHeap extends AbstractMutableByteBufferOffHeap implements MutableByBuOffHeap {
+public abstract class MutableUnsafeByBuOffHeap extends MutableUnsafeOffHeap implements MutableByBuOffHeap {
 
     /**
      * Instantiate a readonly AbstractByteBufferOffHeap from a ByteBuffer
      */
     protected MutableUnsafeByBuOffHeap(@NotNull ByteBuffer bb) {
-        super(Objects.requireNonNull(bb), false, UnsafeByteBufferOps.unsafeReaderWriter());
+        super(Objects.requireNonNull(bb));
     }
 
     @Override

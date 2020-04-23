@@ -12,9 +12,9 @@ import java.util.function.Function;
 
 abstract class AbstractMutableByteBufferOffHeap extends AbstractByteBufferOffHeap implements MutableOffHeap {
 
-    protected AbstractMutableByteBufferOffHeap(@NotNull ByteBuffer baseByBu, boolean isReadonly,
+    protected AbstractMutableByteBufferOffHeap(@NotNull ByteBuffer baseByBu,
                                                @NotNull Function<ByteBuffer, IndexedByBuReaderWriter> readerWriter) {
-        super(baseByBu, isReadonly, readerWriter);
+        super(baseByBu, false, readerWriter);
     }
 
     @Override

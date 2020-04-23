@@ -13,11 +13,19 @@ import java.nio.ByteBuffer;
 final class BaseByteBufferOffHeapFactory implements OffHeapFactory {
 
     @Override
-    public final @NotNull OffHeap newOffHeap(long byteSize) {
+    public @NotNull MutableOffHeap newSafeMutableOffHeap(long byteSize) {
         if (byteSize > Integer.MAX_VALUE) {
             throw new IndexOutOfBoundsException("byteSize must be a positive Integer");
         }
         return newMutableSafeByBuOffHeap((int) byteSize);
+    }
+
+    @Override
+    public @NotNull MutableUnsafeOffHeap newUnsafeMutableOffHeap(long byteSize) {
+        if (byteSize > Integer.MAX_VALUE) {
+            throw new IndexOutOfBoundsException("byteSize must be a positive Integer");
+        }
+        return newMutableUnsafeByBuOffHeap((int) byteSize);
     }
 
     @Override

@@ -11,8 +11,13 @@ import org.jetbrains.annotations.NotNull;
 public final class MemorySegmentOffHeapFactory implements OffHeapFactory {
 
     @Override
-    public final @NotNull OffHeap newOffHeap(long byteSize) {
-        return new MemorySegmentUnsafeOffHeap(MemorySegment.allocateNative(byteSize));
+    public @NotNull MutableOffHeap newSafeMutableOffHeap(long byteSize) {
+        return new MemorySegmentMutableSafeOffHeap(MemorySegment.allocateNative(byteSize));
+    }
+
+    @Override
+    public @NotNull MutableUnsafeOffHeap newUnsafeMutableOffHeap(long byteSize) {
+        return new MemorySegmentMutableUnsafeOffHeap(MemorySegment.allocateNative(byteSize));
     }
 
     @Override
