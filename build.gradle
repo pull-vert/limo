@@ -1,14 +1,13 @@
-plugins {
-    id 'org.javamodularity.moduleplugin' apply false
-}
-
 subprojects {
     apply plugin: 'java'
 //    apply plugin: 'jacoco'
-    apply plugin: 'org.javamodularity.moduleplugin'
 
     repositories {
         mavenCentral()
+    }
+
+    java {
+        modularity.inferModulePath = true
     }
 
     dependencies {
@@ -26,10 +25,6 @@ subprojects {
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
         // Force Gradle to load the JUnit Platform Launcher from the module-path
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    }
-
-    configurations.all {
-        exclude module: 'checker-framework'
     }
 
     test {
@@ -66,6 +61,6 @@ task build {
 
 // execute ./gradlew wrapper then remove .gradle directory when version change
 wrapper {
-    gradleVersion = '6.3'
+    gradleVersion = '6.4-rc-2'
     distributionType = Wrapper.DistributionType.ALL
 }
