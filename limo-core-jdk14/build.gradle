@@ -3,4 +3,6 @@ targetCompatibility = JavaVersion.VERSION_14
 
 dependencies {
     implementation project(':limo-core')
+
+    testImplementation testFixtures(project(':limo-core'))
 }

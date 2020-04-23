@@ -3,10 +3,10 @@
  */
 
 @SuppressWarnings("module")
-open module limo.limo.core.jdk14.test {
+open module limo.core.fixtures {
     requires org.junit.jupiter.api;
     requires org.assertj.core;
     requires limo.core;
-    requires limo.core.fixtures;
-    requires limo.core.jdk14;
+
+    exports io.limo.fixtures.memory;
 }
