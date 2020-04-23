@@ -15,4 +15,4 @@ include 'limo-core-jdk15'
 //include 'limo-tcp'
 //include 'limo-transfer'
 
-include 'benchmarks'
+//include 'benchmarks'
