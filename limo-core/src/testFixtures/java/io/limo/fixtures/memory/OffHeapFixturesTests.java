@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static io.limo.fixtures.BinaryTestData.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class OffHeapFixturesTests implements OffHeapReadTests, MutableOffHeapWriteTests {
 
@@ -44,5 +45,24 @@ public class OffHeapFixturesTests implements OffHeapReadTests, MutableOffHeapWri
     @DisplayName("Verify write using Little Endian is working with MutableOffHeap")
     void writeLE() {
         writeLETest(OffHeapFactory.allocate(10));
+    }
+
+    @Test
+    @DisplayName("Verify all operations on closed OffHeap throw IllegalStateException")
+    void closed() {
+        final var mutableBytes = OffHeapFactory.allocate( 10);
+        mutableBytes.close();
+        assertThatThrownBy(() -> mutableBytes.readByteAt(0))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("is not alive");
+        assertThatThrownBy(() -> mutableBytes.readIntAt(0))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("is not alive");
+        assertThatThrownBy(() -> mutableBytes.writeByteAt(0, FIRST_BYTE))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("is not alive");
+        assertThatThrownBy(() -> mutableBytes.writeIntAt(0, FIRST_INT))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("is not alive");
     }
 }

@@ -14,6 +14,7 @@ import java.nio.ByteBuffer;
 final class BaseSafeByBuOffHeap extends SafeByBuOffHeap {
 
     private final Runnable doOnClose;
+    private boolean closed = false;
 
     BaseSafeByBuOffHeap(final ByteBuffer bb, Runnable doOnClose) {
         super(bb);
@@ -52,10 +53,13 @@ final class BaseSafeByBuOffHeap extends SafeByBuOffHeap {
     @Override
     public final void close() {
         doOnClose.run();
+        this.closed = true;
     }
 
     @Override
     protected final void checkState() {
-        // todo
+        if (this.closed) {
+            throw new IllegalStateException("OffHeap is not alive");
+        }
     }
 }
