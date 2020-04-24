@@ -93,9 +93,17 @@ public interface OffHeap extends AutoCloseable {
 
     /**
      * Read a 4-bytes int at the specified absolute {@code index}
-     * <p>bytes are read using BIG ENDIAN byte order
+     * <p>bytes are using BIG ENDIAN byte order
      *
      * @implNote No index check !
      */
     int readIntAt(long index);
+
+    /**
+     * Read a 4-bytes int at the specified absolute {@code index}
+     * <p>bytes are using LITTLE ENDIAN byte order
+     *
+     * @implNote No index check !
+     */
+    int readIntAtLE(long index);
 }

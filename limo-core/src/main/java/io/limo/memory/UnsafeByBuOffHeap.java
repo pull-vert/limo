@@ -23,7 +23,7 @@ public abstract class UnsafeByBuOffHeap extends AbstractByteBufferOffHeap implem
      * Instantiate a readonly AbstractByBuOffHeap from a ByteBuffer
      */
     protected UnsafeByBuOffHeap(@NotNull ByteBuffer bb) {
-        super(Objects.requireNonNull(bb), true, UnsafeByteBufferOps.unsafeReaderWriter());
+        super(Objects.requireNonNull(bb), true, UnsafeByteBufferOps.UNSAFE_READER_WRITER);
     }
 
     @Override

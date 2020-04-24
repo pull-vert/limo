@@ -67,6 +67,11 @@ final class MemorySegmentMutableSafeOffHeap extends AbstractOffHeap implements M
     }
 
     @Override
+    public int readIntAtLE(long index) {
+        return MemorySegmentOps.readIntLE(this.baseAddress.addOffset(index));
+    }
+
+    @Override
     public void writeByteAt(long index, byte value) {
         MemorySegmentOps.writeByte(this.baseAddress.addOffset(index), value);
     }
@@ -74,6 +79,11 @@ final class MemorySegmentMutableSafeOffHeap extends AbstractOffHeap implements M
     @Override
     public void writeIntAt(long index, int value) {
         MemorySegmentOps.writeInt(this.baseAddress.addOffset(index), value);
+    }
+
+    @Override
+    public void writeIntAtLE(long index, int value) {
+        MemorySegmentOps.writeIntLE(this.baseAddress.addOffset(index), value);
     }
 
     @Override

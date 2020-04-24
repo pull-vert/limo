@@ -10,7 +10,13 @@ package io.limo.internal.utils;
 public interface IndexedByBuReaderWriter {
     byte readByteAt(long index);
     int readIntAt(long index);
+    default int readIntAtLE(long index) {
+        return Integer.reverseBytes(readIntAt(index));
+    }
     void writeByteAt(long index, byte value);
     void writeIntAt(long index, int value);
+    default void writeIntAtLE(long index, int value) {
+        writeIntAt(index, Integer.reverseBytes(value));
+    }
     byte[] toByteArray();
 }

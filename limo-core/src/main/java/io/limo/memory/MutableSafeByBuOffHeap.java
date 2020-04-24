@@ -16,7 +16,7 @@ public abstract class MutableSafeByBuOffHeap extends AbstractMutableByteBufferOf
      * Instantiate a readonly AbstractByteBufferOffHeap from a ByteBuffer
      */
     protected MutableSafeByBuOffHeap(@NotNull ByteBuffer bb) {
-        super(Objects.requireNonNull(bb), UnsafeByteBufferOps.safeReaderWriter());
+        super(Objects.requireNonNull(bb), UnsafeByteBufferOps.SAFE_READER_WRITER);
     }
 
     @Override

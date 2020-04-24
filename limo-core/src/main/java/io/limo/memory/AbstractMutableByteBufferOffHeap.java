@@ -28,4 +28,10 @@ abstract class AbstractMutableByteBufferOffHeap extends AbstractByteBufferOffHea
         checkState();
         this.readerWriter.writeIntAt(index, value);
     }
+
+    @Override
+    public void writeIntAtLE(long index, int value) {
+        checkState();
+        this.readerWriter.writeIntAtLE(index, value);
+    }
 }

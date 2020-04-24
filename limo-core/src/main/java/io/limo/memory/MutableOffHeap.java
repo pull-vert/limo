@@ -38,8 +38,17 @@ public interface MutableOffHeap extends OffHeap {
 
     /**
      * Write a 4-byte int at the specified absolute {@code index}
+     * <p>bytes are using BIG ENDIAN byte order
      *
      * @implNote No index check !
      */
     void writeIntAt(long index, int value);
+
+    /**
+     * Write a 4-byte int at the specified absolute {@code index}
+     * <p>bytes are using LITTLE ENDIAN byte order
+     *
+     * @implNote No index check !
+     */
+    void writeIntAtLE(long index, int value);
 }

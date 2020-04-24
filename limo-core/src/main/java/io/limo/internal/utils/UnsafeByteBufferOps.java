@@ -5,6 +5,7 @@
 package io.limo.internal.utils;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -17,9 +18,21 @@ public final class UnsafeByteBufferOps {
 
     private static final Ops SAFE_OPS = new SafeOps();
 
-    private static final Ops UNSAFE_OPS = new SafeOps();
+    private static final Ops UNSAFE_OPS = new UnsafeOps();
 
     private static final Ops OPS = SUPPORT_UNSAFE ? UNSAFE_OPS : SAFE_OPS;
+
+    public static final Function<ByteBuffer, IndexedByBuReaderWriter> SAFE_READER_WRITER =  SAFE_OPS::readerWriter;
+
+    public static final Function<ByteBuffer, IndexedByBuReaderWriter> UNSAFE_READER_WRITER;
+
+    static {
+        if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+            UNSAFE_READER_WRITER = UNSAFE_OPS::readerWriter;
+        } else {
+            UNSAFE_READER_WRITER = bybu -> new ReversedIndexedByBuReaderWriter(UNSAFE_OPS.readerWriter(bybu));
+        }
+    }
 
     // uninstanciable
     private UnsafeByteBufferOps() {
@@ -37,14 +50,6 @@ public final class UnsafeByteBufferOps {
      */
     public interface ByBuWriter {
         void writeByte(byte value);
-    }
-
-    public static Function<ByteBuffer, IndexedByBuReaderWriter> safeReaderWriter() {
-        return SAFE_OPS::readerWriter;
-    }
-
-    public static Function<ByteBuffer, IndexedByBuReaderWriter> unsafeReaderWriter() {
-        return UNSAFE_OPS::readerWriter;
     }
 
     public static void invokeCleaner(ByteBuffer bybu) {
@@ -74,17 +79,51 @@ public final class UnsafeByteBufferOps {
         return UNSAFE_OPS.fillWithByteArray(bybu, index, bytes, offset, length);
     }
 
-    /**
-     * Returns the base memory address of this ByteBuffer. Only Unsafe can provide this.
-     * <p>safe implementation always returns 0
-     */
-    public static long getBaseAddress(ByteBuffer bybu) {
-        return OPS.getBaseAddress(bybu);
+    private static final class ReversedIndexedByBuReaderWriter implements IndexedByBuReaderWriter {
+
+        private final IndexedByBuReaderWriter delegate;
+
+        private ReversedIndexedByBuReaderWriter(IndexedByBuReaderWriter delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public byte readByteAt(long index) {
+            return this.delegate.readByteAt(index);
+        }
+
+        @Override
+        public int readIntAt(long index) {
+            return Integer.reverseBytes(this.delegate.readIntAt(index));
+        }
+
+        @Override
+        public int readIntAtLE(long index) {
+            return this.delegate.readIntAt(index);
+        }
+
+        @Override
+        public void writeByteAt(long index, byte value) {
+            this.delegate.writeByteAt(index, value);
+        }
+
+        @Override
+        public void writeIntAt(long index, int value) {
+            this.delegate.writeIntAt(index, Integer.reverseBytes(value));
+        }
+
+        @Override
+        public void writeIntAtLE(long index, int value) {
+            this.delegate.writeIntAt(index, value);
+        }
+
+        @Override
+        public byte[] toByteArray() {
+            return this.delegate.toByteArray();
+        }
     }
 
     private static abstract class Ops {
-
-        abstract long getBaseAddress(ByteBuffer bybu);
 
         abstract int write(ByteBuffer bybu, int index, Consumer<ByBuWriter> consumer);
 
@@ -101,8 +140,10 @@ public final class UnsafeByteBufferOps {
 
         private static final long BYTE_BUFFER_ADDRESS_OFFSET = UnsafeAccess.UNSAFE_BYTE_BUFFER_ADDRESS_OFFSET;
 
-        @Override
-        long getBaseAddress(ByteBuffer bybu) {
+        /**
+         * Returns the base memory address of this ByteBuffer.
+         */
+        private static long getBaseAddress(ByteBuffer bybu) {
             return UnsafeAccess.getLong(bybu, BYTE_BUFFER_ADDRESS_OFFSET);
         }
 
@@ -196,11 +237,6 @@ public final class UnsafeByteBufferOps {
     }
 
     private static final class SafeOps extends Ops {
-
-        @Override
-        long getBaseAddress(ByteBuffer bybu) {
-            return 0;
-        }
 
         @Override
         final int write(ByteBuffer bybu, int index, Consumer<ByBuWriter> consumer) {

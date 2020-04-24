@@ -16,6 +16,6 @@ public abstract class MutableUnsafeOffHeap extends AbstractMutableByteBufferOffH
      * Instantiate a readonly UnsafeOffHeap from a ByteBuffer
      */
     protected MutableUnsafeOffHeap(@NotNull ByteBuffer bb) {
-        super(Objects.requireNonNull(bb), UnsafeByteBufferOps.unsafeReaderWriter());
+        super(Objects.requireNonNull(bb), UnsafeByteBufferOps.UNSAFE_READER_WRITER);
     }
 }
