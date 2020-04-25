@@ -4,6 +4,7 @@
 
 package io.limo.fixtures.memory;
 
+import io.limo.memory.MutableOffHeap;
 import io.limo.memory.OffHeapFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,20 +38,43 @@ public class OffHeapFixturesTests implements OffHeapReadTests, MutableOffHeapWri
 
     @Test
     @DisplayName("Verify write using Big Endian is working with MutableOffHeap")
-    void writeBE() {
+    void writeOffHeapBE() {
         writeBETest(OffHeapFactory.allocate(10L));
     }
 
     @Test
     @DisplayName("Verify write using Little Endian is working with MutableOffHeap")
-    void writeLE() {
+    void writeOffHeapLE() {
+        writeLETest(OffHeapFactory.allocate(10L));
+    }
+
+    @Test
+    @DisplayName("Verify write using Big Endian is working with MutableOffHeap")
+    void writeByBuOffHeapBE() {
+        writeBETest(OffHeapFactory.allocate(10));
+    }
+
+    @Test
+    @DisplayName("Verify write using Little Endian is working with MutableOffHeap")
+    void writeByBuOffHeapLE() {
         writeLETest(OffHeapFactory.allocate(10));
     }
 
     @Test
     @DisplayName("Verify all operations on closed OffHeap throw IllegalStateException")
-    void closed() {
+    void closedOffHeap() {
+        final var mutableBytes = OffHeapFactory.allocate( 10L);
+        closedTest(mutableBytes);
+    }
+
+    @Test
+    @DisplayName("Verify all operations on closed OffHeap throw IllegalStateException")
+    void closedByBuOffHeap() {
         final var mutableBytes = OffHeapFactory.allocate( 10);
+        closedTest(mutableBytes);
+    }
+
+    private void closedTest(MutableOffHeap mutableBytes) {
         mutableBytes.close();
         assertThatThrownBy(() -> mutableBytes.readByteAt(0))
                 .isInstanceOf(IllegalStateException.class)
