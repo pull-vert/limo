@@ -6,7 +6,7 @@ package io.limo.internal.memory;
 
 import io.limo.memory.ByBuOffHeap;
 import io.limo.memory.MutableByBuOffHeap;
-import io.limo.memory.MutableUnsafeByBuOffHeap;
+import io.limo.memory.impl.MutableUnsafeByBuOffHeap;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;

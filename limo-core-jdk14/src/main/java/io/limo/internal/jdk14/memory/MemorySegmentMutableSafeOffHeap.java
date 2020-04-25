@@ -5,7 +5,7 @@
 package io.limo.internal.jdk14.memory;
 
 import io.limo.jdk14.utils.MemorySegmentOps;
-import io.limo.memory.AbstractOffHeap;
+import io.limo.memory.impl.AbstractOffHeap;
 import io.limo.memory.MutableByBuOffHeap;
 import io.limo.memory.MutableOffHeap;
 import io.limo.memory.OffHeap;

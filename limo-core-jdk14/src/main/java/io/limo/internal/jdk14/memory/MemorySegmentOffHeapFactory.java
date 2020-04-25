@@ -5,6 +5,7 @@
 package io.limo.internal.jdk14.memory;
 
 import io.limo.memory.*;
+import io.limo.memory.impl.*;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 

@@ -6,6 +6,7 @@ package io.limo.internal.jdk14.memory;
 
 import io.limo.jdk14.utils.MemorySegmentOps;
 import io.limo.memory.*;
+import io.limo.memory.impl.MutableUnsafeOffHeap;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 

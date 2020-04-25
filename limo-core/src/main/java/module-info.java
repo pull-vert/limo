@@ -13,5 +13,6 @@ module limo.core {
 
     exports io.limo;
     exports io.limo.memory;
+    exports io.limo.memory.impl;
     exports io.limo.utils;
 }

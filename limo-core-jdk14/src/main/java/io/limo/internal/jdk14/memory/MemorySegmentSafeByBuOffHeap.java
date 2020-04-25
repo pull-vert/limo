@@ -5,7 +5,7 @@
 package io.limo.internal.jdk14.memory;
 
 import io.limo.memory.ByBuOffHeap;
-import io.limo.memory.SafeByBuOffHeap;
+import io.limo.memory.impl.SafeByBuOffHeap;
 import jdk.incubator.foreign.MemorySegment;
 import org.jetbrains.annotations.NotNull;
 
