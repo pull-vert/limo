@@ -13,18 +13,20 @@ import java.nio.ByteBuffer;
 
 final class BaseMutableUnsafeByBuOffHeap extends MutableUnsafeByBuOffHeap {
 
-    private final Runnable doOnClose;
+    private final Runnable cleanupAction;
+    private final Thread owner;
     private boolean closed = false;
 
-    BaseMutableUnsafeByBuOffHeap(final ByteBuffer bb, Runnable doOnClose) {
+    BaseMutableUnsafeByBuOffHeap(final ByteBuffer bb, Runnable cleanupAction, Thread owner) {
         super(bb);
-        this.doOnClose = doOnClose;
+        this.cleanupAction = cleanupAction;
+        this.owner = owner;
     }
 
     @Override
     public final @NotNull ByBuOffHeap asReadOnly() {
         // call constructor to do nothing on close, because cleaner is already associated to this ByteBuffer
-        return new BaseUnsafeByBuOffHeap(getByteBuffer(), () -> {});
+        return new BaseUnsafeByBuOffHeap(getByteBuffer(), () -> {}, this.owner);
     }
 
     @Override
@@ -39,7 +41,7 @@ final class BaseMutableUnsafeByBuOffHeap extends MutableUnsafeByBuOffHeap {
         getByteBuffer().limit((int) (offset + length));
         getByteBuffer().position((int) offset);
         // call constructor to do nothing on close, because invoke cleaner on a sliced ByteBuffer throws an Exception
-        final var slice = new BaseMutableUnsafeByBuOffHeap(getByteBuffer().slice(), () -> {});
+        final var slice = new BaseMutableUnsafeByBuOffHeap(getByteBuffer().slice(), () -> {}, this.owner);
 
         // re-affect previous values
         getByteBuffer().limit(limit);
@@ -49,13 +51,21 @@ final class BaseMutableUnsafeByBuOffHeap extends MutableUnsafeByBuOffHeap {
     }
 
     @Override
-    public final void close() {
-        doOnClose.run();
+    public final @NotNull MutableByBuOffHeap acquire() {
+        return new BaseMutableUnsafeByBuOffHeap(getByteBuffer(), () -> {}, Thread.currentThread());
+    }
+
+    @Override
+    protected final void closeAfterCheckState() {
+        this.cleanupAction.run();
         this.closed = true;
     }
 
     @Override
     protected final void checkState() {
+        if (this.owner != Thread.currentThread()) {
+            throw new IllegalStateException("Attempt to access OffHeap outside owning thread");
+        }
         if (this.closed) {
             throw new IllegalStateException("OffHeap is not alive");
         }

@@ -37,6 +37,11 @@ class MemorySegmentSafeOffHeap extends AbstractOffHeap {
     }
 
     @Override
+    public @NotNull OffHeap acquire() {
+        return new MemorySegmentSafeOffHeap(this.segment.acquire());
+    }
+
+    @Override
     public @NotNull ByBuOffHeap asByBuOffHeap() {
         if (getByteSize() > Integer.MAX_VALUE) {
             throw new UnsupportedOperationException(

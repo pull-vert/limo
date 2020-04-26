@@ -71,6 +71,14 @@ abstract class AbstractByteBufferOffHeap extends AbstractOffHeap {
         return this.readerWriter.readIntAtLE(index);
     }
 
+    @Override
+    public final void close() {
+        checkState();
+        closeAfterCheckState();
+    }
+
+    protected abstract void closeAfterCheckState();
+
     /**
      * Check it is ok to do an operation on this off-heap memory
      *

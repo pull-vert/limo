@@ -26,4 +26,13 @@ public interface ByBuOffHeap extends OffHeap {
      */
     @Override
     @NotNull ByBuOffHeap slice(long offset, long length);
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return an acquired ByBuOffHeap (off-heap memory represented by a direct ByteBuffer) which can be used to access memory associated
+     * with this OffHeap from the current thread.
+     */
+    @Override
+    @NotNull ByBuOffHeap acquire();
 }

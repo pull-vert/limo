@@ -43,6 +43,11 @@ final class MemorySegmentUnsafeOffHeap extends UnsafeOffHeap {
     }
 
     @Override
+    public final @NotNull OffHeap acquire() {
+        return new MemorySegmentUnsafeOffHeap(this.segment.acquire());
+    }
+
+    @Override
     public final @NotNull ByBuOffHeap asByBuOffHeap() {
         if (getByteSize() > Integer.MAX_VALUE) {
             throw new UnsupportedOperationException(
@@ -52,7 +57,7 @@ final class MemorySegmentUnsafeOffHeap extends UnsafeOffHeap {
     }
 
     @Override
-    public final void close() {
+    protected final void closeAfterCheckState() {
         this.segment.close();
     }
 

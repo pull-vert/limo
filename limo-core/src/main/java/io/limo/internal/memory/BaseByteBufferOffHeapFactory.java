@@ -32,23 +32,23 @@ final class BaseByteBufferOffHeapFactory implements OffHeapFactory {
     @Override
     public final @NotNull MutableSafeByBuOffHeap newMutableSafeByBuOffHeap(int byteSize) {
         final var bb = ByteBuffer.allocateDirect(byteSize);
-        return new BaseMutableSafeByBuOffHeap(bb, BaseOffHeapOps.cleanByteBuffer(bb));
+        return new BaseMutableSafeByBuOffHeap(bb, BaseOffHeapOps.cleanByteBuffer(bb), Thread.currentThread());
     }
 
     @Override
     public final @NotNull MutableUnsafeByBuOffHeap newMutableUnsafeByBuOffHeap(int byteSize) {
         final var bb = ByteBuffer.allocateDirect(byteSize);
-        return new BaseMutableUnsafeByBuOffHeap(bb, BaseOffHeapOps.cleanByteBuffer(bb));
+        return new BaseMutableUnsafeByBuOffHeap(bb, BaseOffHeapOps.cleanByteBuffer(bb), Thread.currentThread());
     }
 
     @Override
     public final @NotNull SafeByBuOffHeap newSafeByteBufferOffHeap(byte @NotNull [] bytes) {
-        return new BaseSafeByBuOffHeap(ByteBuffer.allocateDirect(bytes.length), bytes);
+        return new BaseSafeByBuOffHeap(ByteBuffer.allocateDirect(bytes.length), bytes, Thread.currentThread());
     }
 
     @Override
     public final @NotNull UnsafeByBuOffHeap newUnsafeByteBufferOffHeap(byte @NotNull [] bytes) {
-        return new BaseUnsafeByBuOffHeap(ByteBuffer.allocateDirect(bytes.length), bytes);
+        return new BaseUnsafeByBuOffHeap(ByteBuffer.allocateDirect(bytes.length), bytes, Thread.currentThread());
     }
 
     /**

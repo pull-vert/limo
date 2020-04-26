@@ -36,7 +36,7 @@ final class MemorySegmentMutableUnsafeOffHeap extends MutableUnsafeOffHeap {
     }
 
     @Override
-    public @NotNull OffHeap asReadOnly() {
+    public final @NotNull OffHeap asReadOnly() {
         return new MemorySegmentUnsafeOffHeap(this.segment.asReadOnly());
     }
 
@@ -44,6 +44,11 @@ final class MemorySegmentMutableUnsafeOffHeap extends MutableUnsafeOffHeap {
     public final @NotNull MutableOffHeap slice(long offset, long length) {
         sliceIndexCheck(offset, length, getByteSize());
         return new MemorySegmentMutableUnsafeOffHeap(this.segment.asSlice(offset, length));
+    }
+
+    @Override
+    public final @NotNull MutableOffHeap acquire() {
+        return new MemorySegmentMutableUnsafeOffHeap(this.segment.acquire());
     }
 
     @Override
@@ -56,7 +61,7 @@ final class MemorySegmentMutableUnsafeOffHeap extends MutableUnsafeOffHeap {
     }
 
     @Override
-    public final void close() {
+    protected final void closeAfterCheckState() {
         this.segment.close();
     }
 

@@ -24,6 +24,15 @@ public interface MutableOffHeap extends OffHeap {
     /**
      * {@inheritDoc}
      *
+     * @return an an acquired MutableOffHeap which can be used to access memory associated
+     * with this OffHeap from the current thread
+     */
+    @Override
+    @NotNull MutableOffHeap acquire();
+
+    /**
+     * {@inheritDoc}
+     *
      * @return a MutableByBuOffHeap (off-heap memory represented by a direct ByteBuffer) bound to the same memory
      * region as this OffHeap
      */

@@ -41,7 +41,12 @@ final class MemorySegmentMutableSafeByBuOffHeap extends MutableSafeByBuOffHeap {
     }
 
     @Override
-    public final void close() {
+    public final @NotNull MutableByBuOffHeap acquire() {
+        return new MemorySegmentMutableSafeByBuOffHeap(this.segment.acquire());
+    }
+
+    @Override
+    protected final void closeAfterCheckState() {
         this.segment.close();
     }
 }

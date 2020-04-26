@@ -22,4 +22,13 @@ public interface MutableByBuOffHeap extends ByBuOffHeap, MutableOffHeap {
      */
     @Override
     @NotNull MutableByBuOffHeap slice(long offset, long length);
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return an acquired MutableByBuOffHeap (off-heap memory represented by a direct ByteBuffer) which can be used to access memory associated
+     * with this OffHeap from the current thread.
+     */
+    @Override
+    @NotNull MutableByBuOffHeap acquire();
 }

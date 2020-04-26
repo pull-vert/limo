@@ -21,7 +21,7 @@ final class MemorySegmentMutableSafeOffHeap extends MemorySegmentSafeOffHeap imp
     }
 
     @Override
-    public @NotNull OffHeap asReadOnly() {
+    public final @NotNull OffHeap asReadOnly() {
         return new MemorySegmentSafeOffHeap(this.segment.asReadOnly());
     }
 
@@ -29,6 +29,11 @@ final class MemorySegmentMutableSafeOffHeap extends MemorySegmentSafeOffHeap imp
     public final @NotNull MutableOffHeap slice(long offset, long length) {
         sliceIndexCheck(offset, length, getByteSize());
         return new MemorySegmentMutableSafeOffHeap(this.segment.asSlice(offset, length));
+    }
+
+    @Override
+    public final @NotNull MutableOffHeap acquire() {
+        return new MemorySegmentMutableSafeOffHeap(this.segment.acquire());
     }
 
     @Override

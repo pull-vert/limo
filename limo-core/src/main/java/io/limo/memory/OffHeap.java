@@ -53,6 +53,16 @@ public interface OffHeap extends AutoCloseable {
     @NotNull OffHeap slice(long offset, long length);
 
     /**
+     * Obtains an acquired OffHeap which can be used to access memory associated
+     * with this OffHeap from the current thread. As a side-effect, this memory cannot be closed until the acquired
+     * view has been closed too (see {@link #close()}).
+     * @return an an acquired off-heap memory which can be used to access memory associated
+     * with this OffHeap from the current thread
+     * @throws IllegalStateException if this memory has been closed.
+     */
+    @NotNull OffHeap acquire();
+
+    /**
      * @return a ByBuOffHeap (off-heap memory represented by a direct ByteBuffer) bound to the same memory region as
      * this OffHeap
      * @throws UnsupportedOperationException if this off-heap memory's contents do not fit into a {@link ByBuOffHeap}
