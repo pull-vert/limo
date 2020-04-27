@@ -9,16 +9,17 @@ import io.limo.memory.OffHeapFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.ArrayList;
+
 import static io.limo.fixtures.BinaryTestData.*;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 public class OffHeapFixturesTests implements OffHeapReadTests, MutableOffHeapWriteTests {
 
     @Test
     @DisplayName("Verify MutableOffHeap allocate requested long length")
     void allocateLong() {
-        try(final var memory = OffHeapFactory.allocate(2L)) {
+        try (final var memory = OffHeapFactory.allocate(2L)) {
             assertThat(memory.getByteSize())
                     .isEqualTo(2);
         }
@@ -63,30 +64,58 @@ public class OffHeapFixturesTests implements OffHeapReadTests, MutableOffHeapWri
     @Test
     @DisplayName("Verify all operations on closed OffHeap throw IllegalStateException")
     void closedOffHeap() {
-        final var mutableBytes = OffHeapFactory.allocate( 10L);
+        final var mutableBytes = OffHeapFactory.allocate(10L);
         closedTest(mutableBytes);
     }
 
     @Test
     @DisplayName("Verify all operations on closed OffHeap throw IllegalStateException")
     void closedByBuOffHeap() {
-        final var mutableBytes = OffHeapFactory.allocate( 10);
+        final var mutableBytes = OffHeapFactory.allocate(10);
         closedTest(mutableBytes);
     }
 
-    private void closedTest(MutableOffHeap mutableBytes) {
-        mutableBytes.close();
-        assertThatThrownBy(() -> mutableBytes.readByteAt(0))
+    private void closedTest(MutableOffHeap memory) {
+        memory.close();
+        assertThatThrownBy(() -> memory.readByteAt(0))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("is not alive");
-        assertThatThrownBy(() -> mutableBytes.readIntAt(0))
+        assertThatThrownBy(() -> memory.readIntAt(0))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("is not alive");
-        assertThatThrownBy(() -> mutableBytes.writeByteAt(0, FIRST_BYTE))
+        assertThatThrownBy(() -> memory.writeByteAt(0, FIRST_BYTE))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("is not alive");
-        assertThatThrownBy(() -> mutableBytes.writeIntAt(0, FIRST_INT))
+        assertThatThrownBy(() -> memory.writeIntAt(0, FIRST_INT))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("is not alive");
+    }
+
+    @Test
+    @DisplayName("Verify all operations without calling Acquire with other thread throw IllegalStateException")
+    void threadSafetyTest() {
+        try (final var memory = OffHeapFactory.allocate(2L)) {
+            threadSafetyTest(() -> memory.readByteAt(0));
+            threadSafetyTest(() -> memory.readIntAt(0));
+            threadSafetyTest(() -> memory.writeByteAt(0, FIRST_BYTE));
+            threadSafetyTest(() -> memory.writeIntAt(0, FIRST_INT));
+        }
+    }
+
+    void threadSafetyTest(Runnable runnable) {
+        final var uncaughtExceptions = new ArrayList<Throwable>();
+        final var thread = new Thread(runnable);
+        thread.setUncaughtExceptionHandler((t, e) -> uncaughtExceptions.add(e));
+        thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            fail("Should not throw InterruptedException");
+        }
+        assertThat(uncaughtExceptions)
+                .hasSize(1);
+        assertThat(uncaughtExceptions.get(0))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContainingAll("Attempt to access", "outside owning thread");
     }
 }
