@@ -4,32 +4,31 @@
 
 package io.limo.internal.transfer;
 
-import io.limo.internal.bytes.Bytes;
-import io.limo.internal.bytes.MutableBytes;
+import io.limo.memory.MutableByBuOffHeap;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
 /**
- * A pool of {@link MutableBytes}, that allows to recycle and supply {@link Bytes} when needed
+ * A pool of {@link MutableByBuOffHeap}, that allows to recycle and supply memory when needed
  */
-public interface MutableBytesSupplier extends Supplier<MutableBytes> {
+public interface MutableMemorySupplier extends Supplier<MutableByBuOffHeap> {
 
     /**
-     * @return a {@link MutableBytes} from the pool or create new one
+     * @return a {@link MutableByBuOffHeap} from the pool or create new one
      */
     @Override
-    @NotNull MutableBytes get();
+    @NotNull MutableByBuOffHeap get();
 
     /**
-     * Returns a {@link MutableBytes} to the pool.
+     * Returns a {@link MutableByBuOffHeap} to the pool.
      *
-     * @param bytes This must be a byte sequence previously obtained
+     * @param memory This must be a byte sequence previously obtained
      *               by calling MemorySupplier::get. The caller must
      *               not touch the bytes after returning it to
      *               the pool.
      */
     @ApiStatus.Experimental
-    void recycle(@NotNull MutableBytes bytes);
+    void recycle(@NotNull MutableByBuOffHeap memory);
 }

@@ -5,7 +5,7 @@
 package io.limo.internal.transfer;
 
 import io.limo.LimoIOException;
-import io.limo.Writer;
+import io.limo.transfer.Writer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -45,7 +45,7 @@ public final class OutputStreamWriter implements Writer {
         return this;
     }
 
-    /*public OutputStreamWriter writeIntLE(int value) {
+    public OutputStreamWriter writeIntLE(int value) {
         try {
             out.write((value) & 0xFF);
             out.write((value >>> 8) & 0xFF);
@@ -55,5 +55,5 @@ public final class OutputStreamWriter implements Writer {
             throw new LimoIOException(ioException);
         }
         return this;
-    }*/
+    }
 }

@@ -2,7 +2,7 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo;
+package io.limo.transfer;
 
 /**
  * This interface allows to read in a memory region using a {@code readIndex}
@@ -35,6 +35,17 @@ public interface IndexedReader extends Reader {
     int readInt();
 
     /**
+     * Read a 4-bytes int at the current {@code readIndex}
+     * <p>bytes are read using LITTLE ENDIAN byte order
+     *
+     * @throws IndexOutOfBoundsException if {@code readIndex} is greater than {@code (writeIndex - 4)} there are not
+     * enough bytes left to read a 4-bytes int
+     * @implSpec increase {@code readIndex} by {@code 4} after read
+     */
+    @Override
+    int readIntLE();
+
+    /**
      * Read a byte at the specified absolute {@code index}
      *
      * @throws IndexOutOfBoundsException if {@code index} is less than {@code 0} or is greater or equal than
@@ -52,4 +63,14 @@ public interface IndexedReader extends Reader {
      * @implSpec do not modify {@code readIndex}
      */
     int readIntAt(long index);
+
+    /**
+     * Read a 4-bytes int at the specified absolute {@code index}
+     * <p>bytes are read using LITTLE ENDIAN byte order
+     *
+     * @throws IndexOutOfBoundsException if {@code index} is less than {@code 0} or is greater than
+     * {@code (writeIndex - 4)}, then {@code index} is out of the readable bounds
+     * @implSpec do not modify {@code readIndex}
+     */
+    int readIntAtLE(long index);
 }

@@ -4,7 +4,7 @@
 
 package io.limo.internal.transfer;
 
-import io.limo.Reader;
+import io.limo.transfer.Reader;
 
 import java.io.ByteArrayInputStream;
 

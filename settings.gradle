@@ -13,6 +13,6 @@ include 'limo-core'
 include 'limo-core-jdk14'
 include 'limo-core-jdk15'
 //include 'limo-tcp'
-//include 'limo-transfer'
+include 'limo-transfer'
 
 //include 'benchmarks'

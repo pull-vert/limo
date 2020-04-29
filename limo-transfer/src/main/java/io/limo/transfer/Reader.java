@@ -2,7 +2,7 @@
  * This is free and unencumbered software released into the public domain, following <https://unlicense.org>
  */
 
-package io.limo;
+package io.limo.transfer;
 
 /**
  * This interface allows to read some binary data
@@ -22,4 +22,11 @@ public interface Reader {
      * @throws IndexOutOfBoundsException if there is less than 4 bytes left to read
      */
     int readInt();
+
+    /**
+     * Read a 4-bytes int in the data
+     * <p>bytes are read using LITTLE ENDIAN byte order
+     * @throws IndexOutOfBoundsException if there is less than 4 bytes left to read
+     */
+    int readIntLE();
 }

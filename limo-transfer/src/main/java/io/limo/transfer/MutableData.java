@@ -4,8 +4,6 @@
 
 package io.limo.transfer;
 
-import io.limo.IndexedWriter;
-
 /**
  * A complete read-write (mutable) binary data
  */

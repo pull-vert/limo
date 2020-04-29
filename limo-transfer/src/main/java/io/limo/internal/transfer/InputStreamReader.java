@@ -5,7 +5,7 @@
 package io.limo.internal.transfer;
 
 import io.limo.LimoIOException;
-import io.limo.Reader;
+import io.limo.transfer.Reader;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -52,7 +52,7 @@ public final class InputStreamReader implements Reader {
         }
     }
 
-    /*@Override
+    @Override
     public int readIntLE() {
         try {
             final var i0 = this.in.read();
@@ -66,5 +66,5 @@ public final class InputStreamReader implements Reader {
         } catch (IOException ioException) {
             throw new LimoIOException(ioException);
         }
-    }*/
+    }
 }

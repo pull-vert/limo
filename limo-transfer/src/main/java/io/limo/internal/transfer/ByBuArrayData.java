@@ -13,11 +13,11 @@ import java.util.Objects;
 /**
  * Implementation of the immutable {@link Data} interface based on a fixed size array of {@link Bytes}
  *
- * @see MutableBytesArrayData
+ * @see MutableByBuArrayData
  */
-public final class BytesArrayData extends AbstractBytesArrayData<Bytes> {
+public final class ByBuArrayData extends AbstractByBuArrayData<Bytes> {
 
-    public BytesArrayData(@NotNull Data first, Data @NotNull ... rest) {
+    public ByBuArrayData(@NotNull Data first, Data @NotNull ... rest) {
         Objects.requireNonNull(first);
         Objects.requireNonNull(rest);
 
@@ -25,8 +25,8 @@ public final class BytesArrayData extends AbstractBytesArrayData<Bytes> {
         var totalCapacity = 0;
         // todo use instanceof pattern matching of java 14 https://openjdk.java.net/jeps/305
         for (final var data : rest) {
-            if (data instanceof BytesArrayData) {
-                totalCapacity += ((BytesArrayData) data).writeIndex + 1;
+            if (data instanceof ByBuArrayData) {
+                totalCapacity += ((ByBuArrayData) data).writeIndex + 1;
             } else if (data instanceof ByBuData) {
                 totalCapacity++;
             } else {
@@ -37,14 +37,14 @@ public final class BytesArrayData extends AbstractBytesArrayData<Bytes> {
         var byteSizesSum = first.getByteSize();
         // initiate arrays
         var offset = 0;
-        if (first instanceof BytesArrayData) {
-            final var arrayData = (BytesArrayData) first;
+        if (first instanceof ByBuArrayData) {
+            final var arrayData = (ByBuArrayData) first;
             offset = arrayData.writeIndex + 1;
             totalCapacity += offset;
             if (totalCapacity < DEFAULT_CAPACITY) {
                 totalCapacity = DEFAULT_CAPACITY;
             }
-            this.bytesArray = Arrays.copyOf(arrayData.bytesArray, totalCapacity);
+            this.bybuArray = Arrays.copyOf(arrayData.bybuArray, totalCapacity);
             this.limits = Arrays.copyOf(arrayData.limits, totalCapacity);
         } else if (first instanceof ByBuData) {
             final var bytesData = (ByBuData) first;
@@ -53,8 +53,8 @@ public final class BytesArrayData extends AbstractBytesArrayData<Bytes> {
             if (totalCapacity < DEFAULT_CAPACITY) {
                 totalCapacity = DEFAULT_CAPACITY;
             }
-            this.bytesArray = new Bytes[totalCapacity];
-            this.bytesArray[0] = bytesData.bybu;
+            this.bybuArray = new Bytes[totalCapacity];
+            this.bybuArray[0] = bytesData.bybu;
             this.limits = new int[totalCapacity];
             this.limits[0] = bytesData.limit;
         } else {
@@ -65,15 +65,15 @@ public final class BytesArrayData extends AbstractBytesArrayData<Bytes> {
         int dataLength;
         for (final var data : rest) {
             byteSizesSum += data.getByteSize();
-            if (data instanceof BytesArrayData) {
-                final var arrayData = (BytesArrayData) data;
+            if (data instanceof ByBuArrayData) {
+                final var arrayData = (ByBuArrayData) data;
                 dataLength = arrayData.writeIndex + 1;
-                System.arraycopy(arrayData.bytesArray, 0, this.bytesArray, offset, dataLength);
+                System.arraycopy(arrayData.bybuArray, 0, this.bybuArray, offset, dataLength);
                 System.arraycopy(arrayData.limits, 0, this.limits, offset, dataLength);
                 offset += dataLength;
             } else if (first instanceof ByBuData) {
                 final var bytesData = (ByBuData) data;
-                this.bytesArray[offset] = bytesData.bybu;
+                this.bybuArray[offset] = bytesData.bybu;
                 this.limits[offset] = bytesData.limit;
                 offset++;
             }

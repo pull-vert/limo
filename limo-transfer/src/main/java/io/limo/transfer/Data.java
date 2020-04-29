@@ -4,7 +4,6 @@
 
 package io.limo.transfer;
 
-import io.limo.IndexedReader;
 import org.jetbrains.annotations.Range;
 
 /**

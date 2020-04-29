@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * Implementation of the immutable {@link Data} interface based on a single {@link ByBuOffHeap}
  */
-public class ByBuData implements Data {
+public class ByBuData extends AbstractData {
 
     /**
      * The byte sequence into which the elements of this BytesData are stored
@@ -86,6 +86,20 @@ public class ByBuData implements Data {
      * @implSpec {@inheritDoc}
      */
     @Override
+    public final int readIntLE() {
+        existingIndexCheck(this.readIndex, this.writeIndex, 4);
+        final var index = this.readIndex;
+        final var val = this.bybu.readIntAtLE(index);
+        this.readIndex = index + 4;
+        return val;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @implSpec {@inheritDoc}
+     */
+    @Override
     public final byte readByteAt(long index) {
         indexCheck(index, this.writeIndex, 1);
         return this.bybu.readByteAt(index);
@@ -103,24 +117,13 @@ public class ByBuData implements Data {
     }
 
     /**
-     * Checks that there is at least 'requestedLength' bytes available
+     * {@inheritDoc}
+     *
+     * @implSpec {@inheritDoc}
      */
-    protected static void indexCheck(long index, int limit, int requestedLength) {
-        if ((index | limit - index - requestedLength) < 0) {
-            throw new IndexOutOfBoundsException(
-                    String.format("requested index=%d is less than 0 or greater than (limit=%d - %d)",
-                            index, limit, requestedLength));
-        }
-    }
-
-    /**
-     * Checks that there is at least 'requestedLength' bytes available
-     */
-    protected static void existingIndexCheck(int index, int limit, int requestedLength) {
-        if (index > limit - requestedLength) {
-            throw new IndexOutOfBoundsException(
-                    String.format("requested index=%d is greater than (limit=%d - %d)",
-                            index, limit, requestedLength));
-        }
+    @Override
+    public final int readIntAtLE(long index) {
+        indexCheck(index, this.writeIndex, 4);
+        return this.bybu.readIntAtLE(index);
     }
 }

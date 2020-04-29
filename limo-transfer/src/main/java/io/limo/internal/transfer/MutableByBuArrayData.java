@@ -5,7 +5,7 @@
 package io.limo.internal.transfer;
 
 import io.limo.transfer.MutableData;
-import io.limo.Writer;
+import io.limo.transfer.Writer;
 import io.limo.internal.bytes.MutableBytes;
 import io.limo.utils.BytesOps;
 import org.jetbrains.annotations.NotNull;
@@ -19,28 +19,28 @@ import java.util.stream.IntStream;
  * Implementation of the mutable {@link MutableData} interface based on a resizable array of {@link MutableBytes}
  *
  * @implNote Inspired by ArrayList
- * @see BytesArrayData
+ * @see ByBuArrayData
  */
-public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableBytes> implements MutableData {
+public final class MutableByBuArrayData extends AbstractByBuArrayData<MutableBytes> implements MutableData {
 
     /**
      * The bytes supplier, can act as a pool
      */
-    private final @NotNull MutableBytesSupplier mutableBytesSupplier;
+    private final @NotNull MutableMemorySupplier mutableMemorySupplier;
 
     /**
      * The data writer
      */
     private final @NotNull Writer writer;
 
-    public MutableBytesArrayData(@NotNull MutableBytesSupplier mutableBytesSupplier) {
-        this.mutableBytesSupplier = Objects.requireNonNull(mutableBytesSupplier);
+    public MutableByBuArrayData(@NotNull MutableMemorySupplier mutableMemorySupplier) {
+        this.mutableMemorySupplier = Objects.requireNonNull(mutableMemorySupplier);
 
         // init memories and limits with DEFAULT_CAPACITY size
-        this.bytesArray = new MutableBytes[DEFAULT_CAPACITY];
+        this.bybuArray = new MutableBytes[DEFAULT_CAPACITY];
         this.limits = new int[DEFAULT_CAPACITY];
         this.byteSize = 0;
-        this.bytesArray[0] = mutableBytesSupplier.get();
+        this.bybuArray[0] = mutableMemorySupplier.get();
         this.reader = new ReaderImpl();
         this.writer = new WriterImpl();
     }
@@ -51,26 +51,26 @@ public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableB
     }
 
     /**
-     * Get a new byte sequence from {@link #mutableBytesSupplier}
+     * Get a new byte sequence from {@link #mutableMemorySupplier}
      *
      * @return newly obtained byte sequence
      */
     private @NotNull MutableBytes supplyNewBytes() {
         // no room left in array
         this.writeIndex += 1;
-        if (this.writeIndex == this.bytesArray.length) {
+        if (this.writeIndex == this.bybuArray.length) {
             // increase array size by 2 times
-            final var newLength = this.bytesArray.length * 2;
-            this.bytesArray = Arrays.copyOf(bytesArray, newLength);
+            final var newLength = this.bybuArray.length * 2;
+            this.bybuArray = Arrays.copyOf(bybuArray, newLength);
             this.limits = Arrays.copyOf(limits, newLength);
         }
-        final var bytes = this.mutableBytesSupplier.get();
-        this.bytesArray[this.writeIndex] = bytes;
+        final var bytes = this.mutableMemorySupplier.get();
+        this.bybuArray[this.writeIndex] = bytes;
         return bytes;
     }
 
     /**
-     * Implementation of the {@code Writer} interface that writes in data array of {@link BytesArrayData}
+     * Implementation of the {@code Writer} interface that writes in data array of {@link ByBuArrayData}
      */
     private final class WriterImpl implements Writer {
 
@@ -95,8 +95,8 @@ public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableB
          * Current byte sequence is the last not null in the data array of {@code ArrayData}
          */
         private WriterImpl() {
-            this.bytes = IntStream.rangeClosed(1, bytesArray.length)
-                    .mapToObj(i -> bytesArray[bytesArray.length - i])
+            this.bytes = IntStream.rangeClosed(1, bybuArray.length)
+                    .mapToObj(i -> bybuArray[bybuArray.length - i])
                     .filter(Objects::nonNull)
                     .findFirst()
                     .orElseThrow();
@@ -170,7 +170,7 @@ public final class MutableBytesArrayData extends AbstractBytesArrayData<MutableB
         @Override
         public final void setByteOrder(@NotNull ByteOrder byteOrder) {
             this.isBigEndian = (byteOrder == ByteOrder.BIG_ENDIAN);
-            MutableBytesArrayData.this.setByteOrder(byteOrder);
+            MutableByBuArrayData.this.setByteOrder(byteOrder);
         }
 
         /**

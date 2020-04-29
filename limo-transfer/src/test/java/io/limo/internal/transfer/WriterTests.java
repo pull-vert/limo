@@ -4,7 +4,7 @@
 
 package io.limo.internal.transfer;
 
-import io.limo.Writer;
+import io.limo.transfer.Writer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

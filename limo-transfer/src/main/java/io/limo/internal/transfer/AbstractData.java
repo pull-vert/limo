@@ -4,12 +4,14 @@
 
 package io.limo.internal.transfer;
 
-abstract class AbstractData {
+import io.limo.transfer.Data;
+
+abstract class AbstractData implements Data {
 
     /**
      * Checks that there is at least 'requestedLength' bytes available
      */
-    protected static void indexCheck(long index, long limit, int requestedLength) {
+    protected static void indexCheck(long index, int limit, int requestedLength) {
         if ((index | limit - index - requestedLength) < 0) {
             throw new IndexOutOfBoundsException(
                     String.format("requested index=%d is less than 0 or greater than (limit=%d - %d)",
@@ -20,7 +22,7 @@ abstract class AbstractData {
     /**
      * Checks that there is at least 'requestedLength' bytes available
      */
-    protected static void existingIndexCheck(long index, long limit, int requestedLength) {
+    protected static void existingIndexCheck(int index, int limit, int requestedLength) {
         if (index > limit - requestedLength) {
             throw new IndexOutOfBoundsException(
                     String.format("requested index=%d is greater than (limit=%d - %d)",
