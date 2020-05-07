@@ -57,15 +57,15 @@ public final class MutableByBuArrayData extends AbstractByBuArrayData<MutableByt
      */
     private @NotNull MutableBytes supplyNewBytes() {
         // no room left in array
-        this.writeIndex += 1;
-        if (this.writeIndex == this.bybuArray.length) {
+        this.lastWrittenIndex += 1;
+        if (this.lastWrittenIndex == this.bybuArray.length) {
             // increase array size by 2 times
             final var newLength = this.bybuArray.length * 2;
             this.bybuArray = Arrays.copyOf(bybuArray, newLength);
             this.limits = Arrays.copyOf(limits, newLength);
         }
         final var bytes = this.mutableMemorySupplier.get();
-        this.bybuArray[this.writeIndex] = bytes;
+        this.bybuArray[this.lastWrittenIndex] = bytes;
         return bytes;
     }
 

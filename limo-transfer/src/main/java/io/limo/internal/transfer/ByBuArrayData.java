@@ -4,6 +4,7 @@
 
 package io.limo.internal.transfer;
 
+import io.limo.memory.ByBuOffHeap;
 import io.limo.transfer.Data;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,11 +12,11 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Implementation of the immutable {@link Data} interface based on a fixed size array of {@link Bytes}
+ * Implementation of the immutable {@link Data} interface based on a fixed size array of {@link ByBuOffHeap}
  *
  * @see MutableByBuArrayData
  */
-public final class ByBuArrayData extends AbstractByBuArrayData<Bytes> {
+public final class ByBuArrayData extends AbstractByBuArrayData<ByBuOffHeap> {
 
     public ByBuArrayData(@NotNull Data first, Data @NotNull ... rest) {
         Objects.requireNonNull(first);
@@ -26,7 +27,7 @@ public final class ByBuArrayData extends AbstractByBuArrayData<Bytes> {
         // todo use instanceof pattern matching of java 14 https://openjdk.java.net/jeps/305
         for (final var data : rest) {
             if (data instanceof ByBuArrayData) {
-                totalCapacity += ((ByBuArrayData) data).writeIndex + 1;
+                totalCapacity += ((ByBuArrayData) data).lastWrittenIndex + 1;
             } else if (data instanceof ByBuData) {
                 totalCapacity++;
             } else {
@@ -39,7 +40,7 @@ public final class ByBuArrayData extends AbstractByBuArrayData<Bytes> {
         var offset = 0;
         if (first instanceof ByBuArrayData) {
             final var arrayData = (ByBuArrayData) first;
-            offset = arrayData.writeIndex + 1;
+            offset = arrayData.lastWrittenIndex + 1;
             totalCapacity += offset;
             if (totalCapacity < DEFAULT_CAPACITY) {
                 totalCapacity = DEFAULT_CAPACITY;
@@ -60,14 +61,14 @@ public final class ByBuArrayData extends AbstractByBuArrayData<Bytes> {
         } else {
             throw new IllegalArgumentException("data type " + first.getClass().getTypeName() + " is not supported");
         }
-        this.writeIndex = totalCapacity;
+        this.lastWrittenIndex = totalCapacity;
 
         int dataLength;
         for (final var data : rest) {
             byteSizesSum += data.getByteSize();
             if (data instanceof ByBuArrayData) {
                 final var arrayData = (ByBuArrayData) data;
-                dataLength = arrayData.writeIndex + 1;
+                dataLength = arrayData.lastWrittenIndex + 1;
                 System.arraycopy(arrayData.bybuArray, 0, this.bybuArray, offset, dataLength);
                 System.arraycopy(arrayData.limits, 0, this.limits, offset, dataLength);
                 offset += dataLength;
